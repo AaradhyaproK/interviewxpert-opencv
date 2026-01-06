@@ -6,7 +6,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../services/firebase';
 import { jsPDF } from 'jspdf';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 
 const NetworkStatus = () => {
   const [speed, setSpeed] = React.useState<number | null>(null);
@@ -53,10 +53,10 @@ const NetworkStatus = () => {
   }
 
   return (
-    <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${statusColor}`}>
+    <div className={`flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium border transition-colors ${statusColor} whitespace-nowrap`}>
       <i className="fas fa-wifi"></i>
-      <span>{speed !== null && speed < 2 ? 'Weak' : speed !== null && speed < 5 ? 'Fair' : 'Good'} {icon}</span>
-      {speed && <span>{speed} Mbps</span>}
+      <span className="hidden sm:inline">{speed !== null && speed < 2 ? 'Weak' : speed !== null && speed < 5 ? 'Fair' : 'Good'} {icon}</span>
+      {speed && <span>{speed} <span className="hidden sm:inline">Mbps</span></span>}
     </div>
   );
 };
@@ -65,6 +65,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const { user, userProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const handleLogout = async () => {
     try {
@@ -132,8 +133,10 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <NetworkStatus />
+            <div className="flex items-center gap-2 md:gap-4">
+              <div className="hidden md:flex">
+                <NetworkStatus />
+              </div>
               <button
                 onClick={toggleTheme}
                 className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-yellow-400 transition-colors"
@@ -143,7 +146,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               </button>
               <NotificationCenter />
               
-              <div className="relative group flex items-center gap-3 border-l border-gray-200 dark:border-slate-700 pl-4 ml-2">
+              <div className="hidden md:flex relative group items-center gap-3 border-l border-gray-200 dark:border-slate-700 pl-4 ml-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
                   <div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
                     <i className="fa-solid fa-user"></i>
@@ -176,9 +179,60 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   <i className="fa-solid fa-right-from-bracket text-lg"></i>
                 </button>
               </div>
+
+              {/* Mobile Menu Button */}
+              <div className="flex md:hidden items-center">
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-slate-200 hover:text-primary hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+                >
+                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-lg animate-in slide-in-from-top-5 duration-200">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {userProfile?.role === 'recruiter' ? (
+                <>
+                  <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/recruiter/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Dashboard</Link>
+                  <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/recruiter/post') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Post Job</Link>
+                  <Link to="/recruiter/requests" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/recruiter/requests') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Requests</Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/candidate/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Available Jobs</Link>
+                  <Link to="/candidate/best-matches" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/best-matches') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Best Matches</Link>
+                  <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/interviews') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>My Interviews</Link>
+                  <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-analysis') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Analysis</Link>
+                  <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-builder') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Builder</Link>
+                </>
+              )}
+            </div>
+            <div className="pt-4 pb-4 border-t border-gray-200 dark:border-slate-800">
+              <div className="flex items-center justify-between px-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <img className="h-10 w-10 rounded-full object-cover" src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} alt="" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium leading-none text-gray-800 dark:text-white">{userProfile?.fullname}</div>
+                    <div className="text-sm font-medium leading-none text-gray-500 dark:text-slate-400 mt-1">{userProfile?.email}</div>
+                  </div>
+                </div>
+                <NetworkStatus />
+              </div>
+              <div className="mt-3 px-2 space-y-1">
+                <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-slate-800">Your Profile</Link>
+                <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-slate-800">Sign out</button>
+              </div>
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className={location.pathname === '/candidate/resume-builder' ? 'w-full' : 'max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'}>

@@ -41,6 +41,7 @@ interface Volunteering {
 const ResumeBuilder: React.FC = () => {
   const [step, setStep] = useState(1);
   const [activeTemplate, setActiveTemplate] = useState<'modern' | 'classic'>('modern');
+  const [showPreviewMobile, setShowPreviewMobile] = useState(false);
   
   // Resume State
   const [personalInfo, setPersonalInfo] = useState({
@@ -555,9 +556,9 @@ const ResumeBuilder: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto p-2 md:p-4 flex flex-col lg:flex-row gap-4 h-[calc(100vh-65px)] overflow-hidden">
+    <div className="w-full mx-auto p-2 md:p-4 flex flex-col lg:flex-row gap-4 lg:h-[calc(100vh-65px)] overflow-hidden relative">
       {/* Left Side: Wizard Form */}
-      <div className="w-full lg:w-4/12 bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800 p-4 md:p-6 flex flex-col">
+      <div className={`w-full lg:w-4/12 bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800 p-4 md:p-6 flex flex-col ${showPreviewMobile ? 'hidden lg:flex' : 'flex h-full'}`}>
         <div className="mb-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
@@ -738,8 +739,8 @@ const ResumeBuilder: React.FC = () => {
       </div>
 
       {/* Right Side: Live Preview */}
-      <div className="w-full lg:w-8/12 bg-gray-200 dark:bg-black/50 rounded-2xl p-4 overflow-auto flex justify-center items-start">
-        <div className="flex flex-col items-center">
+      <div className={`w-full lg:w-8/12 bg-gray-200 dark:bg-black/50 rounded-2xl p-4 overflow-auto justify-center items-start ${showPreviewMobile ? 'flex h-full' : 'hidden lg:flex'}`}>
+        <div className="flex flex-col items-center w-full">
           {/* Template Selector */}
           <div className="bg-white dark:bg-slate-900 p-2 rounded-full shadow-md mb-6 flex gap-2">
             <button 
@@ -756,7 +757,7 @@ const ResumeBuilder: React.FC = () => {
             </button>
           </div>
 
-        <div id="resume-preview" className={`bg-white w-[210mm] min-h-[297mm] shadow-2xl text-sm leading-relaxed transition-all duration-500 ${activeTemplate === 'modern' ? 'flex' : 'p-[20mm]'}`}>
+        <div id="resume-preview" className={`bg-white w-[210mm] min-h-[297mm] shadow-2xl text-sm leading-relaxed transition-all duration-500 origin-top transform scale-[0.4] sm:scale-[0.6] md:scale-[0.8] lg:scale-100 ${activeTemplate === 'modern' ? 'flex' : 'p-[20mm]'}`}>
           
           {activeTemplate === 'classic' ? (
           <>
@@ -994,6 +995,14 @@ const ResumeBuilder: React.FC = () => {
         </div>
       </div>
       </div>
+
+      {/* Mobile Toggle Button */}
+      <button 
+        onClick={() => setShowPreviewMobile(!showPreviewMobile)}
+        className="lg:hidden fixed bottom-6 right-6 z-50 bg-primary text-white p-4 rounded-full shadow-xl hover:bg-primary-dark transition-all"
+      >
+        {showPreviewMobile ? <i className="fas fa-edit text-xl"></i> : <i className="fas fa-eye text-xl"></i>}
+      </button>
     </div>
   );
 };
