@@ -7,36 +7,11 @@ import { sendNotification } from '../services/notificationService';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { jsPDF } from 'jspdf';
 
-const ScoreCircle: React.FC<{ score: string; label: string }> = ({ score, label }) => {
-  const value = parseInt(score) || 0;
-  const data = [{ value }, { value: 100 - value }];
-  
-  let color = '#28a745'; // success
-  if (value < 50) color = '#dc3545';
-  else if (value < 75) color = '#ffc107';
-
-  return (
-    <div className="flex flex-col items-center">
-      <div className="h-32 w-32 relative">
-        <ResponsiveContainer>
-          <PieChart>
-            <Pie data={data} innerRadius={35} outerRadius={50} startAngle={90} endAngle={-270} dataKey="value">
-              <Cell fill={color} />
-              <Cell fill="#e9ecef" />
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-xl font-bold text-gray-700 dark:text-slate-200">{score}</span>
-        </div>
-      </div>
-      <span className="mt-2 font-medium text-gray-600 dark:text-slate-400">{label}</span>
-    </div>
-  );
-};
+import { useAuth } from '../context/AuthContext';
 
 const InterviewReport: React.FC = () => {
   const { interviewId } = useParams();
+  const { userProfile } = useAuth();
   const [report, setReport] = useState<Interview | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -45,6 +20,7 @@ const InterviewReport: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [candidateEmail, setCandidateEmail] = useState('');
+  const [cvStats, setCvStats] = useState<any>(null);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -58,6 +34,10 @@ const InterviewReport: React.FC = () => {
           if (jobSnap.exists()) {
             setCompanyName(jobSnap.data().companyName);
           }
+        }
+
+        if (docSnap.data().meta && docSnap.data().meta.cvStats) {
+          setCvStats(docSnap.data().meta.cvStats);
         }
 
         // Fetch Candidate Profile & Email
@@ -200,6 +180,7 @@ const InterviewReport: React.FC = () => {
               <span className="hidden md:inline">|</span>
               <div className="flex items-center gap-2">
                 <span>Status:</span>
+                {userProfile?.role === 'recruiter' ? (
                 <select
                   value={report.status || 'Pending'}
                   onChange={(e) => handleStatusChange(e.target.value)}
@@ -215,6 +196,15 @@ const InterviewReport: React.FC = () => {
                   <option value="Hired">Hired</option>
                   <option value="Rejected">Rejected</option>
                 </select>
+                ) : (
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      report.status === 'Hired' ? 'bg-teal-100 text-teal-800' : 
+                      report.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-600'
+                  }`}>
+                    {report.status || 'Pending'}
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -241,11 +231,109 @@ const InterviewReport: React.FC = () => {
         </div>
 
         {/* Scores */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <ScoreCircle score={report.score} label="Overall Score" />
-          <ScoreCircle score={report.resumeScore} label="Resume Match" />
-          <ScoreCircle score={report.qnaScore} label="Q&A Quality" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        {/* Overall Score */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <i className="fas fa-trophy text-6xl text-blue-500"></i>
+          </div>
+          <div className="relative z-10">
+             <h3 className="text-gray-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Overall Score</h3>
+             <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{report.score}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${parseInt(report.score) >= 70 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : parseInt(report.score) >= 40 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                    {parseInt(report.score) >= 70 ? 'Excellent' : parseInt(report.score) >= 40 ? 'Good' : 'Poor'}
+                </span>
+             </div>
+             <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2">
+                <div className={`h-2 rounded-full transition-all duration-1000 ${parseInt(report.score) >= 70 ? 'bg-blue-500' : parseInt(report.score) >= 40 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${report.score}` }}></div>
+             </div>
+          </div>
         </div>
+
+        {/* Resume Score */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <i className="fas fa-file-alt text-6xl text-purple-500"></i>
+          </div>
+          <div className="relative z-10">
+             <h3 className="text-gray-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Resume Match</h3>
+             <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{report.resumeScore}</span>
+             </div>
+             <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2">
+                <div className="bg-purple-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${report.resumeScore}` }}></div>
+             </div>
+          </div>
+        </div>
+
+        {/* Q&A Score */}
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm relative overflow-hidden group hover:shadow-md transition-all">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <i className="fas fa-comments text-6xl text-orange-500"></i>
+          </div>
+          <div className="relative z-10">
+             <h3 className="text-gray-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Q&A Quality</h3>
+             <div className="flex items-baseline gap-2 mb-3">
+                <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{report.qnaScore}</span>
+             </div>
+             <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2">
+                <div className="bg-orange-500 h-2 rounded-full transition-all duration-1000" style={{ width: `${report.qnaScore}` }}></div>
+             </div>
+          </div>
+        </div>
+        </div>
+
+        {/* Visual AI Analysis Section */}
+        {cvStats && (
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm mb-8">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <i className="fas fa-eye text-blue-500"></i> Visual AI Analysis
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Eye Contact */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl text-center">
+                <div className="text-sm text-gray-500 dark:text-slate-400 mb-1">Eye Contact</div>
+                <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{cvStats.eyeContactScore}%</div>
+                <div className="w-full bg-blue-200 dark:bg-blue-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-blue-500 h-full rounded-full" style={{ width: `${cvStats.eyeContactScore}%` }}></div>
+                </div>
+              </div>
+
+              {/* Confidence */}
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-xl text-center">
+                <div className="text-sm text-gray-500 dark:text-slate-400 mb-1">Confidence Score</div>
+                <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{cvStats.confidenceScore || 85}%</div>
+                <div className="w-full bg-purple-200 dark:bg-purple-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="bg-purple-500 h-full rounded-full" style={{ width: `${cvStats.confidenceScore || 85}%` }}></div>
+                </div>
+              </div>
+
+              {/* Person Detection */}
+              <div className={`p-4 rounded-xl text-center border ${cvStats.facesDetected > 1 ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' : 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'}`}>
+                <div className="text-sm text-gray-500 dark:text-slate-400 mb-1">Person Detection</div>
+                <div className={`text-lg font-bold ${cvStats.facesDetected > 1 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'}`}>
+                  {cvStats.facesDetected > 1 ? 'Multiple Faces Detected' : 'Single Face Verified'}
+                </div>
+                <div className="text-xs mt-1 opacity-70">
+                  {cvStats.facesDetected > 1 ? 'Potential integrity violation' : 'Environment secure'}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-800">
+              <p className="text-sm text-gray-500 dark:text-slate-400 mb-2 font-medium">Dominant Expressions:</p>
+              <div className="flex gap-2 flex-wrap">
+                {Object.entries(cvStats.expressions || {}).map(([expr, count]: [string, any]) => (
+                  <span key={expr} className="px-3 py-1 bg-gray-100 dark:bg-slate-800 rounded-full text-xs capitalize text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700">
+                    {expr}: {count} frames
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* AI Feedback */}
         <div className="bg-gradient-to-br from-gray-50 to-white dark:from-slate-900 dark:to-black p-6 rounded-xl border border-gray-200 dark:border-slate-800 mb-8 shadow-inner">
@@ -259,14 +347,14 @@ const InterviewReport: React.FC = () => {
         
         {/* Integrity Warning */}
         {report.meta && report.meta.tabSwitchCount > 0 && (
-           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg">
+           <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-500 p-4 mb-8 rounded-r-lg">
              <div className="flex">
                <div className="flex-shrink-0">
-                 <i className="fas fa-exclamation-triangle text-red-500"></i>
+                 <i className="fas fa-exclamation-triangle text-red-500 dark:text-red-400"></i>
                </div>
                <div className="ml-3">
-                 <p className="text-sm text-red-700">
-                   Integrity Warning: The candidate switched tabs {report.meta.tabSwitchCount} time(s) during the interview.
+                 <p className="text-sm text-red-700 dark:text-red-300 font-medium">
+                   Integrity Warning: The candidate switched tabs <span className="font-bold">{report.meta.tabSwitchCount}</span> time(s) during the interview.
                  </p>
                </div>
              </div>
@@ -418,30 +506,130 @@ const InterviewReport: React.FC = () => {
               </div>
 
               {/* Content Grid */}
-              <div className="border-t border-gray-200 pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                   <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><i className="fas fa-briefcase text-gray-400"></i> Experience</h4>
-                   <p className="text-gray-600 text-sm whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">{profile?.experience || "No experience listed."}</p>
-                </div>
-                <div>
-                   <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><i className="fas fa-graduation-cap text-gray-400"></i> Education</h4>
-                   <p className="text-gray-600 text-sm whitespace-pre-wrap bg-gray-50 p-3 rounded-lg">{profile?.education || "No education listed."}</p>
+              <div className="border-t border-gray-200 dark:border-slate-800 pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="md:col-span-2">
+                   <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-briefcase text-gray-400"></i> Experience</h4>
+                   {profile?.experienceList && profile.experienceList.length > 0 ? (
+                     <div className="space-y-4">
+                       {profile.experienceList.map((exp: any, i: number) => (
+                         <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700">
+                           <div className="flex justify-between items-baseline mb-1">
+                             <h5 className="font-bold text-gray-800 dark:text-white">{exp.role}</h5>
+                             <span className="text-xs text-gray-500 dark:text-slate-400">{exp.duration}</span>
+                           </div>
+                           <div className="text-sm text-primary font-medium mb-2">{exp.company}</div>
+                           <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{exp.description}</p>
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profile?.experience || "No experience listed."}</p>
+                   )}
                 </div>
                 <div className="md:col-span-2">
-                   <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><i className="fas fa-tools text-gray-400"></i> Skills</h4>
+                   <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-graduation-cap text-gray-400"></i> Education</h4>
+                   {profile?.educationList && profile.educationList.length > 0 ? (
+                     <div className="space-y-4">
+                       {profile.educationList.map((edu: any, i: number) => (
+                         <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                           <div>
+                             <h5 className="font-bold text-gray-800 dark:text-white">{edu.school}</h5>
+                             <div className="text-sm text-gray-600 dark:text-slate-300">{edu.degree}</div>
+                           </div>
+                           <span className="text-sm text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 px-2 py-1 rounded border dark:border-slate-600">{edu.year}</span>
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profile?.education || "No education listed."}</p>
+                   )}
+                </div>
+
+                {profile?.projects && profile.projects.length > 0 && (
+                  <div className="md:col-span-2">
+                    <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-project-diagram text-gray-400"></i> Projects</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      {profile.projects.map((proj: any, i: number) => (
+                        <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="font-bold text-gray-800 dark:text-white">{proj.title}</h5>
+                            {proj.link && (
+                              <a href={proj.link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                                View <i className="fas fa-external-link-alt"></i>
+                              </a>
+                            )}
+                          </div>
+                          <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{proj.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {profile?.certifications && profile.certifications.length > 0 && (
+                  <div className="md:col-span-2">
+                    <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-certificate text-gray-400"></i> Certifications</h4>
+                    <div className="space-y-3">
+                      {profile.certifications.map((cert: any, i: number) => (
+                        <div key={i} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                          <div className="font-bold text-gray-800 dark:text-white text-sm">{cert.name}</div>
+                          <div className="text-xs text-gray-500 dark:text-slate-400">{cert.issuer} • {cert.year}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {profile?.volunteering && profile.volunteering.length > 0 && (
+                  <div className="md:col-span-2">
+                    <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-hands-helping text-gray-400"></i> Volunteering</h4>
+                    <div className="space-y-3">
+                      {profile.volunteering.map((vol: any, i: number) => (
+                        <div key={i} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
+                          <div className="flex justify-between items-baseline">
+                             <div className="font-bold text-gray-800 dark:text-white text-sm">{vol.role}</div>
+                             <div className="text-xs text-gray-500 dark:text-slate-400">{vol.duration}</div>
+                          </div>
+                          <div className="text-xs text-gray-600 dark:text-slate-300">{vol.organization}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="md:col-span-2">
+                   <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-tools text-gray-400"></i> Skills</h4>
                    <div className="flex flex-wrap gap-2">
                      {profile?.skills ? profile.skills.split(',').map((skill: string, i: number) => (
-                       <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">{skill.trim()}</span>
+                       <span key={i} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">{skill.trim()}</span>
                      )) : <span className="text-gray-500 text-sm">No skills listed.</span>}
                    </div>
                 </div>
 
+                {profile?.hobbies && (
+                  <div className="md:col-span-2">
+                    <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-heart text-gray-400"></i> Hobbies & Interests</h4>
+                    <p className="text-gray-600 dark:text-slate-300 text-sm bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">{profile.hobbies}</p>
+                  </div>
+                )}
+
+                {profile?.customSections && profile.customSections.length > 0 && (
+                  <div className="md:col-span-2 space-y-6">
+                    {profile.customSections.map((sec: any, i: number) => (
+                      <div key={i}>
+                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-star text-gray-400"></i> {sec.title}</h4>
+                        <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">{sec.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {profile?.preferredCategories && (
                   <div className="md:col-span-2">
-                    <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2"><i className="fas fa-layer-group text-gray-400"></i> Preferred Categories</h4>
+                    <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-layer-group text-gray-400"></i> Preferred Categories</h4>
                     <div className="flex flex-wrap gap-2">
                       {profile.preferredCategories.split(',').map((cat: string, i: number) => (
-                        <span key={i} className="px-3 py-1 bg-purple-50 text-purple-700 rounded-full text-sm font-medium">{cat.trim()}</span>
+                        <span key={i} className="px-3 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">{cat.trim()}</span>
                       ))}
                     </div>
                   </div>

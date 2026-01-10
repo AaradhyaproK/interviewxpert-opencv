@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Interview } from '../types';
 
 const MyInterviews: React.FC = () => {
-  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [realInterviews, setRealInterviews] = useState<Interview[]>([]);
+  const [mockInterviews, setMockInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
+  const [activeTab, setActiveTab] = useState<'real' | 'mock'>('real');
 
   useEffect(() => {
     // Use onAuthStateChanged to wait for the user session to initialize
@@ -22,8 +24,28 @@ const MyInterviews: React.FC = () => {
           );
           
           const snap = await getDocs(q);
-          const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Interview));
-          setInterviews(data);
+          const allInterviews = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Interview));
+
+          // Fetch mock jobs created by this user to exclude them
+          const mockJobsQuery = query(
+            collection(db, 'jobs'),
+            where('recruiterUID', '==', user.uid),
+            where('isMock', '==', true)
+          );
+          const mockJobsSnap = await getDocs(mockJobsQuery);
+          const mockJobIds = new Set(mockJobsSnap.docs.map(doc => doc.id));
+
+          // Separate interviews
+          const real: Interview[] = [];
+          const mock: Interview[] = [];
+          
+          allInterviews.forEach(interview => {
+            if (mockJobIds.has(interview.jobId)) mock.push(interview);
+            else real.push(interview);
+          });
+          
+          setRealInterviews(real);
+          setMockInterviews(mock);
         } catch (err) {
           console.error("Error fetching interviews:", err);
         }
@@ -35,7 +57,9 @@ const MyInterviews: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const filteredInterviews = interviews
+  const currentList = activeTab === 'real' ? realInterviews : mockInterviews;
+
+  const filteredInterviews = currentList
     .filter(interview => 
       ((interview as any).jobTitle || '').toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -68,6 +92,30 @@ const MyInterviews: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">My Interview History</h2>
       </div>
 
+      {/* Tabs */}
+      <div className="flex gap-6 mb-6 border-b border-gray-200 dark:border-slate-800">
+        <button
+          onClick={() => setActiveTab('real')}
+          className={`pb-3 px-1 text-sm font-bold transition-all relative ${
+            activeTab === 'real' 
+              ? 'text-primary border-b-2 border-primary' 
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Job Interviews <span className="ml-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-800 rounded-full text-xs">{realInterviews.length}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('mock')}
+          className={`pb-3 px-1 text-sm font-bold transition-all relative ${
+            activeTab === 'mock' 
+              ? 'text-primary border-b-2 border-primary' 
+              : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Mock Interviews <span className="ml-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-800 rounded-full text-xs">{mockInterviews.length}</span>
+        </button>
+      </div>
+
       <div className="mb-8 bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
@@ -98,7 +146,7 @@ const MyInterviews: React.FC = () => {
 
       {filteredInterviews.length === 0 ? (
         <div className="text-center py-10 bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-slate-800">
-          <p className="text-gray-500 dark:text-slate-400">No interviews found matching your criteria.</p>
+          <p className="text-gray-500 dark:text-slate-400">No {activeTab === 'mock' ? 'mock' : 'job'} interviews found matching your criteria.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -122,18 +170,22 @@ const MyInterviews: React.FC = () => {
               <div className="flex justify-between items-start mb-4">
                  <div>
                     <h3 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-1" title={(interview as any).jobTitle}>{(interview as any).jobTitle || 'Untitled Position'}</h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-1 mb-2">
                       <i className="far fa-calendar-alt"></i>
                       {interview.submittedAt?.toDate ? interview.submittedAt.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date N/A'}
                     </p>
                  </div>
-                 <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                    interview.status === 'Hired' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 
-                    interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
-                    'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
-                 }`}>
-                   {interview.status || 'Pending'}
-                 </span>
+                 {activeTab === 'mock' ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800">Mock</span>
+                 ) : (
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                        interview.status === 'Hired' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 
+                        interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
+                        'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                    }`}>
+                    {interview.status || 'Pending'}
+                    </span>
+                 )}
               </div>
 
               <div className="space-y-4 mb-6 flex-grow">

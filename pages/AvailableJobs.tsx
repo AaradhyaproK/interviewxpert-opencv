@@ -48,7 +48,8 @@ const AvailableJobs: React.FC = () => {
                             (job.skills && job.skills.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === 'All' || job.category === selectedCategory;
       const matchesType = selectedType === 'All' || job.type === selectedType;
-      return matchesSearch && matchesCategory && matchesType;
+      const isNotMock = !(job as any).isMock;
+      return matchesSearch && matchesCategory && matchesType && isNotMock;
     })
     .sort((a, b) => {
       if (sortBy === 'oldest') {

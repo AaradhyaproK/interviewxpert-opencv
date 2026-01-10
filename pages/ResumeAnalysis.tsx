@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
+import { collection, getDocs, query, orderBy, where, Timestamp } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 // Initialize PDF.js worker
 // Using a stable CDN version to ensure worker compatibility without complex build config
@@ -11,6 +13,124 @@ const ResumeAnalysis: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [fileName, setFileName] = useState('');
+  const [availableJobs, setAvailableJobs] = useState<any[]>([]);
+  const [jobSearchTerm, setJobSearchTerm] = useState('');
+  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [fetchingLinkedin, setFetchingLinkedin] = useState(false);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const now = Timestamp.now();
+        const q = query(collection(db, 'jobs'), where('applyDeadline', '>', now), orderBy('applyDeadline', 'asc'));
+        const snap = await getDocs(q);
+        setAvailableJobs(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (err) {
+        console.error("Error fetching jobs:", err);
+      }
+    };
+    fetchJobs();
+  }, []);
+
+  const filteredJobs = availableJobs.filter(job => 
+    (job.title || '').toLowerCase().includes(jobSearchTerm.toLowerCase()) ||
+    (job.companyName || '').toLowerCase().includes(jobSearchTerm.toLowerCase())
+  );
+
+  const handleJobSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const jobId = e.target.value;
+    if (!jobId) return;
+    const job = availableJobs.find(j => j.id === jobId);
+    if (job) {
+      const fullDescription = `
+Job Title: ${job.title}
+Company: ${job.companyName}
+Required Skills: ${job.skills || ''}
+Qualifications: ${job.qualifications || ''}
+
+Job Description:
+${job.description || ''}`.trim();
+      setJobDesc(fullDescription);
+    }
+  };
+
+  const fetchLinkedinJob = async () => {
+    if (!linkedinUrl) return;
+    setFetchingLinkedin(true);
+    try {
+      // Use a CORS proxy to fetch the page content
+      // Note: This relies on the public job page being accessible and not blocked by LinkedIn's anti-bot measures for the proxy IP.
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(linkedinUrl)}&disableCache=true`;
+      const response = await fetch(proxyUrl);
+      const data = await response.json();
+      
+      if (!data.contents) {
+        throw new Error("Failed to retrieve page content via proxy.");
+      }
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data.contents, "text/html");
+
+      // Strategy 1: Look for JSON-LD (Structured Data) - Most reliable for public job posts
+      const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+      let jobData = null;
+
+      for (let i = 0; i < scripts.length; i++) {
+        try {
+          const json = JSON.parse(scripts[i].textContent || '{}');
+          if (json['@type'] === 'JobPosting') {
+            jobData = json;
+            break;
+          }
+        } catch (e) {
+          continue;
+        }
+      }
+
+      let title = '';
+      let company = '';
+      let description = '';
+
+      if (jobData) {
+        title = jobData.title || '';
+        company = jobData.hiringOrganization?.name || '';
+        // Description often contains HTML tags, strip them
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = jobData.description || '';
+        description = tempDiv.textContent || tempDiv.innerText || '';
+      } else {
+        // Strategy 2: Fallback to Open Graph tags and common selectors
+        title = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.title || '';
+        
+        // Try to find description container (classes change often on LinkedIn)
+        const descElement = doc.querySelector('.show-more-less-html__markup') || 
+                            doc.querySelector('.description__text') ||
+                            doc.querySelector('.job-description');
+                            
+        if (descElement) {
+           description = descElement.textContent?.trim() || '';
+        }
+      }
+
+      if (!description) {
+        // If we still don't have a description, it might be behind a login wall
+        throw new Error("Could not extract job description. The job post might be private or require login.");
+      }
+
+      const fullDesc = `Job Title: ${title}
+Company: ${company}
+
+Job Description:
+${description}`.trim();
+
+      setJobDesc(fullDesc);
+    } catch (error: any) {
+      console.error("LinkedIn Fetch Error:", error);
+      alert("Could not fetch actual job data. LinkedIn might be blocking the request. Please copy/paste the description manually.");
+    } finally {
+      setFetchingLinkedin(false);
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,14 +238,14 @@ const ResumeAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">AI Resume Analysis</h1>
+    <div className="max-w-6xl mx-auto p-4 md:p-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">AI Resume Analysis</h1>
       <p className="text-gray-500 dark:text-slate-400 mb-8">Upload your resume and the job description to get an instant ATS score and improvement tips.</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Input Section */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
             <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i className="fas fa-file-upload text-primary"></i> Upload Resume</h3>
             <div className="border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl p-8 text-center hover:border-primary dark:hover:border-primary transition-colors bg-gray-50 dark:bg-slate-800/50">
               <input type="file" accept=".pdf,.txt" onChange={handleFileUpload} className="hidden" id="resume-upload" />
@@ -138,11 +258,52 @@ const ResumeAnalysis: React.FC = () => {
             {resumeText && <p className="text-green-600 text-sm mt-3"><i className="fas fa-check-circle"></i> Resume text extracted successfully</p>}
           </div>
 
-          <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
+          <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-4 md:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800">
             <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i className="fas fa-briefcase text-primary"></i> Job Description</h3>
+            
+            <div className="mb-3 space-y-2">
+              <input 
+                type="text" 
+                placeholder="Search available jobs..." 
+                className="w-full p-2 border border-gray-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 dark:text-white focus:ring-2 focus:ring-primary/20 outline-none"
+                value={jobSearchTerm}
+                onChange={(e) => setJobSearchTerm(e.target.value)}
+              />
+              <select 
+                className="w-full p-3 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm bg-white dark:bg-slate-950 dark:text-white cursor-pointer"
+                onChange={handleJobSelect}
+                defaultValue=""
+              >
+                <option value="" disabled>Select a job to auto-fill description (Optional)</option>
+                {filteredJobs.map(job => (
+                  <option key={job.id} value={job.id}>{job.title} at {job.companyName}</option>
+                ))}
+              </select>
+
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <i className="fab fa-linkedin absolute left-3 top-1/2 -translate-y-1/2 text-blue-700"></i>
+                  <input 
+                    type="text" 
+                    placeholder="Paste LinkedIn Job URL..." 
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-sm bg-white dark:bg-slate-950 dark:text-white focus:ring-2 focus:ring-primary/20 outline-none"
+                    value={linkedinUrl}
+                    onChange={(e) => setLinkedinUrl(e.target.value)}
+                  />
+                </div>
+                <button 
+                  onClick={fetchLinkedinJob}
+                  disabled={fetchingLinkedin || !linkedinUrl}
+                  className="px-4 py-2 bg-[#0077b5] hover:bg-[#006396] text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {fetchingLinkedin ? <i className="fas fa-circle-notch fa-spin"></i> : <><i className="fas fa-download"></i> Fetch</>}
+                </button>
+              </div>
+            </div>
+
             <textarea 
               className="w-full h-48 p-4 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none resize-none text-sm bg-white dark:bg-slate-950 dark:text-white dark:placeholder-slate-500"
-              placeholder="Paste the job description here..."
+              placeholder="Paste the job description here or select a job above..."
               value={jobDesc}
               onChange={(e) => setJobDesc(e.target.value)}
             ></textarea>
@@ -158,7 +319,7 @@ const ResumeAnalysis: React.FC = () => {
         </div>
 
         {/* Results Section */}
-        <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-8 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 min-h-[500px]">
+        <div className="bg-white dark:bg-black/80 backdrop-blur-sm p-4 md:p-8 rounded-xl shadow-sm border border-gray-200 dark:border-slate-800 min-h-[500px]">
           {!result ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-400 dark:text-slate-600 opacity-50">
               <i className="fas fa-chart-pie text-6xl mb-4"></i>

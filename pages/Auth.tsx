@@ -76,7 +76,7 @@ const AuthPage: React.FC = () => {
       await signOut(auth);
 
       setMessage("Account created! Please check your email for a verification link before logging in.");
-      setIsLogin(true);
+      navigate('/profile'); // Redirect to profile for completion
     } catch (err: any) {
       setError("Signup failed: " + err.message);
     } finally {
@@ -102,14 +102,15 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-gray-50 dark:bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Professional Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50 dark:bg-blue-900/10 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/3"></div>
          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gray-200 dark:bg-slate-800/10 rounded-full blur-3xl opacity-60 translate-y-1/3 -translate-x-1/4"></div>
       </div>
 
-      <div className="relative z-10 w-full max-w-5xl flex rounded-3xl shadow-2xl overflow-hidden bg-white/80 dark:bg-black/80 backdrop-blur-lg border border-white/20 dark:border-slate-700/50 min-h-[600px] transition-colors duration-300">
+      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="w-full max-w-5xl flex rounded-3xl shadow-2xl overflow-hidden bg-white/80 dark:bg-black/80 backdrop-blur-lg border border-white/20 dark:border-slate-700/50 min-h-[600px] transition-colors duration-300">
         
         {/* Left Side - Creative Banner (Hidden on mobile) */}
         <div className="hidden md:flex w-5/12 bg-gradient-to-br from-gray-800 to-blue-900 p-12 flex-col justify-between text-white relative overflow-hidden">
@@ -318,6 +319,19 @@ const AuthPage: React.FC = () => {
     </div>
     </div>
     </div>
+    </div>
+
+    <footer className="relative z-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm border-t border-gray-200/50 dark:border-slate-800/50 py-6">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            Developed & Designed by{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Aaradhya Pathak</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Nimesh Kulkarni</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Bhavesh Patil</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Sanika Wadnekar</span>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

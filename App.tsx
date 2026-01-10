@@ -17,6 +17,9 @@ import Profile from './pages/Profile';
 import Home from './pages/Home';
 import ResumeAnalysis from './pages/ResumeAnalysis';
 import ResumeBuilder from './pages/ResumeBuilder';
+import MockInterviewSetup from './pages/MockInterviewSetup';
+import MockHistory from './pages/MockHistory';
+import Payment from './pages/Payment';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' }> = ({ children, role }) => {
   const { user, userProfile, loading } = useAuth();
@@ -116,6 +119,15 @@ const App: React.FC = () => {
                 } />
                 <Route path="/candidate/resume-builder" element={
                   <ProtectedRoute role="candidate"><ResumeBuilder /></ProtectedRoute>
+                } />
+                <Route path="/candidate/mock-interview" element={
+                  <ProtectedRoute role="candidate"><MockInterviewSetup /></ProtectedRoute>
+                } />
+                <Route path="/candidate/mock-history" element={
+                  <ProtectedRoute role="candidate"><MockHistory /></ProtectedRoute>
+                } />
+                <Route path="/candidate/payment" element={
+                  <ProtectedRoute role="candidate"><Payment /></ProtectedRoute>
                 } />
                 <Route path="/interview/:jobId" element={
                   <ProtectedRoute role="candidate"><InterviewWizard /></ProtectedRoute>

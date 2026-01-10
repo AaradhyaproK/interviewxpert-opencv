@@ -371,14 +371,96 @@ const JobCandidates: React.FC = () => {
 
                   {/* Content Grid */}
                   <div className="border-t border-gray-200 dark:border-slate-800 pt-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
+                    <div className="md:col-span-2">
                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-briefcase text-gray-400"></i> Experience</h4>
-                       <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profileModal.data.experience || "No experience listed."}</p>
+                       {profileModal.data.experienceList && profileModal.data.experienceList.length > 0 ? (
+                         <div className="space-y-4">
+                           {profileModal.data.experienceList.map((exp: any, i: number) => (
+                             <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700">
+                               <div className="flex justify-between items-baseline mb-1">
+                                 <h5 className="font-bold text-gray-800 dark:text-white">{exp.role}</h5>
+                                 <span className="text-xs text-gray-500 dark:text-slate-400">{exp.duration}</span>
+                               </div>
+                               <div className="text-sm text-primary font-medium mb-2">{exp.company}</div>
+                               <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{exp.description}</p>
+                             </div>
+                           ))}
+                         </div>
+                       ) : (
+                         <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profileModal.data.experience || "No experience listed."}</p>
+                       )}
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-graduation-cap text-gray-400"></i> Education</h4>
-                       <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profileModal.data.education || "No education listed."}</p>
+                       {profileModal.data.educationList && profileModal.data.educationList.length > 0 ? (
+                         <div className="space-y-4">
+                           {profileModal.data.educationList.map((edu: any, i: number) => (
+                             <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                               <div>
+                                 <h5 className="font-bold text-gray-800 dark:text-white">{edu.school}</h5>
+                                 <div className="text-sm text-gray-600 dark:text-slate-300">{edu.degree}</div>
+                               </div>
+                               <span className="text-sm text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-700 px-2 py-1 rounded border dark:border-slate-600">{edu.year}</span>
+                             </div>
+                           ))}
+                         </div>
+                       ) : (
+                         <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">{profileModal.data.education || "No education listed."}</p>
+                       )}
                     </div>
+
+                    {profileModal.data.projects && profileModal.data.projects.length > 0 && (
+                      <div className="md:col-span-2">
+                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-project-diagram text-gray-400"></i> Projects</h4>
+                        <div className="grid grid-cols-1 gap-4">
+                          {profileModal.data.projects.map((proj: any, i: number) => (
+                            <div key={i} className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-gray-100 dark:border-slate-700">
+                              <div className="flex justify-between items-start mb-2">
+                                <h5 className="font-bold text-gray-800 dark:text-white">{proj.title}</h5>
+                                {proj.link && (
+                                  <a href={proj.link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1">
+                                    View <i className="fas fa-external-link-alt"></i>
+                                  </a>
+                                )}
+                              </div>
+                              <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{proj.description}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {profileModal.data.certifications && profileModal.data.certifications.length > 0 && (
+                      <div className="md:col-span-2">
+                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-certificate text-gray-400"></i> Certifications</h4>
+                        <div className="space-y-3">
+                          {profileModal.data.certifications.map((cert: any, i: number) => (
+                            <div key={i} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700 flex justify-between items-center">
+                              <div className="font-bold text-gray-800 dark:text-white text-sm">{cert.name}</div>
+                              <div className="text-xs text-gray-500 dark:text-slate-400">{cert.issuer} • {cert.year}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {profileModal.data.volunteering && profileModal.data.volunteering.length > 0 && (
+                      <div className="md:col-span-2">
+                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-hands-helping text-gray-400"></i> Volunteering</h4>
+                        <div className="space-y-3">
+                          {profileModal.data.volunteering.map((vol: any, i: number) => (
+                            <div key={i} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
+                              <div className="flex justify-between items-baseline">
+                                 <div className="font-bold text-gray-800 dark:text-white text-sm">{vol.role}</div>
+                                 <div className="text-xs text-gray-500 dark:text-slate-400">{vol.duration}</div>
+                              </div>
+                              <div className="text-xs text-gray-600 dark:text-slate-300">{vol.organization}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="md:col-span-2">
                       <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-tools text-gray-400"></i> Skills</h4>
                       <div className="flex flex-wrap gap-2">
@@ -387,6 +469,24 @@ const JobCandidates: React.FC = () => {
                         )) : <span className="text-gray-500 text-sm">No skills listed.</span>}
                       </div>
                     </div>
+
+                    {profileModal.data.hobbies && (
+                      <div className="md:col-span-2">
+                        <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-heart text-gray-400"></i> Hobbies & Interests</h4>
+                        <p className="text-gray-600 dark:text-slate-300 text-sm bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">{profileModal.data.hobbies}</p>
+                      </div>
+                    )}
+
+                    {profileModal.data.customSections && profileModal.data.customSections.length > 0 && (
+                      <div className="md:col-span-2 space-y-6">
+                        {profileModal.data.customSections.map((sec: any, i: number) => (
+                          <div key={i}>
+                            <h4 className="font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2"><i className="fas fa-star text-gray-400"></i> {sec.title}</h4>
+                            <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">{sec.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
                     {profileModal.data.preferredCategories && (
                       <div className="md:col-span-2">

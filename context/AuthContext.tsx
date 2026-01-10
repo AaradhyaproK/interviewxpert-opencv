@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { UserProfile } from '../types';
 
@@ -40,17 +40,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let profileUnsubscribe: (() => void) | null = null;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // Clean up previous listener if it exists
+      if (profileUnsubscribe) {
+        profileUnsubscribe();
+        profileUnsubscribe = null;
+      }
+
       setUser(currentUser);
       if (currentUser) {
-        await fetchProfile(currentUser.uid);
+        // Use onSnapshot for real-time updates (e.g. wallet balance)
+        profileUnsubscribe = onSnapshot(doc(db, 'users', currentUser.uid), (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            // Spread into new object to ensure React detects state change
+            setUserProfile({ ...docSnapshot.data() } as UserProfile);
+          }
+        });
       } else {
         setUserProfile(null);
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (profileUnsubscribe) profileUnsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

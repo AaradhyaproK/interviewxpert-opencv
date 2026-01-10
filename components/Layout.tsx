@@ -53,7 +53,7 @@ const NetworkStatus = () => {
   }
 
   return (
-    <div className={`flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium border transition-colors ${statusColor} whitespace-nowrap`}>
+    <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${statusColor} whitespace-nowrap`}>
       <i className="fas fa-wifi"></i>
       <span className="hidden sm:inline">{speed !== null && speed < 2 ? 'Weak' : speed !== null && speed < 5 ? 'Fair' : 'Good'} {icon}</span>
       {speed && <span>{speed} <span className="hidden sm:inline">Mbps</span></span>}
@@ -82,7 +82,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-transparent font-sans text-gray-800 dark:text-slate-100 transition-colors duration-300 relative">
+    <div className="min-h-screen bg-gray-50 dark:bg-transparent font-sans text-gray-800 dark:text-slate-100 transition-colors duration-300 relative flex flex-col">
       {/* Tech Grid Pattern for Dark Mode */}
       <div className="absolute inset-0 z-[-1] hidden dark:block pointer-events-none opacity-20" 
            style={{ 
@@ -91,71 +91,85 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
            }}>
       </div>
 
-      <nav className="bg-white/90 dark:bg-black/80 backdrop-blur-md shadow-sm sticky top-0 z-navbar border-b border-gray-100 dark:border-slate-800 transition-all">
+      <nav className="bg-white/95 dark:bg-black/90 backdrop-blur-md shadow-sm sticky top-0 z-[100] border-b border-gray-100 dark:border-slate-800 transition-all">
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center gap-4 lg:gap-8">
+          <div className="flex justify-between h-14 items-center">
+            <div className="flex items-center gap-2 lg:gap-4">
               <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-                <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" className="w-14 h-14 rounded-xl object-cover" />
-                <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">InterviewXpert</span>
+                <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" className="w-8 h-8 rounded-lg object-cover" />
+                <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white hidden xl:block">InterviewXpert</span>
               </Link>
-              <div className="hidden md:flex items-center space-x-1">
+              <div className="hidden xl:flex items-center gap-1">
                 {userProfile?.role === 'recruiter' ? (
                   <>
-                    <Link to="/recruiter/jobs" className={`${isActive('/recruiter/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/recruiter/jobs" className={`${isActive('/recruiter/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Dashboard
                     </Link>
-                    <Link to="/recruiter/post" className={`${isActive('/recruiter/post') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/recruiter/post" className={`${isActive('/recruiter/post') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Post Job
                     </Link>
-                    <Link to="/recruiter/requests" className={`${isActive('/recruiter/requests') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/recruiter/requests" className={`${isActive('/recruiter/requests') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Requests
                     </Link>
                   </>
                 ) : (
                   <>
-                    <Link to="/candidate/jobs" className={`${isActive('/candidate/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/candidate/jobs" className={`${isActive('/candidate/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Available Jobs
                     </Link>
-                    <Link to="/candidate/best-matches" className={`${isActive('/candidate/best-matches') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/candidate/best-matches" className={`${isActive('/candidate/best-matches') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Best Matches
                     </Link>
-                    <Link to="/candidate/interviews" className={`${isActive('/candidate/interviews') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/candidate/interviews" className={`${isActive('/candidate/interviews') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       My Interviews
                     </Link>
-                    <Link to="/candidate/resume-analysis" className={`${isActive('/candidate/resume-analysis') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/candidate/resume-analysis" className={`${isActive('/candidate/resume-analysis') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Resume Analysis
                     </Link>
-                    <Link to="/candidate/resume-builder" className={`${isActive('/candidate/resume-builder') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-3 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap`}>
+                    <Link to="/candidate/resume-builder" className={`${isActive('/candidate/resume-builder') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Resume Builder
+                    </Link>
+                    <Link to="/candidate/mock-interview" className={`${isActive('/candidate/mock-interview') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
+                      Mock Interview
+                    </Link>
+                    <Link to="/candidate/mock-history" className={`${isActive('/candidate/mock-history') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
+                      Mock History
                     </Link>
                   </>
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2 md:gap-4">
-              <div className="hidden md:flex">
-                <NetworkStatus />
-              </div>
+            <div className="flex items-center gap-2">
               <button
                 onClick={toggleTheme}
-                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-yellow-400 transition-colors"
+                className="p-1.5 rounded-full text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-yellow-400 transition-colors"
                 title="Toggle Theme"
               >
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
               </button>
+              
+              {userProfile?.role === 'candidate' && (
+                <Link to="/candidate/payment" className="hidden md:flex items-center gap-1 px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full border border-yellow-200 dark:border-yellow-800 text-xs font-bold hover:bg-yellow-100 transition-colors" title="Wallet Balance">
+                  <i className="fas fa-coins"></i>
+                  <span>{(userProfile as any)?.walletBalance || 0}</span>
+                </Link>
+              )}
+
               <NotificationCenter />
               
-              <div className="hidden md:flex relative group items-center gap-3 border-l border-gray-200 dark:border-slate-700 pl-4 ml-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
+              <div className="hidden md:flex relative group items-center gap-2 border-l border-gray-200 dark:border-slate-700 pl-3 ml-1 h-8">
+                <div className="flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
                   <div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
                     <i className="fa-solid fa-user"></i>
                   </div>
-                  <span className="hidden md:block">{userProfile?.fullname || 'Profile'}</span>
+                  <div className="flex flex-col items-start justify-center">
+                    <span className="leading-none mb-0.5 max-w-[100px] truncate">{userProfile?.fullname || 'Profile'}</span>
+                    <NetworkStatus />
+                  </div>
                 </div>
 
                 {/* Dropdown Menu */}
-                <div className="absolute top-full right-0 mt-2 w-80 bg-white dark:bg-black/90 backdrop-blur-md rounded-xl shadow-2xl border border-gray-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:translate-y-1">
+                <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-black/90 backdrop-blur-md rounded-xl shadow-2xl border border-gray-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:translate-y-1">
                   <div className="p-4 flex items-center gap-4 border-b border-gray-100 dark:border-slate-800">
                     <img 
                       src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} 
@@ -175,13 +189,13 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   </div>
                 </div>
 
-                <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-2" title="Logout">
+                <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 ml-1" title="Logout">
                   <i className="fa-solid fa-right-from-bracket text-lg"></i>
                 </button>
               </div>
 
               {/* Mobile Menu Button */}
-              <div className="flex md:hidden items-center">
+              <div className="flex xl:hidden items-center">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-slate-200 hover:text-primary hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
@@ -195,7 +209,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-lg animate-in slide-in-from-top-5 duration-200">
+          <div className="xl:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-lg animate-in slide-in-from-top-5 duration-200">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               {userProfile?.role === 'recruiter' ? (
                 <>
@@ -210,6 +224,14 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/interviews') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>My Interviews</Link>
                   <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-analysis') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Analysis</Link>
                   <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-builder') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Builder</Link>
+                  <Link to="/candidate/mock-interview" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/mock-interview') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Mock Interview</Link>
+                  <Link to="/candidate/mock-history" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/mock-history') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Mock History</Link>
+                  <Link to="/candidate/payment" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/payment') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
+                    <div className="flex items-center gap-2">
+                      <span>Wallet</span>
+                      <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded-full">{(userProfile as any)?.walletBalance || 0} pts</span>
+                    </div>
+                  </Link>
                 </>
               )}
             </div>
@@ -235,9 +257,21 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         )}
       </nav>
 
-      <main className={location.pathname === '/candidate/resume-builder' ? 'w-full' : 'max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'}>
+      <main className={`${location.pathname === '/candidate/resume-builder' ? 'w-full' : 'max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'} flex-grow`}>
         {children}
       </main>
+
+      <footer className="bg-white/80 dark:bg-black/80 backdrop-blur-sm border-t border-gray-200 dark:border-slate-800 py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            Developed & Designed by{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Aaradhya Pathak</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Nimesh Kulkarni</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Bhavesh Patil</span>,{' '}
+            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Sanika Wadnekar</span>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
