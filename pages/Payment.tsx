@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { doc, updateDoc, increment } from 'firebase/firestore';
+import { doc, updateDoc, increment, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,6 +56,20 @@ const Payment: React.FC = () => {
           await updateDoc(userRef, {
             walletBalance: increment(amount)
           });
+
+          // Record Transaction
+          await addDoc(collection(db, 'transactions'), {
+            userId: user.uid,
+            userName: userProfile?.fullname || user.displayName || 'Unknown',
+            userEmail: user.email || 'Unknown',
+            amount: amount,
+            currency: 'INR',
+            type: 'credit_purchase',
+            status: 'success',
+            paymentId: response.razorpay_payment_id || 'unknown',
+            createdAt: serverTimestamp()
+          });
+
           await refreshProfile(); 
           alert(`Payment Successful! Added ${amount} points to your wallet.`);
           navigate('/candidate/mock-interview');
@@ -96,6 +110,20 @@ const Payment: React.FC = () => {
           await updateDoc(userRef, {
             walletBalance: increment(amount)
           });
+
+          // Record Transaction (Simulation)
+          await addDoc(collection(db, 'transactions'), {
+            userId: user.uid,
+            userName: userProfile?.fullname || user.displayName || 'Unknown',
+            userEmail: user.email || 'Unknown',
+            amount: amount,
+            currency: 'INR',
+            type: 'credit_purchase',
+            status: 'success',
+            paymentId: 'simulated_' + Date.now(),
+            createdAt: serverTimestamp()
+          });
+
           await refreshProfile(); 
           alert(`Payment Successful! Added ${amount} points to your wallet.`);
           navigate('/candidate/mock-interview');

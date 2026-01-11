@@ -2,50 +2,63 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Users Collection Rules (FIX APPLIED) ---
+    // --- Users Collection Rules ---
     match /users/{userId} {
-      // NEW RULE: This is the fix. It allows a newly authenticated user to CREATE
-      // their own document, which is what happens during signup.
+      // ADMIN PERMISSION: Allow admins to manage all users (read, create, update, delete)
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
+      // Existing: Allow new users to create their own document
       allow create: if request.auth != null
                     && request.auth.uid == userId
                     && request.resource.data.role in ['candidate', 'recruiter'];
 
-      // This rule now correctly handles reading, updating, and deleting an EXISTING document.
+      // Existing: Self management
       allow read, update, delete: if request.auth != null && request.auth.uid == userId;
 
-
-      // --- Recruiter-Specific Permissions (Unchanged but still needed) ---
-      // Recruiters can READ any user profile for listing candidates.
+      // Existing: Recruiter permissions
       allow read: if request.auth != null
                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter';
 
-      // Recruiters can UPDATE a candidate's accountStatus.
       allow update: if request.auth != null
                     && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter'
                     && resource.data.role == 'candidate'
                     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['accountStatus', 'updatedAt']);
 
-      // Recruiters can DELETE a candidate's user document.
       allow delete: if request.auth != null
                      && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter'
                      && resource.data.role == 'candidate';
     }
 
-    // --- Profiles Collection Rules (FIX APPLIED) ---
-    // Added a create rule here as well for consistency and future-proofing.
+    // --- Recruiter Requests (New for Admin Dashboard) ---
+    match /recruiterRequests/{requestId} {
+      // Allow anyone to create a request (public signup)
+      allow create: if true;
+      
+      // Only admins can read or modify requests
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- Profiles Collection Rules ---
     match /profiles/{userId} {
+      // Admin Permission
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
       allow create: if request.auth != null && request.auth.uid == userId;
       allow read, write: if request.auth != null && request.auth.uid == userId;
 
-      // Allow authenticated recruiters to READ any candidate's profile.
       allow read: if request.auth != null
                   && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter';
     }
 
-    // --- Jobs Collection Rules (Unchanged) ---
+    // --- Jobs Collection Rules ---
     match /jobs/{jobId} {
-      // FIX: Allow anyone to read jobs, which is necessary for a public job board.
-      // This resolves the issue where job lists appear empty.
+      // Admin Permission
+      allow write: if request.auth != null 
+                    && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
       allow read: if true;
       allow create: if request.auth != null
                     && request.resource.data.recruiterUID == request.auth.uid;
@@ -53,8 +66,12 @@ service cloud.firestore {
                              && resource.data.recruiterUID == request.auth.uid;
     }
 
-    // --- Interviews Collection Rules (Unchanged) ---
+    // --- Interviews Collection Rules ---
     match /interviews/{interviewId} {
+      // Admin Permission
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
       allow create: if request.auth != null
                     && request.resource.data.candidateUID == request.auth.uid;
 
@@ -62,7 +79,6 @@ service cloud.firestore {
                   && (
                        request.auth.uid == resource.data.candidateUID
                        ||
-                       // Allow recruiters to view all interviews (Fixes list query permission issues)
                        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'recruiter'
                      );
 
@@ -71,8 +87,12 @@ service cloud.firestore {
                     && get(/databases/$(database)/documents/jobs/$(resource.data.jobId)).data.recruiterUID == request.auth.uid;
     }
 
-    // --- Interview Requests Collection Rules (Unchanged) ---
+    // --- Interview Requests Collection Rules ---
     match /interviewRequests/{requestId} {
+      // Admin Permission
+      allow read, write: if request.auth != null 
+                          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
       allow create: if request.auth != null
                     && request.resource.data.candidateUID == request.auth.uid
                     && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'candidate'
@@ -87,19 +107,23 @@ service cloud.firestore {
 
       allow update: if request.auth != null
                     && request.auth.uid == resource.data.recruiterUID
-                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'respondedAt']);
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'respondedAt', 'updatedAt']);
     }
 
-    // --- Notifications Collection Rules (NEW) ---
+    // --- Notifications Collection Rules ---
     match /notifications/{notificationId} {
-      // Candidates can read their own notifications
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
-      
-      // Allow authenticated users (recruiters/system) to create notifications
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // --- Transactions Collection Rules ---
+    match /transactions/{transactionId} {
+      // Allow authenticated users to create transaction records (e.g. after payment)
       allow create: if request.auth != null;
       
-      // Candidates can update (mark as read) their own notifications
-      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Admins can read all transactions. Users can read their own.
+      allow read: if request.auth != null && (resource.data.userId == request.auth.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
     }
   }
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, addDoc, collection, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -27,10 +27,15 @@ const AuthPage: React.FC = () => {
     setMessage(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
       if (!userCredential.user.emailVerified) {
-        await signOut(auth);
-        setError("Please verify your email address before logging in.");
-        return;
+        // Check if admin verified manually in Firestore
+        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+        if (!userDoc.exists() || !userDoc.data().adminVerified) {
+          await signOut(auth);
+          setError("Please verify your email address before logging in.");
+          return;
+        }
       }
       navigate('/');
     } catch (err: any) {
@@ -49,6 +54,25 @@ const AuthPage: React.FC = () => {
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       setLoading(false);
+      return;
+    }
+
+    // Handle Recruiter Request (Do not create Auth user yet)
+    if (role === 'recruiter') {
+      try {
+        await addDoc(collection(db, 'recruiterRequests'), {
+          email,
+          fullname,
+          experience: Number(experience),
+          status: 'pending',
+          createdAt: serverTimestamp()
+        });
+        setMessage("Request sent! An admin will review your recruiter application. You will be notified once approved.");
+      } catch (err: any) {
+        setError("Request failed: " + err.message);
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -209,7 +233,7 @@ const AuthPage: React.FC = () => {
               <select 
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white"
                 value={role}
-                onChange={e => setRole(e.target.value as any)}
+                onChange={e => setRole(e.target.value as 'candidate' | 'recruiter')}
               >
                 <option value="candidate">Candidate</option>
                 {/* Normally hide recruiter signup or make it restricted, but kept open per original app */}
@@ -288,7 +312,7 @@ const AuthPage: React.FC = () => {
               Processing...
             </span>
           ) : (
-             isLogin ? 'Sign In' : 'Create Account'
+             isLogin ? 'Sign In' : (role === 'recruiter' ? 'Submit Request' : 'Create Account')
           )}
         </button>
       </form>

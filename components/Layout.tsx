@@ -100,7 +100,11 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white hidden xl:block">InterviewXpert</span>
               </Link>
               <div className="hidden xl:flex items-center gap-1">
-                {userProfile?.role === 'recruiter' ? (
+                {userProfile?.role === 'admin' ? (
+                  <Link to="/admin" className={`${isActive('/admin') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
+                    Admin Dashboard
+                  </Link>
+                ) : userProfile?.role === 'recruiter' ? (
                   <>
                     <Link to="/recruiter/jobs" className={`${isActive('/recruiter/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Dashboard
@@ -208,7 +212,9 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         {isMobileMenuOpen && (
           <div className="xl:hidden bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-slate-800 shadow-lg animate-in slide-in-from-top-5 duration-200">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {userProfile?.role === 'recruiter' ? (
+              {userProfile?.role === 'admin' ? (
+                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/admin') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Admin Dashboard</Link>
+              ) : userProfile?.role === 'recruiter' ? (
                 <>
                   <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/recruiter/jobs') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Dashboard</Link>
                   <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/recruiter/post') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Post Job</Link>

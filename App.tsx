@@ -20,8 +20,9 @@ import ResumeBuilder from './pages/ResumeBuilder';
 import MockInterviewSetup from './pages/MockInterviewSetup';
 import MockHistory from './pages/MockHistory';
 import Payment from './pages/Payment';
+import AdminDashboard from './pages/AdminDashboard';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' }> = ({ children, role }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' | 'admin' }> = ({ children, role }) => {
   const { user, userProfile, loading } = useAuth();
 
   // FIX: Wait for BOTH Auth and User Profile to load.
@@ -38,6 +39,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' |
   const userRole = userProfile?.role || 'candidate';
   if (role && userRole !== role) {
     if (userRole === 'recruiter') return <Navigate to="/recruiter/jobs" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin" replace />;
     return <Navigate to="/candidate/jobs" replace />;
   }
 
@@ -65,6 +67,7 @@ const HomeRoute: React.FC = () => {
     }
     const userRole = userProfile.role || 'candidate';
     if (userRole === 'recruiter') return <Navigate to="/recruiter/jobs" replace />;
+    if (userRole === 'admin') return <Navigate to="/admin" replace />;
     return <Navigate to="/candidate/jobs" replace />;
   }
 
@@ -84,6 +87,11 @@ const App: React.FC = () => {
           <Route path="/*" element={
             <Layout>
               <Routes>
+                {/* Admin Routes */}
+                <Route path="/admin" element={
+                  <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
+                } />
+
                 {/* Recruiter Routes */}
                 <Route path="/recruiter/jobs" element={
                   <ProtectedRoute role="recruiter"><RecruiterDashboard /></ProtectedRoute>
