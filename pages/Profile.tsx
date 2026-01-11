@@ -4,6 +4,7 @@ import { auth, db } from '../services/firebase';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import * as pdfjsLib from 'pdfjs-dist';
+import { useMessageBox } from '../components/MessageBox';
 
 export const SKILL_OPTIONS = [
   "HTML", "CSS", "React", "Node.js", "JavaScript", "TypeScript", "Java",
@@ -36,6 +37,7 @@ const Profile: React.FC = () => {
   const [parsingResume, setParsingResume] = useState(false);
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const messageBox = useMessageBox();
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
@@ -169,7 +171,7 @@ const Profile: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 500000) { // 500KB limit
-        alert("Image size too large. Please upload an image smaller than 500KB.");
+        messageBox.showWarning("Image size too large. Please upload an image smaller than 500KB.");
         return;
       }
       const reader = new FileReader();
@@ -330,10 +332,10 @@ const Profile: React.FC = () => {
         portfolio: parsedData.portfolio || prev.portfolio
       }));
 
-      alert("Resume parsed! Please review and edit the filled fields.");
+      messageBox.showSuccess("Resume parsed! Please review and edit the filled fields.");
     } catch (err) {
       console.error("Resume parsing error:", err);
-      alert("Failed to parse resume.");
+      messageBox.showError("Failed to parse resume.");
     } finally {
       setParsingResume(false);
     }
@@ -358,11 +360,11 @@ const Profile: React.FC = () => {
         ...formData,
         updatedAt: new Date()
       }, { merge: true });
-      alert('Profile updated successfully!');
+      messageBox.showSuccess('Profile updated successfully!');
       setIsEditing(false); // Switch back to view mode after saving
     } catch (err) {
       console.error("Error saving profile:", err);
-      alert('Failed to save profile.');
+      messageBox.showError('Failed to save profile.');
     } finally {
       setSaving(false);
     }
@@ -403,7 +405,7 @@ const Profile: React.FC = () => {
       link.click();
     } catch (error) {
       console.error("JPG generation failed", error);
-      alert("Could not generate JPG.");
+      messageBox.showError("Could not generate JPG.");
     }
   };
 

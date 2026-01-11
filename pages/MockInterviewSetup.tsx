@@ -3,6 +3,7 @@ import { addDoc, collection, serverTimestamp, Timestamp, doc, updateDoc, increme
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useMessageBox } from '../components/MessageBox';
 
 const MockInterviewSetup: React.FC = () => {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ const MockInterviewSetup: React.FC = () => {
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetchingLinkedin, setFetchingLinkedin] = useState(false);
+  const messageBox = useMessageBox();
 
   const fetchLinkedinJob = async () => {
     if (!linkedinUrl) return;
@@ -69,7 +71,7 @@ const MockInterviewSetup: React.FC = () => {
       setJobDesc(description);
     } catch (error: any) {
       console.error("LinkedIn Fetch Error:", error);
-      alert("Could not fetch job data. Please enter details manually.");
+      messageBox.showError("Could not fetch job data. Please enter details manually.");
     } finally {
       setFetchingLinkedin(false);
     }
@@ -88,9 +90,10 @@ const MockInterviewSetup: React.FC = () => {
       const INTERVIEW_COST = 10;
 
       if (currentBalance < INTERVIEW_COST) {
-        if (window.confirm(`Insufficient wallet balance (${currentBalance} pts). A mock interview requires ${INTERVIEW_COST} points. Would you like to add points?`)) {
-          navigate('/candidate/payment');
-        }
+        messageBox.showConfirm(
+          `Insufficient wallet balance (${currentBalance} pts). A mock interview requires ${INTERVIEW_COST} points. Would you like to add points?`,
+          () => navigate('/candidate/payment')
+        );
         setLoading(false);
         return;
       }
@@ -117,7 +120,7 @@ const MockInterviewSetup: React.FC = () => {
       navigate(`/interview/${docRef.id}`);
     } catch (err) {
       console.error(err);
-      alert("Failed to start interview");
+      messageBox.showError("Failed to start interview");
     } finally {
       setLoading(false);
     }

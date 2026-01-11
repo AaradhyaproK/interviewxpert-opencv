@@ -1,6 +1,8 @@
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { MessageBoxProvider } from './components/MessageBox';
 import Layout from './components/Layout';
 import AuthPage from './pages/Auth';
 import RecruiterDashboard from './pages/RecruiterDashboard';
@@ -21,6 +23,7 @@ import MockInterviewSetup from './pages/MockInterviewSetup';
 import MockHistory from './pages/MockHistory';
 import Payment from './pages/Payment';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminProfile from './pages/AdminProfile';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' | 'admin' }> = ({ children, role }) => {
   const { user, userProfile, loading } = useAuth();
@@ -34,7 +37,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' |
   );
 
   if (!user) return <Navigate to="/" replace />;
-  
+
   // FIX: Smart Redirect to prevent loops. If role mismatch, go to correct dashboard.
   const userRole = userProfile?.role || 'candidate';
   if (role && userRole !== role) {
@@ -48,7 +51,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' |
 
 const HomeRoute: React.FC = () => {
   const { user, userProfile, loading } = useAuth();
-  
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
@@ -76,89 +79,101 @@ const HomeRoute: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <HashRouter>
-        <Routes>
-          {/* Public Routes (No Layout) */}
-          <Route path="/" element={<HomeRoute />} />
-          <Route path="/auth" element={<AuthPage />} />
+    <MessageBoxProvider>
+      <AuthProvider>
+        <HashRouter>
+          <Routes>
+            {/* Public Routes (No Layout) */}
+            <Route path="/" element={<HomeRoute />} />
+            <Route path="/auth" element={<AuthPage />} />
 
-          {/* Protected Routes (With Layout) */}
-          <Route path="/*" element={
-            <Layout>
-              <Routes>
-                {/* Admin Routes */}
-                <Route path="/admin" element={
-                  <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
-                } />
+            {/* Admin Routes (No Standard Layout) */}
+            <Route path="/admin" element={
+              <ThemeProvider>
+                <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
+              </ThemeProvider>
+            } />
+            <Route path="/admin/profile" element={
+              <ThemeProvider>
+                <ProtectedRoute role="admin"><AdminProfile /></ProtectedRoute>
+              </ThemeProvider>
+            } />
 
-                {/* Recruiter Routes */}
-                <Route path="/recruiter/jobs" element={
-                  <ProtectedRoute role="recruiter"><RecruiterDashboard /></ProtectedRoute>
-                } />
-                <Route path="/recruiter/job/:jobId/candidates" element={
-                  <ProtectedRoute role="recruiter"><JobCandidates /></ProtectedRoute>
-                } />
-                <Route path="/recruiter/edit-job/:jobId" element={
-                  <ProtectedRoute role="recruiter"><EditJob /></ProtectedRoute>
-                } />
-                <Route path="/recruiter/post" element={
-                  <ProtectedRoute role="recruiter"><PostJob /></ProtectedRoute>
-                } />
-                <Route path="/recruiter/candidates" element={
-                  <ProtectedRoute role="recruiter"><ManageCandidates /></ProtectedRoute>
-                } />
-                <Route path="/recruiter/requests" element={
-                  <ProtectedRoute role="recruiter"><InterviewRequests /></ProtectedRoute>
-                } />
+            {/* Protected Routes (With Layout) */}
+            <Route path="/*" element={
+              <Layout>
+                <Routes>
+                  {/* Admin Routes */}
 
-                {/* Candidate Routes */}
-                <Route path="/candidate/jobs" element={
-                  <ProtectedRoute role="candidate"><CandidateDashboard /></ProtectedRoute>
-                } />
-                <Route path="/candidate/best-matches" element={
-                  <ProtectedRoute role="candidate"><CandidateDashboard onlyBestMatches /></ProtectedRoute>
-                } />
-                <Route path="/candidate/interviews" element={
-                  <ProtectedRoute role="candidate"><MyInterviews /></ProtectedRoute>
-                } />
-                <Route path="/candidate/resume-analysis" element={
-                  <ProtectedRoute role="candidate"><ResumeAnalysis /></ProtectedRoute>
-                } />
-                <Route path="/candidate/resume-builder" element={
-                  <ProtectedRoute role="candidate"><ResumeBuilder /></ProtectedRoute>
-                } />
-                <Route path="/candidate/mock-interview" element={
-                  <ProtectedRoute role="candidate"><MockInterviewSetup /></ProtectedRoute>
-                } />
-                <Route path="/candidate/mock-history" element={
-                  <ProtectedRoute role="candidate"><MockHistory /></ProtectedRoute>
-                } />
-                <Route path="/candidate/payment" element={
-                  <ProtectedRoute role="candidate"><Payment /></ProtectedRoute>
-                } />
-                <Route path="/interview/:jobId" element={
-                  <ProtectedRoute role="candidate"><InterviewWizard /></ProtectedRoute>
-                } />
 
-                {/* Shared/Public */}
-                <Route path="/report/:interviewId" element={
-                  <ProtectedRoute><InterviewReport /></ProtectedRoute>
-                } />
-                <Route path="/profile" element={
-                  <ProtectedRoute><Profile /></ProtectedRoute>
-                } />
-                <Route path="/profile/:userId" element={
-                  <ProtectedRoute><Profile /></ProtectedRoute>
-                } />
+                  {/* Recruiter Routes */}
+                  <Route path="/recruiter/jobs" element={
+                    <ProtectedRoute role="recruiter"><RecruiterDashboard /></ProtectedRoute>
+                  } />
+                  <Route path="/recruiter/job/:jobId/candidates" element={
+                    <ProtectedRoute role="recruiter"><JobCandidates /></ProtectedRoute>
+                  } />
+                  <Route path="/recruiter/edit-job/:jobId" element={
+                    <ProtectedRoute role="recruiter"><EditJob /></ProtectedRoute>
+                  } />
+                  <Route path="/recruiter/post" element={
+                    <ProtectedRoute role="recruiter"><PostJob /></ProtectedRoute>
+                  } />
+                  <Route path="/recruiter/candidates" element={
+                    <ProtectedRoute role="recruiter"><ManageCandidates /></ProtectedRoute>
+                  } />
+                  <Route path="/recruiter/requests" element={
+                    <ProtectedRoute role="recruiter"><InterviewRequests /></ProtectedRoute>
+                  } />
 
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Layout>
-          } />
-        </Routes>
-      </HashRouter>
-    </AuthProvider>
+                  {/* Candidate Routes */}
+                  <Route path="/candidate/jobs" element={
+                    <ProtectedRoute role="candidate"><CandidateDashboard /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/best-matches" element={
+                    <ProtectedRoute role="candidate"><CandidateDashboard onlyBestMatches /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/interviews" element={
+                    <ProtectedRoute role="candidate"><MyInterviews /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/resume-analysis" element={
+                    <ProtectedRoute role="candidate"><ResumeAnalysis /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/resume-builder" element={
+                    <ProtectedRoute role="candidate"><ResumeBuilder /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/mock-interview" element={
+                    <ProtectedRoute role="candidate"><MockInterviewSetup /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/mock-history" element={
+                    <ProtectedRoute role="candidate"><MockHistory /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/payment" element={
+                    <ProtectedRoute role="candidate"><Payment /></ProtectedRoute>
+                  } />
+                  <Route path="/interview/:jobId" element={
+                    <ProtectedRoute role="candidate"><InterviewWizard /></ProtectedRoute>
+                  } />
+
+                  {/* Shared/Public */}
+                  <Route path="/report/:interviewId" element={
+                    <ProtectedRoute><InterviewReport /></ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute><Profile /></ProtectedRoute>
+                  } />
+                  <Route path="/profile/:userId" element={
+                    <ProtectedRoute><Profile /></ProtectedRoute>
+                  } />
+
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Layout>
+            } />
+          </Routes>
+        </HashRouter>
+      </AuthProvider>
+    </MessageBoxProvider>
   );
 };
 

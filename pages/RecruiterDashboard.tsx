@@ -9,12 +9,14 @@ import {
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import gsap from 'gsap';
+import { useMessageBox } from '../components/MessageBox';
 
 const RecruiterDashboard: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const messageBox = useMessageBox();
 
   useEffect(() => {
     if (!loading) {
@@ -106,14 +108,15 @@ const RecruiterDashboard: React.FC = () => {
     fetchData();
   }, [user]);
 
-  const handleDelete = async (jobId: string) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
-    try {
-      await deleteDoc(doc(db, 'jobs', jobId));
-      setJobs(jobs.filter(j => j.id !== jobId));
-    } catch (err) {
-      alert("Error deleting job");
-    }
+  const handleDelete = (jobId: string) => {
+    messageBox.showConfirm("Are you sure you want to delete this job?", async () => {
+      try {
+        await deleteDoc(doc(db, 'jobs', jobId));
+        setJobs(jobs.filter(j => j.id !== jobId));
+      } catch (err) {
+        messageBox.showError("Error deleting job");
+      }
+    });
   };
 
   // --- Prepare Chart Data ---

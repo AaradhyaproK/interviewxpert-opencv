@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { UserProfile } from '../types';
 import { Link } from 'react-router-dom';
 import gsap from 'gsap';
+import { useMessageBox } from '../components/MessageBox';
 
 const ManageCandidates: React.FC = () => {
   const { user } = useAuth();
@@ -12,6 +13,7 @@ const ManageCandidates: React.FC = () => {
   const [filteredCandidates, setFilteredCandidates] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const messageBox = useMessageBox();
 
   useEffect(() => {
     if (!loading && filteredCandidates.length > 0) {
@@ -76,26 +78,26 @@ const ManageCandidates: React.FC = () => {
     setFilteredCandidates(filtered);
   }, [searchTerm, candidates]);
 
-  const toggleStatus = async (candidate: UserProfile) => {
+  const toggleStatus = (candidate: UserProfile) => {
     const newStatus: 'active' | 'disabled' = candidate.accountStatus === 'active' ? 'disabled' : 'active';
     const action = newStatus === 'active' ? 'Enable' : 'Disable';
 
-    if (!window.confirm(`Are you sure you want to ${action.toLowerCase()} this account?`)) return;
+    messageBox.showConfirm(`Are you sure you want to ${action.toLowerCase()} this account?`, async () => {
+      try {
+        await updateDoc(doc(db, 'users', candidate.uid), {
+          accountStatus: newStatus,
+          updatedAt: serverTimestamp()
+        });
 
-    try {
-      await updateDoc(doc(db, 'users', candidate.uid), {
-        accountStatus: newStatus,
-        updatedAt: serverTimestamp()
-      });
-
-      const updatedList = candidates.map(c =>
-        c.uid === candidate.uid ? { ...c, accountStatus: newStatus } : c
-      );
-      setCandidates(updatedList);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update status");
-    }
+        const updatedList = candidates.map(c =>
+          c.uid === candidate.uid ? { ...c, accountStatus: newStatus } : c
+        );
+        setCandidates(updatedList);
+      } catch (err) {
+        console.error(err);
+        messageBox.showError("Failed to update status");
+      }
+    });
   };
 
   if (loading) return (

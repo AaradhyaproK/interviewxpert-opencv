@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { sendNotification } from '../services/notificationService';
 import { auth } from '../services/firebase';
+import { useMessageBox } from './MessageBox';
 
 interface RecruiterMessageModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface RecruiterMessageModalProps {
 const RecruiterMessageModal: React.FC<RecruiterMessageModalProps> = ({ isOpen, onClose, candidateId, candidateName }) => {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const messageBox = useMessageBox();
 
   if (!isOpen) return null;
 
@@ -28,10 +30,10 @@ const RecruiterMessageModal: React.FC<RecruiterMessageModalProps> = ({ isOpen, o
       await sendNotification(candidateId, message, 'message', auth.currentUser?.uid, auth.currentUser?.displayName || 'Recruiter');
       setMessage('');
       onClose();
-      alert('Message sent successfully!');
+      messageBox.showSuccess('Message sent successfully!');
     } catch (error) {
       console.error("Error sending message:", error);
-      alert('Failed to send message');
+      messageBox.showError('Failed to send message');
     } finally {
       setLoading(false);
     }

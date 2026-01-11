@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { collection, query, where, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { sendNotification } from '../services/notificationService';
+import { useMessageBox } from './MessageBox';
 
 interface Notification {
   id: string;
@@ -23,11 +24,12 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   // Reply Modal State
   const [replyState, setReplyState] = useState<{ isOpen: boolean; recipientId: string; recipientName: string }>({ isOpen: false, recipientId: '', recipientName: '' });
   const [replyMessage, setReplyMessage] = useState('');
   const user = auth.currentUser;
+  const messageBox = useMessageBox();
 
   useEffect(() => {
     if (!user) return;
@@ -43,7 +45,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
         id: doc.id,
         ...doc.data()
       } as Notification));
-      
+
       // Sort client-side to avoid Firestore index requirements
       notifs.sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date();
@@ -95,17 +97,17 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
     if (!replyMessage.trim() || !user) return;
     try {
       await sendNotification(replyState.recipientId, replyMessage, 'message', user.uid, user.displayName || 'Candidate');
-      alert('Reply sent!');
+      messageBox.showSuccess('Reply sent!');
       setReplyState({ isOpen: false, recipientId: '', recipientName: '' });
       setReplyMessage('');
     } catch (error) {
-      alert('Failed to send reply.');
+      messageBox.showError('Failed to send reply.');
     }
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setShowDropdown(!showDropdown)}
         className="relative p-2 text-gray-600 dark:text-slate-400 hover:text-primary transition-colors focus:outline-none flex items-center gap-2"
       >
@@ -135,8 +137,8 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
               <div className="p-4 text-center text-gray-500 dark:text-slate-400 text-sm">No notifications yet</div>
             ) : (
               notifications.map(notif => (
-                <div 
-                  key={notif.id} 
+                <div
+                  key={notif.id}
                   className={`p-3 border-b border-gray-50 dark:border-slate-800 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors cursor-pointer ${!notif.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
                   onClick={() => markAsRead(notif.id)}
                 >
@@ -152,7 +154,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
                           {notif.createdAt?.toDate ? notif.createdAt.toDate().toLocaleDateString() : 'Just now'}
                         </p>
                         {notif.type === 'message' && notif.senderId && (
-                          <button 
+                          <button
                             onClick={(e) => handleReplyClick(e, notif)}
                             className="text-xs text-primary hover:underline font-medium"
                           >
@@ -181,7 +183,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ label }) => {
               onChange={(e) => setReplyMessage(e.target.value)}
             />
             <div className="flex justify-end gap-2">
-              <button 
+              <button
                 onClick={() => setReplyState({ ...replyState, isOpen: false })}
                 className="px-4 py-2 text-sm text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 rounded"
               >
