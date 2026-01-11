@@ -801,7 +801,34 @@ const Footer: React.FC = () => (
               </div>
             </div>
             <span>,</span>
-            <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Bhavesh Patil</a>
+            {/* Bhavesh Patil with Hover Effect */}
+            <div className="relative group inline-block cursor-pointer">
+              <span className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors border-b border-dashed border-blue-400/50 pb-0.5">Bhavesh Patil</span>
+
+              {/* Hover Card */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 bg-white dark:bg-black/80 backdrop-blur-sm text-slate-900 dark:text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:-translate-y-2 border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative mb-3">
+                    <div className="absolute inset-0 bg-primary rounded-full blur opacity-40"></div>
+                    <img
+                      src="/bhavesh-patil.jpg"
+                      alt="Bhavesh Patil"
+                      className="relative w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
+                    />
+                  </div>
+                  <h4 className="font-bold text-lg text-slate-900 dark:text-white">Bhavesh Patil</h4>
+                  <div className="text-xs font-bold text-primary bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full mb-3 mt-1">Web Developer</div>
+                  <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 text-justify mb-4">
+                    Consistent Web Developer specializing in React and JavaScript, focused on building clean, scalable, and high-performance web applications. Passionate about writing maintainable code and continuously improving through real-world projects and learning.
+                  </p>
+                  <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs font-bold px-5 py-2 rounded-full hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i className="fa-brands fa-linkedin"></i> View LinkedIn
+                  </a>
+                </div>
+                {/* Arrow */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-2 border-8 border-transparent border-t-white dark:border-t-slate-900"></div>
+              </div>
+            </div>
             <span>,</span>
             <span className="hover:text-slate-900 dark:hover:text-white transition-colors">Sanika Wadnekar</span>
           </div>
