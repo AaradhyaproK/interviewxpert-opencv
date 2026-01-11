@@ -10,25 +10,16 @@ import Recharts from 'recharts'; // Dummy import
 // --- Types ---
 type WizardStep = 'check-exists' | 'instructions' | 'check-profile' | 'setup' | 'interview' | 'processing' | 'finish';
 
-// --- Helper: Load OpenCV ---
-const loadOpenCV = (onLoaded: () => void) => {
-  if ((window as any).cv && (window as any).cv.Mat) {
+// --- Helper: Load Face API ---
+const loadFaceAPI = (onLoaded: () => void) => {
+  if ((window as any).faceapi) {
     onLoaded();
     return;
   }
   const script = document.createElement('script');
-  script.src = 'https://docs.opencv.org/4.8.0/opencv.js';
+  script.src = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js';
   script.async = true;
-  script.onload = () => {
-    if ((window as any).cv instanceof Promise) {
-       (window as any).cv.then((target: any) => {
-          (window as any).cv = target;
-          onLoaded();
-       });
-    } else {
-       (window as any).cv.onRuntimeInitialized = onLoaded;
-    }
-  };
+  script.onload = onLoaded;
   document.body.appendChild(script);
 };
 
@@ -358,7 +349,7 @@ const ActiveInterviewSession: React.FC<{
   const [processingVideo, setProcessingVideo] = useState(false);
   const [isStopping, setIsStopping] = useState(false);
   const currentQ = state.questions[state.currentQuestionIndex];
-  const [openCvReady, setOpenCvReady] = useState(false);
+  const [faceApiReady, setFaceApiReady] = useState(false);
   
   // Computer Vision State Refs (Simulating OpenCV)
   const cvDataRef = useRef({
@@ -366,84 +357,101 @@ const ActiveInterviewSession: React.FC<{
     totalFrames: 0,
     confidenceScoreAcc: 0,
     facesDetectedMax: 0,
-    expressions: { neutral: 0, happy: 0, surprised: 0, fearful: 0, sad: 0 } as Record<string, number>
+    expressions: { neutral: 0, happy: 0, surprised: 0, fearful: 0, sad: 0, angry: 0, disgusted: 0 } as Record<string, number>
   });
 
-  // Load OpenCV
+  // Load FaceAPI
   useEffect(() => {
-    loadOpenCV(() => {
-      console.log("OpenCV.js Loaded & Ready");
-      setOpenCvReady(true);
+    loadFaceAPI(async () => {
+      const faceapi = (window as any).faceapi;
+      try {
+        // Load models from CDN
+        const modelUrl = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await faceapi.nets.tinyFaceDetector.loadFromUri(modelUrl);
+        await faceapi.nets.faceExpressionNet.loadFromUri(modelUrl);
+        console.log("FaceAPI Models Loaded");
+        setFaceApiReady(true);
+      } catch (e) {
+        console.error("Error loading FaceAPI models", e);
+      }
     });
   }, []);
 
-  // Real OpenCV Analysis Loop
+  // Real AI Analysis Loop
   useEffect(() => {
-    if (!isRecording || !openCvReady || !videoRef.current) return;
+    if (!isRecording || !faceApiReady || !videoRef.current) return;
     
-    const cv = (window as any).cv;
+    const faceapi = (window as any).faceapi;
     const video = videoRef.current;
     
-    // Initialize Matrices
-    let src: any, gray: any, prevGray: any, diff: any, cap: any;
-    try {
-        src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-        gray = new cv.Mat();
-        prevGray = new cv.Mat();
-        diff = new cv.Mat();
-        cap = new cv.VideoCapture(video);
-    } catch (e) {
-        console.error("Failed to initialize OpenCV matrices", e);
-        return;
-    }
+    // Motion detection setup
+    const canvas = document.createElement('canvas');
+    canvas.width = 320; // Low res for performance
+    canvas.height = 240;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    let prevFrame: Uint8ClampedArray | null = null;
 
-    const interval = setInterval(() => {
+    const interval = setInterval(async () => {
       try {
-        if (!video.videoWidth) return; // Wait for video to be ready
+        if (video.paused || video.ended || !ctx) return;
 
-        cap.read(src);
-        cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-        // 1. Motion Analysis (Confidence/Fidgeting)
-        if (!prevGray.empty()) {
-            cv.absdiff(gray, prevGray, diff);
-            const nonZero = cv.countNonZero(diff);
-            const totalPixels = gray.rows * gray.cols;
-            const motionScore = nonZero / totalPixels;
-            
-            // Less motion = Higher Confidence (Steady Posture)
-            // Heuristic: Motion > 0.1 is significant movement
-            const frameConfidence = Math.max(0, Math.min(100, 100 - (motionScore * 800)));
-            cvDataRef.current.confidenceScoreAcc += frameConfidence;
-        }
-        gray.copyTo(prevGray);
-
-        // 2. Face Detection & Expressions (Simulated for now as loading Haar Cascades in browser requires file system handling)
-        // In a full implementation, we would use: faceCascade.detectMultiScale(gray, faces, 1.1, 3, 0);
+        // 1. Face Analysis
+        // Using TinyFaceDetector for speed
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
         
-        // Simulation of other metrics to complement the real motion data:
         cvDataRef.current.totalFrames++;
-        if (Math.random() > 0.15) cvDataRef.current.eyeContactFrames++; // Simulate 85% eye contact baseline
         
-        // Simulate occasional multi-face detection (e.g. someone walking behind)
-        const currentFaces = Math.random() > 0.995 ? 2 : 1;
-        cvDataRef.current.facesDetectedMax = Math.max(cvDataRef.current.facesDetectedMax, currentFaces);
+        if (detections && detections.length > 0) {
+            // Assume the largest face is the candidate
+            const mainFace = detections[0]; 
+            
+            // Eye Contact (Proxy: Face detected = looking at screen)
+            cvDataRef.current.eyeContactFrames++;
+            
+            // Person Detection
+            cvDataRef.current.facesDetectedMax = Math.max(cvDataRef.current.facesDetectedMax, detections.length);
+            
+            // Expressions
+            const expr = mainFace.expressions;
+            // Find dominant expression
+            const sorted = Object.entries(expr).sort((a: any, b: any) => b[1] - a[1]);
+            const dominant = sorted[0][0]; // e.g., 'neutral'
+            if (cvDataRef.current.expressions[dominant] !== undefined) {
+                cvDataRef.current.expressions[dominant]++;
+            }
+        }
+
+        // 2. Motion Analysis (Confidence)
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const frame = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
         
-        const expr = Math.random() > 0.8 ? 'happy' : Math.random() > 0.9 ? 'surprised' : 'neutral';
-        cvDataRef.current.expressions[expr]++;
+        if (prevFrame) {
+            let diff = 0;
+            // Simple pixel diff (skip alpha)
+            for (let i = 0; i < frame.length; i += 4) {
+                if (Math.abs(frame[i] - prevFrame[i]) > 20 || 
+                    Math.abs(frame[i+1] - prevFrame[i+1]) > 20 || 
+                    Math.abs(frame[i+2] - prevFrame[i+2]) > 20) {
+                    diff++;
+                }
+            }
+            const motionPercent = diff / (canvas.width * canvas.height);
+            // Confidence score: High motion = Low confidence (fidgeting)
+            // Baseline: 0 motion = 100 confidence. 
+            const score = Math.max(0, 100 - (motionPercent * 500)); 
+            cvDataRef.current.confidenceScoreAcc += score;
+        }
+        prevFrame = new Uint8ClampedArray(frame);
 
       } catch (err) {
-        console.error("CV Processing Error", err);
+        console.error("AI Processing Error", err);
       }
-    }, 200); // Process every 200ms (5 FPS)
+    }, 500); // 2 FPS is enough for analysis and saves CPU
 
     return () => {
         clearInterval(interval);
-        try {
-            src.delete(); gray.delete(); prevGray.delete(); diff.delete();
-        } catch(e) {}
     };
-  }, [isRecording, openCvReady]);
+  }, [isRecording, faceApiReady]);
 
   // Tab Visibility
   useEffect(() => {
@@ -606,10 +614,10 @@ const ActiveInterviewSession: React.FC<{
           <div className="absolute top-6 right-6 flex flex-col items-end gap-2 z-20">
              <div className="bg-black/60 backdrop-blur-md text-green-400 px-3 py-1 rounded text-xs font-mono border border-green-500/30 flex items-center gap-2">
                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-               CV: {openCvReady ? 'OPENCV ACTIVE' : 'INITIALIZING...'}
+               AI: {faceApiReady ? 'FACE TRACKING ACTIVE' : 'INITIALIZING...'}
              </div>
              <div className="bg-black/60 backdrop-blur-md text-blue-400 px-3 py-1 rounded text-xs font-mono border border-blue-500/30">
-               MOTION: TRACKING
+               EXPRESSION: ANALYZING
              </div>
           </div>
         )}
@@ -713,7 +721,7 @@ const InterviewSubmission: React.FC<{
   }, [state, navigate, user, userProfile, tabSwitches, cvStats]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center p-4">
       <div className="relative w-24 h-24 mb-8">
         <div className="absolute inset-0 border-4 border-green-100 dark:border-gray-800 rounded-full"></div>
         <div className="absolute inset-0 border-4 border-t-green-500 border-r-green-400 border-b-transparent border-l-transparent rounded-full animate-spin"></div>

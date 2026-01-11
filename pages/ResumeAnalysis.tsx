@@ -58,9 +58,16 @@ ${job.description || ''}`.trim();
     if (!linkedinUrl) return;
     setFetchingLinkedin(true);
     try {
-      // Use a CORS proxy to fetch the page content
-      // Note: This relies on the public job page being accessible and not blocked by LinkedIn's anti-bot measures for the proxy IP.
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(linkedinUrl)}&disableCache=true`;
+      // 1. Extract Job ID to construct a clean public URL
+      // This helps avoid login walls often encountered with search URLs
+      let targetUrl = linkedinUrl;
+      const jobIdMatch = linkedinUrl.match(/currentJobId=(\d+)/) || 
+                         linkedinUrl.match(/jobs\/view\/(\d+)/);
+      if (jobIdMatch && jobIdMatch[1]) {
+        targetUrl = `https://www.linkedin.com/jobs/view/${jobIdMatch[1]}/`;
+      }
+
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&disableCache=true`;
       const response = await fetch(proxyUrl);
       const data = await response.json();
       
@@ -71,7 +78,7 @@ ${job.description || ''}`.trim();
       const parser = new DOMParser();
       const doc = parser.parseFromString(data.contents, "text/html");
 
-      // Strategy 1: Look for JSON-LD (Structured Data) - Most reliable for public job posts
+      // Strategy 1: JSON-LD (Structured Data)
       const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
       let jobData = null;
 
@@ -99,22 +106,26 @@ ${job.description || ''}`.trim();
         tempDiv.innerHTML = jobData.description || '';
         description = tempDiv.textContent || tempDiv.innerText || '';
       } else {
-        // Strategy 2: Fallback to Open Graph tags and common selectors
-        title = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') || doc.title || '';
+        // Strategy 2: DOM Selectors (Updated for public view)
+        title = doc.querySelector('.top-card-layout__title')?.textContent?.trim() || 
+                doc.querySelector('h1')?.textContent?.trim() || 
+                doc.title || '';
         
-        // Try to find description container (classes change often on LinkedIn)
+        company = doc.querySelector('.top-card-layout__first-subline .topcard__org-name-link')?.textContent?.trim() ||
+                  doc.querySelector('.top-card-layout__company-url')?.textContent?.trim() || '';
+
         const descElement = doc.querySelector('.show-more-less-html__markup') || 
                             doc.querySelector('.description__text') ||
-                            doc.querySelector('.job-description');
+                            doc.querySelector('.job-description') ||
+                            doc.querySelector('#job-details');
                             
         if (descElement) {
-           description = descElement.textContent?.trim() || '';
+           // Convert HTML breaks to newlines for better text extraction
+           const htmlContent = descElement.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n\n');
+           const tempDiv = document.createElement('div');
+           tempDiv.innerHTML = htmlContent;
+           description = tempDiv.textContent || tempDiv.innerText || '';
         }
-      }
-
-      if (!description) {
-        // If we still don't have a description, it might be behind a login wall
-        throw new Error("Could not extract job description. The job post might be private or require login.");
       }
 
       const fullDesc = `Job Title: ${title}

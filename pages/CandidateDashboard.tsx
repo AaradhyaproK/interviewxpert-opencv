@@ -185,77 +185,58 @@ const CandidateDashboard: React.FC<{ onlyBestMatches?: boolean }> = ({ onlyBestM
             {displayedMatches.map(job => {
               const requestStatus = requests.get(job.id);
               return (
-                <div key={job.id} className="group relative h-full">
-                  {/* Golden Glow Border */}
-                  <div className="absolute -inset-[1px] bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-400 rounded-2xl opacity-60 blur-sm group-hover:opacity-100 group-hover:blur-md transition-all duration-500"></div>
+                <div key={job.id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="text-xl font-bold text-primary">{job.title}</h3>
+                      <span className="inline-block mt-1 px-2 py-0.5 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-[10px] font-bold uppercase tracking-wider rounded border border-yellow-100 dark:border-yellow-800">
+                         <i className="fas fa-star mr-1"></i> Best Match
+                      </span>
+                    </div>
+                    {job.interviewPermission === 'request' && (
+                      <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs px-2 py-1 rounded border border-blue-100 dark:border-blue-800">
+                        Request Required
+                      </span>
+                    )}
+                  </div>
                   
-                  <div className="relative bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col h-full hover:shadow-xl transition-all duration-300">
-                    
-                    {/* Card Header - Left Aligned */}
-                    <div className="mb-5">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="w-12 h-12 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 flex items-center justify-center text-2xl shadow-sm border border-yellow-100 dark:border-yellow-800">
-                           <span className="text-2xl">⭐</span>
-                        </div>
-                        {job.interviewPermission === 'request' && (
-                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider border border-slate-200 dark:border-slate-700">
-                            Request
-                          </span>
-                        )}
-                      </div>
-                      <div>
-                         <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-primary transition-colors mb-1">{job.title}</h3>
-                         <p className="text-sm font-semibold text-gray-500 dark:text-slate-400 flex items-center gap-2">
-                           <i className="fas fa-building text-gray-400"></i> {job.companyName}
-                         </p>
-                      </div>
-                    </div>
-                    
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-2 mb-5">
-                       <span className="px-2.5 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs font-bold rounded-lg border border-yellow-100 dark:border-yellow-800 flex items-center gap-1">
-                         <i className="fas fa-check-circle text-[10px]"></i> Best Match
-                       </span>
-                       <span className="px-2.5 py-1 bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-400 text-xs font-medium rounded-lg border border-gray-100 dark:border-slate-700">
-                         <i className="far fa-clock mr-1"></i> {job.applyDeadline?.toDate ? job.applyDeadline.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'N/A'}
-                       </span>
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="mb-6 flex-grow">
-                       <p className="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-2">Qualifications</p>
-                       <p className="text-sm text-gray-600 dark:text-slate-300 line-clamp-3 leading-relaxed font-medium">{job.qualifications}</p>
-                    </div>
+                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-2"><i className="fas fa-building mr-1"></i> {job.companyName}</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-500 mb-4">
+                    Deadline: {job.applyDeadline?.toDate ? job.applyDeadline.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'N/A'}
+                  </p>
+                  
+                  <div className="mb-4">
+                     <p className="text-xs font-semibold text-gray-500 dark:text-slate-500 uppercase tracking-wide">Qualifications</p>
+                     <p className="text-sm text-gray-600 dark:text-slate-400 line-clamp-2">{job.qualifications}</p>
+                  </div>
 
-                    {/* Footer Actions */}
-                    <div className="pt-4 border-t border-gray-100 dark:border-slate-800 flex justify-between items-center gap-3">
-                      <button 
-                        onClick={() => setSelectedJob(job)}
-                        className="text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white text-sm font-bold transition-colors"
-                      >
-                        View Details
+                  <div className="mt-auto pt-4 border-t border-gray-50 dark:border-slate-800 flex justify-end gap-2">
+                    <button 
+                      onClick={() => setSelectedJob(job)}
+                      className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:text-primary hover:border-primary dark:hover:text-primary dark:hover:border-primary px-3 py-2 rounded text-sm font-medium transition-colors"
+                    >
+                      View Details
+                    </button>
+
+                    {requestStatus === 'pending' ? (
+                      <button disabled className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-4 py-2 rounded text-sm font-medium cursor-not-allowed">
+                        <i className="fas fa-hourglass-half mr-2"></i> Request Pending
                       </button>
-
-                      {requestStatus === 'pending' ? (
-                        <button disabled className="flex-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-4 py-2.5 rounded-xl text-sm font-bold cursor-not-allowed border border-yellow-100 dark:border-yellow-800">
-                          Pending
-                        </button>
-                      ) : requestStatus === 'accepted' || job.interviewPermission === 'anyone' ? (
+                    ) : requestStatus === 'accepted' || job.interviewPermission === 'anyone' ? (
                       <button 
                         onClick={() => handleStartInterview(job.id)}
-                        className="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+                        className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-lg"
                       >
-                        <i className="fas fa-play text-xs"></i> Start Now
+                        <i className="fas fa-play mr-2"></i> Start Interview
                       </button>
                     ) : (
                       <button 
                         onClick={() => openApplyModal(job)}
-                        className="flex-1 bg-white dark:bg-slate-800 text-gray-900 dark:text-white border border-gray-200 dark:border-slate-700 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-50 dark:hover:bg-slate-700 transition-all shadow-sm hover:shadow"
+                        className="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-lg text-sm font-bold transition-colors shadow-md"
                       >
-                        Request Access
+                        <i className="fas fa-hand-paper mr-2"></i> Request Permission
                       </button>
                     )}
-                    </div>
                   </div>
                 </div>
               );

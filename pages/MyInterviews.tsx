@@ -151,62 +151,82 @@ const MyInterviews: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredInterviews.map(interview => {
-            const getScore = (val: any) => {
-              if (!val) return 0;
-              const match = String(val).match(/(\d+(\.\d+)?)/);
-              return match ? parseFloat(match[0]) : 0;
-            };
-            const score = getScore(interview.score);
-            // Assuming these fields exist or defaulting to 0/null
-            const resumeScore = getScore((interview as any).resumeScore);
-            const qaScore = getScore((interview as any).qaScore) || 
-                            getScore((interview as any).qnaScore) || 
-                            getScore((interview as any).qaQuality) ||
-                            getScore((interview as any).technicalScore) ||
-                            getScore((interview as any).communicationScore);
+            const score = parseInt(interview.score as string) || 0;
+            const resumeScore = parseInt((interview as any).resumeScore) || 0;
+            const qaScore = parseInt((interview as any).qaScore) || 
+                            parseInt((interview as any).qnaScore) || 
+                            parseInt((interview as any).qaQuality) ||
+                            parseInt((interview as any).technicalScore) ||
+                            parseInt((interview as any).communicationScore) || 0;
 
             return (
-            <div key={interview.id} className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
-              <div className="flex justify-between items-start mb-4">
+              <div key={interview.id} className="group bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-sm border border-gray-100 dark:border-slate-800 hover:shadow-xl hover:border-primary/20 dark:hover:border-primary/20 transition-all duration-300 flex flex-col relative overflow-hidden">
+                {/* Decorative background element */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110"></div>
+
+                <div className="flex justify-between items-start mb-4 relative z-10">
                  <div>
-                    <h3 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-1" title={(interview as any).jobTitle}>{(interview as any).jobTitle || 'Untitled Position'}</h3>
-                    <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-2 mt-1 mb-2">
-                      <i className="far fa-calendar-alt"></i>
-                      {interview.submittedAt?.toDate ? interview.submittedAt.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Date N/A'}
-                    </p>
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      {activeTab === 'mock' ? (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                            Mock
+                          </span>
+                      ) : (
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                            Job
+                          </span>
+                      )}
+                      
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${
+                          interview.status === 'Hired' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 
+                          interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
+                          'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                      }`}>
+                         {interview.status || 'Pending'}
+                      </span>
+
+                      <span className="text-xs text-gray-400 dark:text-slate-500 flex items-center gap-1">
+                        <i className="far fa-calendar-alt"></i>
+                        {interview.submittedAt?.toDate ? interview.submittedAt.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date N/A'}
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-lg text-gray-800 dark:text-white line-clamp-1 group-hover:text-primary transition-colors" title={(interview as any).jobTitle}>
+                      {(interview as any).jobTitle || 'Untitled Position'}
+                    </h3>
                  </div>
-                 {activeTab === 'mock' ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-100 dark:border-blue-800">Mock</span>
-                 ) : (
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                        interview.status === 'Hired' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 
-                        interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
-                        'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
-                    }`}>
-                    {interview.status || 'Pending'}
-                    </span>
-                 )}
+                 
+                 <div className="flex flex-col items-end">
+                   <div className={`text-2xl font-black ${
+                   score >= 70 ? 'text-green-600 dark:text-green-400' :
+                   score >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
+                   'text-red-500'
+                 }`}>
+                   {score}
+                 </div>
+                   <span className="text-[10px] text-gray-400 uppercase font-bold">Score</span>
+                 </div>
               </div>
 
-              <div className="space-y-4 mb-6 flex-grow">
-                <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 text-center border border-blue-100 dark:border-blue-800">
-                        <div className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Overall</div>
-                        <div className="font-bold text-blue-700 dark:text-blue-400">{score}%</div>
-                    </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2 text-center border border-purple-100 dark:border-purple-800">
-                        <div className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Resume</div>
-                        <div className="font-bold text-purple-700 dark:text-purple-400">{resumeScore}%</div>
-                    </div>
-                    <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-2 text-center border border-orange-100 dark:border-orange-800">
-                        <div className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase mb-1">Q&A</div>
-                        <div className="font-bold text-orange-700 dark:text-orange-400">{qaScore}%</div>
-                    </div>
+              <div className="space-y-3 mb-6 flex-grow relative z-10">
+                <p className="text-sm text-gray-600 dark:text-slate-400 line-clamp-2">
+                  {(interview as any).jobDescription || 'View full report for details.'}
+                </p>
+                
+                {/* Mini stats */}
+                <div className="flex gap-2 mt-3">
+                  <div className="flex-1 bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2 text-center border border-gray-100 dark:border-slate-700">
+                    <div className="text-xs text-gray-500 dark:text-slate-400">Resume</div>
+                    <div className="font-bold text-gray-800 dark:text-white">{resumeScore}%</div>
+                  </div>
+                  <div className="flex-1 bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2 text-center border border-gray-100 dark:border-slate-700">
+                    <div className="text-xs text-gray-500 dark:text-slate-400">Q&A</div>
+                    <div className="font-bold text-gray-800 dark:text-white">{qaScore}%</div>
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-gray-100 dark:border-slate-800 mt-auto">
-                <Link to={`/report/${interview.id}`} className="flex items-center justify-center w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:border-primary hover:text-primary dark:hover:text-primary dark:hover:border-primary rounded-xl transition-all font-semibold text-sm shadow-sm hover:shadow">
+              <div className="pt-4 border-t border-gray-100 dark:border-slate-800 mt-auto relative z-10">
+                <Link to={`/report/${interview.id}`} className="flex items-center justify-center w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 hover:bg-primary hover:text-white hover:border-primary dark:hover:bg-primary dark:hover:border-primary rounded-xl transition-all font-semibold text-sm group-hover:shadow-md">
                   View Full Report <i className="fas fa-arrow-right ml-2"></i>
                 </Link>
               </div>

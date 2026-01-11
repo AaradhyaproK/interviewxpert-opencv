@@ -132,9 +132,6 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     <Link to="/candidate/mock-interview" className={`${isActive('/candidate/mock-interview') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
                       Mock Interview
                     </Link>
-                    <Link to="/candidate/mock-history" className={`${isActive('/candidate/mock-history') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} px-2 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap`}>
-                      Mock History
-                    </Link>
                   </>
                 )}
               </div>
@@ -225,7 +222,6 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-analysis') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Analysis</Link>
                   <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/resume-builder') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Resume Builder</Link>
                   <Link to="/candidate/mock-interview" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/mock-interview') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Mock Interview</Link>
-                  <Link to="/candidate/mock-history" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/mock-history') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>Mock History</Link>
                   <Link to="/candidate/payment" onClick={() => setIsMobileMenuOpen(false)} className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/candidate/payment') ? 'bg-blue-50 text-primary dark:bg-blue-900/20 dark:text-blue-400' : 'text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'}`}>
                     <div className="flex items-center gap-2">
                       <span>Wallet</span>
