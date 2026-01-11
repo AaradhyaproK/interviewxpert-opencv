@@ -203,7 +203,7 @@ const Navbar: React.FC = () => {
         >
           {/* Logo */}
           <a href="#" className={`flex items-center gap-2 font-display font-bold text-xl tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
-            <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" className="w-8 h-8 rounded-lg object-cover" />
+            <img src="/logo.png" alt="InterviewXpert Logo" className="w-8 h-8 rounded-lg object-cover dark:invert dark:hue-rotate-180" />
             <span>InterviewXpert</span>
           </a>
 
@@ -734,7 +734,7 @@ const Footer: React.FC = () => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-6">
         <div className="flex items-center gap-2">
-          <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="Logo" className="w-12 h-12 rounded-xl" />
+          <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-xl dark:invert dark:hue-rotate-180" />
           <span className="font-bold text-xl text-slate-900 dark:text-white">InterviewXpert</span>
         </div>
 

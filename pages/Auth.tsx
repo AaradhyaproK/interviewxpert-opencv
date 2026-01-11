@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, addDoc, collection, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { useNavigate, Link } from 'react-router-dom';
+import gsap from 'gsap';
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +12,41 @@ const AuthPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Animation Refs
+  const logoRef = useRef<HTMLImageElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // GSAP Animation Context
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      tl.fromTo(logoRef.current,
+        { opacity: 0, scale: 0.8, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 1, delay: 0.2 }
+      )
+        .fromTo(titleRef.current,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.6"
+        )
+        .fromTo(descRef.current,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8 },
+          "-=0.6"
+        )
+        .fromTo(featuresRef.current?.children || [], // Target children of features container
+          { opacity: 0, x: -20 },
+          { opacity: 1, x: 0, duration: 0.6, stagger: 0.2 },
+          "-=0.4"
+        );
+    });
+
+    return () => ctx.revert();
+  }, []);
 
   // Form State
   const [email, setEmail] = useState('');
@@ -27,7 +63,7 @@ const AuthPage: React.FC = () => {
     setMessage(null);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
+
       if (!userCredential.user.emailVerified) {
         // Check if admin verified manually in Firestore
         const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
@@ -50,7 +86,7 @@ const AuthPage: React.FC = () => {
     setLoading(true);
     setError(null);
     setMessage(null);
-    
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       setLoading(false);
@@ -95,7 +131,7 @@ const AuthPage: React.FC = () => {
       }
 
       await setDoc(doc(db, 'users', cred.user.uid), userData);
-      
+
       await sendEmailVerification(cred.user);
       await signOut(auth);
 
@@ -126,237 +162,331 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-50 dark:bg-slate-950 transition-colors duration-300">
-      {/* Professional Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-50 dark:bg-blue-900/10 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/3"></div>
-         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gray-200 dark:bg-slate-800/10 rounded-full blur-3xl opacity-60 translate-y-1/3 -translate-x-1/4"></div>
+    <div className="min-h-screen flex flex-col relative bg-black text-white font-sans selection:bg-violet-500/30">
+
+      {/* Background Ambience - "Make some blur effects for that" */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-900/40 rounded-full blur-[120px] mix-blend-screen opacity-50 animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen opacity-50"></div>
+        <div className="absolute top-[20%] right-[30%] w-[300px] h-[300px] bg-fuchsia-900/20 rounded-full blur-[100px] mix-blend-screen opacity-30"></div>
       </div>
 
-      <div className="flex-grow flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="w-full max-w-5xl flex rounded-3xl shadow-2xl overflow-hidden bg-white/80 dark:bg-black/80 backdrop-blur-lg border border-white/20 dark:border-slate-700/50 min-h-[600px] transition-colors duration-300">
-        
-        {/* Left Side - Creative Banner (Hidden on mobile) */}
-        <div className="hidden md:flex w-5/12 bg-gradient-to-br from-gray-800 to-blue-900 p-12 flex-col justify-between text-white relative overflow-hidden">
-           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-           <div className="relative z-10">
-             <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" className="w-16 h-16 rounded-xl mb-8" />
-             <h2 className="text-4xl font-bold mb-6 leading-tight">Master Your <br/>Next Interview</h2>
-             <p className="text-blue-100 text-lg leading-relaxed">Join thousands of candidates using AI to land their dream jobs at top tech companies.</p>
-           </div>
-           
-           <div className="space-y-5 relative z-10">
-             <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/10 transform transition hover:scale-105 cursor-default">
-               <div className="w-10 h-10 rounded-full bg-green-400/20 flex items-center justify-center text-green-300"><i className="fa-solid fa-check"></i></div>
-               <span className="font-medium">Real-time AI Feedback</span>
-             </div>
-             <div className="flex items-center gap-4 bg-white/10 p-4 rounded-xl backdrop-blur-md border border-white/10 transform transition hover:scale-105 cursor-default delay-75">
-               <div className="w-10 h-10 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-300"><i className="fa-solid fa-bolt"></i></div>
-               <span className="font-medium">Instant Performance Score</span>
-             </div>
-           </div>
-        </div>
+      <div className="flex-grow flex items-center justify-center p-4 sm:p-6 relative z-10">
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-0 bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xl border border-white/10 min-h-[550px]">
 
-        {/* Right Side - Form */}
-        <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col justify-center bg-white/50 dark:bg-transparent">
-          <div className="max-w-md mx-auto w-full">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              {isReset ? 'Reset Password' : isLogin ? 'Welcome Back!' : 'Create Account'}
-            </h2>
-            <p className="text-gray-500 dark:text-slate-400 mb-8">
-              {isReset ? 'Enter your email to receive a reset link' : isLogin ? 'Please enter your details to sign in.' : 'Start your journey with InterviewXpert today.'}
-            </p>
+          {/* Left Side - Form Section */}
+          <div className="flex flex-col justify-center p-8 md:p-10 relative">
 
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm rounded-xl border border-red-100 dark:border-red-800 flex items-center gap-3 animate-pulse">
-          <i className="fa-solid fa-circle-exclamation"></i>
-          {error}
-        </div>
-      )}
-
-      {message && (
-        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm rounded-xl border border-green-100 dark:border-green-800 flex items-center gap-3">
-          <i className="fa-solid fa-check-circle"></i>
-          {message}
-        </div>
-      )}
-
-      {isReset ? (
-        <form onSubmit={handleResetPassword} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email Address</label>
-            <input 
-              type="email" 
-              required 
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-              placeholder="you@example.com"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-            />
-          </div>
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full py-3.5 px-4 rounded-xl shadow-lg shadow-primary/30 text-white bg-gradient-to-r from-primary to-primary-dark hover:to-primary font-semibold transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed mt-2"
-          >
-            {loading ? 'Sending...' : 'Send Reset Link'}
-          </button>
-          <div className="text-center mt-4">
-            <button 
-              type="button"
-              onClick={() => setIsReset(false)}
-              className="text-sm text-gray-500 hover:text-primary transition-colors font-medium"
-            >
-              <i className="fa-solid fa-arrow-left mr-1"></i> Back to Login
-            </button>
-          </div>
-        </form>
-      ) : (
-      <>
-      <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-4">
-        {/* Signup Only Fields */}
-        {!isLogin && (
-          <>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
-              <input 
-                type="text" 
-                required 
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-                placeholder="John Doe"
-                value={fullname}
-                onChange={e => setFullname(e.target.value)}
-              />
-            </div>
-             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">I am a...</label>
-              <select 
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white"
-                value={role}
-                onChange={e => setRole(e.target.value as 'candidate' | 'recruiter')}
-              >
-                <option value="candidate">Candidate</option>
-                {/* Normally hide recruiter signup or make it restricted, but kept open per original app */}
-                <option value="recruiter">Recruiter (Hiring Manager)</option> 
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Years of Experience</label>
-              <input 
-                type="number" 
-                min="0"
-                required 
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-                value={experience}
-                onChange={e => setExperience(Number(e.target.value))}
-              />
-            </div>
-            {role === 'candidate' && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Phone Number</label>
-                <input 
-                  type="tel" 
-                  pattern="[0-9]{10}"
-                  required 
-                  placeholder="10 digit number"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
-                />
+            <div className="w-full max-w-sm mx-auto">
+              {/* Header */}
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold tracking-tight mb-2 text-white">
+                  {isReset ? 'Reset Password' : isLogin ? 'Welcome back!' : 'Create account'}
+                </h1>
+                <p className="text-zinc-400 text-sm">
+                  {isReset
+                    ? 'Enter your email to receive a reset link'
+                    : isLogin
+                      ? 'Login to access your dashboard'
+                      : 'Get started with your free account'}
+                </p>
               </div>
-            )}
-          </>
-        )}
 
-        {/* Common Fields */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Email Address</label>
-          <input 
-            type="email" 
-            required 
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-            placeholder="you@company.com"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Password</label>
-          <input 
-            type="password" 
-            required 
-            minLength={6}
-            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-700 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none bg-white/50 dark:bg-slate-800/50 dark:text-white dark:placeholder-slate-500"
-            placeholder="••••••••"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-          />
-        </div>
+              {/* Alerts */}
+              {error && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-200 text-xs rounded-lg flex items-center gap-2 animate-fade-in">
+                  <i className="fa-solid fa-circle-exclamation text-red-400"></i>
+                  {error}
+                </div>
+              )}
 
-        {isLogin && (
-          <div className="flex justify-end">
-            <button type="button" onClick={() => setIsReset(true)} className="text-sm text-primary hover:text-primary-dark font-medium transition-colors">
-              Forgot Password?
-            </button>
+              {message && (
+                <div className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-200 text-xs rounded-lg flex items-center gap-2 animate-fade-in">
+                  <i className="fa-solid fa-check-circle text-emerald-400"></i>
+                  {message}
+                </div>
+              )}
+
+              {/* Form Config */}
+              {isReset ? (
+                <form onSubmit={handleResetPassword} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-zinc-300 ml-1">Email</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-violet-400 transition-colors">
+                        <i className="fa-regular fa-envelope text-sm"></i>
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        className="w-full pl-9 pr-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                        placeholder="Enter your mail address"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold shadow-lg shadow-violet-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                  >
+                    {loading ? 'Sending...' : 'Send Reset Link'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsReset(false)}
+                    className="w-full text-zinc-500 hover:text-white text-xs font-medium transition-colors"
+                  >
+                    Back to login
+                  </button>
+                </form>
+              ) : (
+                <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-4">
+
+                  {/* Signup Specific Fields */}
+                  {!isLogin && (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5 col-span-2">
+                          <label className="text-xs font-medium text-zinc-300 ml-1">Full Name</label>
+                          <input
+                            type="text"
+                            required
+                            className="w-full px-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                            placeholder="John Doe"
+                            value={fullname}
+                            onChange={e => setFullname(e.target.value)}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-zinc-300 ml-1">I am a...</label>
+                          <select
+                            className="w-full px-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all appearance-none cursor-pointer hover:border-zinc-700"
+                            value={role}
+                            onChange={e => setRole(e.target.value as 'candidate' | 'recruiter')}
+                          >
+                            <option value="candidate">Candidate</option>
+                            <option value="recruiter">Recruiter</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-zinc-300 ml-1">Experience (Yrs)</label>
+                          <input
+                            type="number"
+                            min="0"
+                            required
+                            className="w-full px-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                            value={experience}
+                            onChange={e => setExperience(Number(e.target.value))}
+                          />
+                        </div>
+                      </div>
+
+                      {role === 'candidate' && (
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-zinc-300 ml-1">Phone Number</label>
+                          <input
+                            type="tel"
+                            pattern="[0-9]{10}"
+                            required
+                            placeholder="10 digit number"
+                            className="w-full px-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                            value={phone}
+                            onChange={e => setPhone(e.target.value)}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Standard Fields */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-zinc-300 ml-1">Email</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-violet-400 transition-colors">
+                        <i className="fa-regular fa-envelope text-sm"></i>
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        className="w-full pl-9 pr-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                        placeholder="Enter your mail address"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-medium text-zinc-300 ml-1">Password</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-violet-400 transition-colors">
+                        <i className="fa-solid fa-lock text-sm"></i>
+                      </div>
+                      <input
+                        type="password"
+                        required
+                        minLength={6}
+                        className="w-full pl-9 pr-3 py-2.5 bg-zinc-900/50 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-zinc-700"
+                        placeholder="Enter password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  {isLogin && (
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <div className="w-3.5 h-3.5 rounded border border-zinc-700 bg-zinc-800 group-hover:border-violet-500 transition-colors flex items-center justify-center">
+                          {/* Fake Checkbox for UI consistency */}
+                          <div className="w-1.5 h-1.5 bg-violet-500 rounded-sm opacity-0 check-indicator"></div>
+                        </div>
+                        <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors">Remember me</span>
+                        <input type="checkbox" className="hidden peer" />
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsReset(true)}
+                        className="text-xs text-violet-400 hover:text-violet-300 transition-colors font-medium"
+                      >
+                        Forgot password?
+                      </button>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white font-semibold shadow-lg shadow-violet-900/20 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed mt-4 text-sm tracking-wide"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <i className="fa-solid fa-circle-notch fa-spin text-xs"></i>
+                        Processing...
+                      </span>
+                    ) : (
+                      isLogin ? 'Log in' : (role === 'recruiter' ? 'Submit Request' : 'Sign Up')
+                    )}
+                  </button>
+
+                  <div className="relative pt-3">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-zinc-800"></div>
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="px-2 bg-[#0a0a0a] text-zinc-500">Or continue with</span>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      onClick={() => setIsLogin(!isLogin)}
+                      className="text-zinc-400 hover:text-white transition-colors text-xs"
+                    >
+                      {isLogin ? "Don't have an account? " : "Already have an account? "}
+                      <span className="text-violet-400 font-semibold hover:underline ml-1">
+                        {isLogin ? "Sign up" : "Log in"}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            <div className="mt-8 text-center">
+              <Link to="/" className="inline-flex items-center gap-2 text-zinc-600 hover:text-zinc-300 transition-colors text-xs">
+                <i className="fa-solid fa-arrow-left"></i> Back to Homepage
+              </Link>
+            </div>
           </div>
-        )}
 
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-lg shadow-primary/30 text-white bg-gradient-to-r from-primary to-primary-dark hover:to-primary font-bold text-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <i className="fa-solid fa-circle-notch fa-spin"></i>
-              Processing...
-            </span>
-          ) : (
-             isLogin ? 'Sign In' : (role === 'recruiter' ? 'Submit Request' : 'Create Account')
-          )}
-        </button>
-      </form>
+          {/* Right Side - Visual / Image */}
+          <div className="hidden md:block relative overflow-hidden bg-black h-full">
+            {/* Abstract Gradient Background imitating the 'Purple Swirl' */}
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-900/40 via-black to-black z-0"></div>
 
-      <div className="mt-8 text-center space-y-4">
-        <div className="flex items-center gap-4 my-6">
-          <div className="h-px bg-gray-200 dark:bg-slate-700 flex-1"></div>
-          <span className="text-sm text-gray-500 dark:text-slate-400 font-medium">or</span>
-          <div className="h-px bg-gray-200 dark:bg-slate-700 flex-1"></div>
-        </div>
+            {/* The 'Swirl' Construction using CSS Blurs */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] z-10 pointer-events-none">
+              <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] bg-indigo-600 rounded-full blur-[80px] mix-blend-screen opacity-60 animate-pulse-slow"></div>
+              <div className="absolute top-[40%] right-[20%] w-[400px] h-[400px] bg-violet-700 rounded-full blur-[100px] mix-blend-screen opacity-60"></div>
+              <div className="absolute bottom-[20%] left-[30%] w-[350px] h-[350px] bg-fuchsia-800 rounded-full blur-[90px] mix-blend-screen opacity-50"></div>
 
-        <button 
-          onClick={() => setIsLogin(!isLogin)}
-          className="text-gray-600 dark:text-slate-400 hover:text-primary font-medium transition-colors"
-        >
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span className="text-primary font-bold hover:underline">{isLogin ? "Sign Up" : "Log In"}</span>
-        </button>
+              {/* Thin lines resembling the flow */}
+              <div className="absolute top-[40%] left-[10%] content-[''] w-[120%] h-[400px] border-[1px] border-white/5 rounded-[100%] rotate-[30deg] blur-[1px]"></div>
+              <div className="absolute top-[45%] left-[15%] content-[''] w-[110%] h-[350px] border-[1px] border-white/5 rounded-[100%] rotate-[30deg] blur-[1px]"></div>
+              <div className="absolute top-[50%] left-[20%] content-[''] w-[100%] h-[300px] border-[1px] border-white/10 rounded-[100%] rotate-[30deg] blur-[2px]"></div>
+            </div>
 
-        <div>
-          <Link to="/" className="text-sm text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors flex items-center justify-center gap-2">
-            <i className="fa-solid fa-house"></i> Back to Home
-          </Link>
+            <div className="absolute bottom-0 left-0 right-0 p-8 z-20 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end h-full pointer-events-none">
+              <div className="p-4 flex flex-col h-full justify-center relative z-30">
+
+                <img
+                  ref={logoRef}
+                  src="/logo.png"
+                  alt="InterviewXpert Logo"
+                  className="w-16 h-16 rounded-xl mb-6 shadow-xl shadow-yellow-500/10 opacity-0 invert hue-rotate-180"
+                />
+
+                <h3
+                  ref={titleRef}
+                  className="text-3xl font-bold text-white mb-4 leading-tight opacity-0"
+                >
+                  Master Your <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500">Next Interview</span>
+                </h3>
+
+                <p
+                  ref={descRef}
+                  className="text-zinc-400 text-base leading-relaxed max-w-lg mb-8 opacity-0"
+                >
+                  Join thousands of candidates using AI to land their dream jobs at top tech companies.
+                </p>
+
+                <div ref={featuresRef} className="space-y-4">
+                  <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl backdrop-blur-md border border-white/10 opacity-0 transform translate-x-4">
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 shadow-lg shadow-green-900/20">
+                      <i className="fa-solid fa-check text-base"></i>
+                    </div>
+                    <div>
+                      <span className="block text-white font-semibold text-sm">Real-time AI Feedback</span>
+                      <span className="text-zinc-500 text-xs">Get instant corrections as you speak</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl backdrop-blur-md border border-white/10 opacity-0 transform translate-x-4">
+                    <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 shadow-lg shadow-yellow-900/20">
+                      <i className="fa-solid fa-bolt text-base"></i>
+                    </div>
+                    <div>
+                      <span className="block text-white font-semibold text-sm">Instant Performance Score</span>
+                      <span className="text-zinc-500 text-xs">Know exactly where you stand</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
-      </>
-      )}
-    </div>
-    </div>
-    </div>
-    </div>
 
-    <footer className="relative z-10 bg-white/50 dark:bg-black/50 backdrop-blur-sm border-t border-gray-200/50 dark:border-slate-800/50 py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-sm text-gray-500 dark:text-slate-400">
-            Developed & Designed by{' '}
-            <a href="https://portfolioaaradhya.netlify.app/" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Aaradhya Pathak</a>,{' '}
-            <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Nimesh Kulkarni</a>,{' '}
-            <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Bhavesh Patil</a>,{' '}
-            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Sanika Wadnekar</span>
-          </p>
-        </div>
+      {/* Footer - Minimal */}
+      <footer className="relative z-10 py-4 text-center border-t border-white/5 bg-black">
+        <p className="text-[10px] text-zinc-600">
+          &copy; {new Date().getFullYear()} InterviewXpert. Designed by <span className="text-zinc-400">Team Interview Expert</span>.
+        </p>
       </footer>
     </div>
+
   );
 };
 

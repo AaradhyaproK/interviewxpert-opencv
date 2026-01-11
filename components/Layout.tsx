@@ -18,7 +18,7 @@ const NetworkStatus = () => {
     window.addEventListener('offline', updateOnlineStatus);
 
     const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-    
+
     const updateSpeed = () => {
       if (connection && connection.downlink) {
         setSpeed(connection.downlink);
@@ -43,7 +43,7 @@ const NetworkStatus = () => {
 
   let statusColor = 'text-green-600 bg-green-50 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800';
   let icon = '🟢';
-  
+
   if (speed !== null && speed < 2) {
     statusColor = 'text-red-600 bg-red-50 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800';
     icon = '🔴';
@@ -84,11 +84,11 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-transparent font-sans text-gray-800 dark:text-slate-100 transition-colors duration-300 relative flex flex-col">
       {/* Tech Grid Pattern for Dark Mode */}
-      <div className="absolute inset-0 z-[-1] hidden dark:block pointer-events-none opacity-20" 
-           style={{ 
-             backgroundImage: 'radial-gradient(#64748b 1px, transparent 1px)', 
-             backgroundSize: '24px 24px' 
-           }}>
+      <div className="absolute inset-0 z-[-1] hidden dark:block pointer-events-none opacity-20"
+        style={{
+          backgroundImage: 'radial-gradient(#64748b 1px, transparent 1px)',
+          backgroundSize: '24px 24px'
+        }}>
       </div>
 
       <nav className="bg-white/95 dark:bg-black/90 backdrop-blur-md shadow-sm sticky top-0 z-[100] border-b border-gray-100 dark:border-slate-800 transition-all">
@@ -96,7 +96,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           <div className="flex justify-between h-14 items-center">
             <div className="flex items-center gap-2 lg:gap-4">
               <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-                <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" className="w-8 h-8 rounded-lg object-cover" />
+                <img src="/logo.png" alt="InterviewXpert Logo" className="w-8 h-8 rounded-lg object-cover dark:invert dark:hue-rotate-180" />
                 <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white hidden xl:block">InterviewXpert</span>
               </Link>
               <div className="hidden xl:flex items-center gap-1">
@@ -148,7 +148,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               >
                 {isDark ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              
+
               {userProfile?.role === 'candidate' && (
                 <Link to="/candidate/payment" className="hidden md:flex items-center gap-1 px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 rounded-full border border-yellow-200 dark:border-yellow-800 text-xs font-bold hover:bg-yellow-100 transition-colors" title="Wallet Balance">
                   <i className="fas fa-coins"></i>
@@ -157,7 +157,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               )}
 
               <NotificationCenter />
-              
+
               <div className="hidden md:flex relative group items-center gap-2 border-l border-gray-200 dark:border-slate-700 pl-3 ml-1 h-8">
                 <div className="flex items-center gap-2 text-xs font-medium text-gray-700 dark:text-slate-200 cursor-pointer">
                   <div className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-gray-500 dark:text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
@@ -172,9 +172,9 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 {/* Dropdown Menu */}
                 <div className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-black/90 backdrop-blur-md rounded-xl shadow-2xl border border-gray-100 dark:border-slate-800 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:translate-y-1">
                   <div className="p-4 flex items-center gap-4 border-b border-gray-100 dark:border-slate-800">
-                    <img 
-                      src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} 
-                      alt="Avatar" 
+                    <img
+                      src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`}
+                      alt="Avatar"
                       className="w-16 h-16 rounded-full object-cover border-2 border-primary/20"
                     />
                     <div>
