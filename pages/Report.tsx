@@ -96,67 +96,232 @@ const InterviewReport: React.FC = () => {
   };
 
   const handleDownloadPDF = () => {
+    if (!report) return;
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    
+    // --- Header Background ---
+    doc.setFillColor(30, 58, 138); // Dark Blue
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    // --- Header Text ---
+    doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
+    doc.setFontSize(22);
     doc.text("Interview Report", 20, 25);
-
+    
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 20, 32);
-
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 20, 35);
+    
+    // --- Candidate Info ---
+    doc.setTextColor(0, 0, 0);
+    let y = 60;
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 58, 138);
+    doc.text("Candidate Details", 20, y);
+    y += 8;
+    
     doc.setDrawColor(200);
-    doc.line(20, 40, 190, 40);
-
-    doc.setFontSize(12);
-    doc.text(`Candidate: ${report.candidateName}`, 20, 50);
-    doc.text(`Job Title: ${report.jobTitle}`, 20, 58);
-    doc.text(`Company: ${companyName}`, 20, 66);
-
-    // Scores
-    doc.setFontSize(14);
+    doc.line(20, y, pageWidth - 20, y);
+    y += 10;
+    
+    doc.setFontSize(11);
+    doc.setTextColor(0);
     doc.setFont("helvetica", "bold");
-    doc.text("Scores", 20, 85);
-    doc.setFontSize(12);
+    doc.text(`Name:`, 20, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`Overall Score: ${report.score}`, 20, 95);
-    doc.text(`Resume Score: ${report.resumeScore}`, 70, 95);
-    doc.text(`Q&A Score: ${report.qnaScore}`, 120, 95);
+    doc.text(report.candidateName, 50, y);
+    
+    doc.setFont("helvetica", "bold");
+    doc.text(`Job Title:`, 110, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(report.jobTitle, 140, y);
+    y += 8;
+    
+    doc.setFont("helvetica", "bold");
+    doc.text(`Company:`, 20, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(companyName || 'N/A', 50, y);
+    
+    doc.setFont("helvetica", "bold");
+    doc.text(`Date:`, 110, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(report.submittedAt?.toDate().toLocaleDateString() || 'N/A', 140, y);
+    
+    y += 15;
 
-    // Feedback
+    // --- Scores Section ---
+    doc.setFillColor(245, 247, 250);
+    doc.setDrawColor(220, 220, 220);
+    doc.roundedRect(20, y, pageWidth - 40, 35, 3, 3, 'FD');
+    
+    let scoreY = y + 12;
+    doc.setFontSize(12);
+    doc.setTextColor(30, 58, 138);
+    doc.setFont("helvetica", "bold");
+    doc.text("Performance Scores", 30, scoreY);
+    
+    scoreY += 12;
+    doc.setFontSize(10);
+    doc.setTextColor(0);
+    
+    // Helper for score display
+    const drawScore = (label: string, value: string | number, x: number) => {
+        doc.setFont("helvetica", "bold");
+        doc.text(label, x, scoreY);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 100, 0); // Greenish for score
+        doc.text(`${value}`, x + doc.getTextWidth(label) + 5, scoreY);
+        doc.setTextColor(0);
+    };
+    
+    drawScore("Overall:", report.score, 30);
+    drawScore("Resume:", report.resumeScore, 80);
+    drawScore("Q&A:", report.qnaScore, 130);
+    
+    y += 50;
+
+    // --- Visual Intelligence Analysis ---
+    if (cvStats) {
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(30, 58, 138);
+        doc.text("Visual Intelligence Analysis", 20, y);
+        y += 8;
+        
+        doc.setDrawColor(200);
+        doc.line(20, y, pageWidth - 20, y);
+        y += 12;
+        
+        // Stats Grid
+        doc.setFontSize(11);
+        doc.setTextColor(0);
+        
+        // Eye Contact
+        doc.setFont("helvetica", "bold");
+        doc.text("Eye Contact:", 20, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${cvStats.eyeContactScore}%`, 60, y);
+        
+        // Confidence
+        doc.setFont("helvetica", "bold");
+        doc.text("Confidence:", 110, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${cvStats.confidenceScore || 85}%`, 150, y);
+        y += 8;
+        
+        // Environment
+        doc.setFont("helvetica", "bold");
+        doc.text("Environment:", 20, y);
+        doc.setFont("helvetica", "normal");
+        doc.text(cvStats.facesDetected > 1 ? 'Multiple Faces Detected' : 'Secure', 60, y);
+        y += 8;
+        
+        // Expressions
+        if (cvStats.expressions) {
+            doc.setFont("helvetica", "bold");
+            doc.text("Expressions:", 20, y);
+            doc.setFont("helvetica", "normal");
+            
+            const expressions = Object.entries(cvStats.expressions)
+                .map(([k, v]) => `${k} (${v})`)
+                .join(', ');
+            
+            const expLines = doc.splitTextToSize(expressions, pageWidth - 60);
+            doc.text(expLines, 60, y);
+            y += (expLines.length * 6) + 10;
+        } else {
+            y += 10;
+        }
+    }
+
+    // --- AI Feedback ---
+    doc.addPage();
+    y = 20;
+    
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
-    doc.text("AI Feedback", 20, 115);
+    doc.setTextColor(30, 58, 138);
+    doc.text("AI Feedback", 20, y);
+    y += 8;
+    
+    doc.setDrawColor(200);
+    doc.line(20, y, pageWidth - 20, y);
+    y += 10;
+
     doc.setFontSize(10);
+    doc.setTextColor(0);
     doc.setFont("helvetica", "normal");
 
     const cleanFeedback = report.feedback.replace(/\*\*/g, '');
-    const feedbackLines = doc.splitTextToSize(cleanFeedback, 170);
-    doc.text(feedbackLines, 20, 125);
+    const feedbackLines = doc.splitTextToSize(cleanFeedback, pageWidth - 40);
+    
+    // Check page break for feedback
+    if (y + (feedbackLines.length * 5) > pageHeight - 20) {
+        doc.addPage();
+        y = 20;
+    }
+    
+    doc.text(feedbackLines, 20, y);
+    y += (feedbackLines.length * 5) + 15;
 
-    let y = 125 + (feedbackLines.length * 5) + 15;
-
+    // --- Transcript ---
+    if (y > pageHeight - 40) { doc.addPage(); y = 20; }
+    
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
+    doc.setTextColor(30, 58, 138);
     doc.text("Interview Transcript", 20, y);
     y += 10;
 
     report.questions.forEach((q, i) => {
-      if (y > 270) { doc.addPage(); y = 20; }
+      if (y > pageHeight - 40) { doc.addPage(); y = 20; }
 
       doc.setFontSize(11);
+      doc.setTextColor(0);
       doc.setFont("helvetica", "bold");
-      const qLines = doc.splitTextToSize(`Q${i + 1}: ${q}`, 170);
+      const qLines = doc.splitTextToSize(`Q${i + 1}: ${q}`, pageWidth - 40);
       doc.text(qLines, 20, y);
       y += (qLines.length * 5) + 3;
 
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
+      doc.setTextColor(60);
       const aText = report.transcriptTexts[i] || "(No transcription)";
-      const aLines = doc.splitTextToSize(aText, 170);
+      const aLines = doc.splitTextToSize(aText, pageWidth - 40);
       doc.text(aLines, 20, y);
-      y += (aLines.length * 5) + 8;
+      y += (aLines.length * 5) + 10;
     });
+
+    // --- Footer Verified Badge ---
+    const badgeY = pageHeight - 30;
+    
+    // Badge Container
+    doc.setDrawColor(37, 99, 235); // Blue-600
+    doc.setLineWidth(0.5);
+    doc.setFillColor(239, 246, 255); // Blue-50
+    doc.roundedRect(pageWidth/2 - 50, badgeY, 100, 18, 4, 4, 'FD');
+    
+    // Icon & Title
+    doc.setTextColor(22, 163, 74); // Green-600
+    doc.setFontSize(14);
+    doc.text("✔", pageWidth/2 - 42, badgeY + 11);
+    
+    doc.setTextColor(30, 58, 138); // Blue-900
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("OFFICIALLY VERIFIED", pageWidth/2 - 32, badgeY + 7);
+    
+    // URL ID
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.setTextColor(100);
+    const reportUrl = `${window.location.origin}/report/${report.id}`;
+    doc.textWithLink(reportUrl, pageWidth/2 - 32, badgeY + 13, { url: reportUrl });
 
     doc.save(`${report.candidateName.replace(/\s+/g, '_')}_Report.pdf`);
   };
@@ -184,62 +349,81 @@ const InterviewReport: React.FC = () => {
   return (
     <div className={`min-h-screen font-sans pb-20 transition-colors duration-300 ${isDark ? 'bg-[#0a0a0a] text-white' : 'bg-[#fafafa] text-gray-900'}`}>
       {/* Navbar / Header */}
-      <div className={`${isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-200'} border-b sticky top-0 z-30 shadow-sm transition-colors duration-300`}>
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-4">
-            <Link to="/" className={`${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-400 hover:text-gray-900'} transition-colors`}>
+      <div className={`${isDark ? 'bg-[#111]/80 backdrop-blur-md border-white/10' : 'bg-white/80 backdrop-blur-md border-gray-200'} border-b rounded-b-3xl sticky top-0 z-30 shadow-sm transition-colors duration-300`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-4 w-full lg:w-auto">
+            <Link to="/" className={`p-2 rounded-full ${isDark ? 'text-gray-400 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-gray-900 hover:bg-gray-100'} transition-colors`}>
               <i className="fas fa-arrow-left text-lg"></i>
             </Link>
-            <div>
-              <h1 className={`text-xl font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>{report.jobTitle}</h1>
-              <div className={`flex items-center gap-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                <span className="font-medium">{report.candidateName}</span>
-                <span className={`w-1 h-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'} rounded-full`}></span>
-                <span>{companyName || 'Interview Report'}</span>
-                <span className={`w-1 h-1 ${isDark ? 'bg-gray-600' : 'bg-gray-300'} rounded-full`}></span>
-                <span>{report.submittedAt?.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+            <div className="flex-1 min-w-0">
+              <h1 className={`text-xl font-bold tracking-tight truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{report.jobTitle}</h1>
+              <div className={`flex flex-wrap items-center gap-2 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                <span className="font-medium text-blue-500 truncate">{report.candidateName}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="truncate">{companyName || 'Interview Report'}</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="whitespace-nowrap">{report.submittedAt?.toDate().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
             {userProfile?.role === 'recruiter' && (
-              <select
-                value={report.status || 'Pending'}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                className={`text-sm font-medium border-none pl-3 pr-8 py-2 rounded-lg cursor-pointer outline-none transition-all appearance-none bg-no-repeat bg-[right_0.75rem_center] ${isDark ? 'ring-1 ring-white/20 focus:ring-2 focus:ring-white/40 hover:bg-white/10 text-white bg-[#1a1a1a]' : 'ring-1 ring-gray-200 focus:ring-2 focus:ring-gray-900 hover:bg-gray-50 text-gray-900 bg-white'}`}
-                style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='${isDark ? '%23ffffff' : '%236b7280'}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")` }}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Reviewing">Reviewing</option>
-                <option value="Interview Scheduled">Scheduled</option>
-                <option value="Hired">Hired</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+              <div className="relative">
+                <select
+                  value={report.status || 'Pending'}
+                  onChange={(e) => handleStatusChange(e.target.value)}
+                  className={`text-sm font-medium border pl-3 pr-8 py-2 rounded-xl cursor-pointer outline-none transition-all appearance-none bg-no-repeat bg-[right_0.75rem_center] ${isDark ? 'border-white/10 ring-1 ring-white/5 focus:ring-blue-500/50 hover:bg-white/5 text-white bg-[#1a1a1a]' : 'border-gray-200 ring-1 ring-gray-100 focus:ring-blue-500/50 hover:bg-gray-50 text-gray-900 bg-white'}`}
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='${isDark ? '%239ca3af' : '%236b7280'}' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")` }}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Reviewing">Reviewing</option>
+                  <option value="Interview Scheduled">Scheduled</option>
+                  <option value="Hired">Hired</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </div>
             )}
 
-            <button onClick={() => setShowProfile(true)} className={`p-2 ${isDark ? 'text-gray-400 hover:text-white hover:bg-white/10' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'} rounded-full transition-all`} title="View Profile">
-              <i className="far fa-user-circle text-xl"></i>
+            {/* View Resume - Smaller with Icon */}
+            <button 
+              onClick={() => report.candidateResumeURL ? setSelectedResume(report.candidateResumeURL) : alert("Resume not available")} 
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border transition-all ${isDark ? 'border-white/10 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/30' : 'border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300'} ${!report.candidateResumeURL ? 'opacity-50' : ''}`}
+            >
+              <i className="far fa-file-alt"></i>
+              <span>Resume</span>
             </button>
-            <button onClick={handleDownloadPDF} className={`p-2 ${isDark ? 'text-gray-400 hover:text-white hover:bg-white/10' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'} rounded-full transition-all`} title="Download PDF">
-              <i className="far fa-file-pdf text-xl"></i>
+
+            {/* Download PDF - Button with Text */}
+            <button 
+              onClick={handleDownloadPDF} 
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${isDark ? 'border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/30' : 'border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300'}`} 
+              title="Download PDF"
+            >
+              <i className="far fa-file-pdf text-lg"></i>
+              <span className="font-bold text-sm">Download</span>
             </button>
-            {report.candidateResumeURL && (
-              <button onClick={() => setSelectedResume(report.candidateResumeURL)} className={`px-4 py-2 ${isDark ? 'bg-white/10 hover:bg-white/20 text-white border border-white/20' : 'bg-gray-900 hover:bg-black text-white'} text-sm font-medium rounded-lg shadow-sm transition-all`}>
-                View Resume
-              </button>
-            )}
+
+            {/* View Profile - Bigger/More Viewable */}
+            <button 
+              onClick={() => setShowProfile(true)} 
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${isDark ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+            >
+              <i className="far fa-user-circle text-lg"></i>
+              <span>View Profile</span>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 space-y-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 space-y-12">
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: 'Overall Score', value: report.score, icon: 'fa-chart-pie' },
-            { label: 'Resume Match', value: report.resumeScore, icon: 'fa-file-contract' },
-            { label: 'Q&A Quality', value: report.qnaScore, icon: 'fa-comments' }
+            { label: 'Overall Score', value: report.score, icon: 'fa-chart-pie', type: 'score' },
+            { label: 'Resume Match', value: report.resumeScore, icon: 'fa-file-contract', type: 'score' },
+            { label: 'Q&A Quality', value: report.qnaScore, icon: 'fa-comments', type: 'score' },
+            { label: 'Tab Switches', value: report.meta?.tabSwitchCount || 0, icon: 'fa-window-restore', type: 'count' }
           ].map((metric, i) => (
             <div key={i} className={`${isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-100'} p-6 rounded-2xl border shadow-sm hover:shadow-md transition-all`}>
               <div className="flex justify-between items-start mb-4">
@@ -248,13 +432,25 @@ const InterviewReport: React.FC = () => {
               </div>
               <div className="flex items-baseline gap-3">
                 <span className={`text-5xl font-bold tracking-tighter ${isDark ? 'text-white' : 'text-gray-900'}`}>{metric.value}</span>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide border ${scoreColor(metric.value)}`}>
-                  {parseInt(metric.value.toString()) >= 70 ? 'Excellent' : parseInt(metric.value.toString()) >= 40 ? 'Good' : 'Poor'}
-                </span>
+                {metric.type === 'score' ? (
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide border ${scoreColor(metric.value)}`}>
+                    {parseInt(metric.value.toString()) >= 70 ? 'Excellent' : parseInt(metric.value.toString()) >= 40 ? 'Good' : 'Poor'}
+                  </span>
+                ) : (
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full uppercase tracking-wide border ${metric.value === 0 ? (isDark ? 'text-emerald-400 bg-emerald-900/30 border-emerald-800' : 'text-emerald-600 bg-emerald-50 border-emerald-100') : (isDark ? 'text-red-400 bg-red-900/30 border-red-800' : 'text-red-600 bg-red-50 border-red-100')}`}>
+                    {metric.value === 0 ? 'Clean' : 'Flagged'}
+                  </span>
+                )}
               </div>
-              <div className={`w-full ${isDark ? 'bg-gray-800' : 'bg-gray-100'} h-1.5 rounded-full mt-6 overflow-hidden`}>
-                <div className={`h-full rounded-full transition-all duration-1000 ${scoreBarColor(metric.value)}`} style={{ width: `${metric.value}%` }}></div>
-              </div>
+              {metric.type === 'score' ? (
+                <div className={`w-full ${isDark ? 'bg-gray-800' : 'bg-gray-100'} h-1.5 rounded-full mt-6 overflow-hidden`}>
+                  <div className={`h-full rounded-full transition-all duration-1000 ${scoreBarColor(metric.value)}`} style={{ width: `${metric.value}%` }}></div>
+                </div>
+              ) : (
+                <div className={`mt-6 text-xs font-medium ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+                  {metric.value === 0 ? 'No suspicious activity detected.' : 'Focus lost detected during interview.'}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -379,7 +575,7 @@ const InterviewReport: React.FC = () => {
 
       {/* Video Modal */}
       {selectedVideo && (
-        <div className={`fixed inset-0 ${isDark ? 'bg-black/90' : 'bg-white/90'} backdrop-blur-md z-50 flex items-center justify-center p-6`} onClick={() => setSelectedVideo(null)}>
+        <div className={`fixed inset-0 ${isDark ? 'bg-black/90' : 'bg-white/90'} backdrop-blur-md z-[150] flex items-center justify-center p-6`} onClick={() => setSelectedVideo(null)}>
           <div className={`${isDark ? 'bg-black' : 'bg-black'} rounded-2xl overflow-hidden max-w-5xl w-full shadow-2xl ring-1 ${isDark ? 'ring-white/20' : 'ring-gray-200'}`} onClick={e => e.stopPropagation()}>
             <video src={selectedVideo} controls autoPlay className="w-full h-auto max-h-[85vh]" />
           </div>
@@ -391,7 +587,7 @@ const InterviewReport: React.FC = () => {
 
       {/* Resume Modal */}
       {selectedResume && (
-        <div className={`fixed inset-0 ${isDark ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-sm z-50 flex items-center justify-center p-4`} onClick={() => setSelectedResume(null)}>
+        <div className={`fixed inset-0 ${isDark ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-sm z-[150] flex items-center justify-center p-4`} onClick={() => setSelectedResume(null)}>
           <div className={`${isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-200'} rounded-xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col border`} onClick={e => e.stopPropagation()}>
             <div className={`flex justify-between items-center p-4 border-b ${isDark ? 'border-white/10' : 'border-gray-200'}`}>
               <h3 className={`font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Parsed Resume</h3>
@@ -408,7 +604,7 @@ const InterviewReport: React.FC = () => {
 
       {/* Profile Modal */}
       {showProfile && (
-        <div className={`fixed inset-0 ${isDark ? 'bg-black/80' : 'bg-white/80'} backdrop-blur-sm z-50 flex items-center justify-center sm:p-6`} onClick={() => setShowProfile(false)}>
+        <div className={`fixed inset-0 ${isDark ? 'bg-black/80' : 'bg-white/80'} backdrop-blur-sm z-[150] flex items-center justify-center sm:p-6`} onClick={() => setShowProfile(false)}>
           <div className={`${isDark ? 'bg-[#111] border-white/10' : 'bg-white border-gray-100'} rounded-2xl shadow-xl border w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200`} onClick={e => e.stopPropagation()}>
             <div className={`p-6 border-b ${isDark ? 'border-white/10 bg-[#111]/95' : 'border-gray-100 bg-white/95'} flex items-center justify-between sticky top-0 backdrop-blur-sm z-10`}>
               <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>Candidate Profile</h3>

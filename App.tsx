@@ -99,6 +99,13 @@ const App: React.FC = () => {
               </ThemeProvider>
             } />
 
+            {/* Interview Route (No Layout) */}
+            <Route path="/interview/:jobId" element={
+              <ThemeProvider>
+                <ProtectedRoute role="candidate"><InterviewWizard /></ProtectedRoute>
+              </ThemeProvider>
+            } />
+
             {/* Protected Routes (With Layout) */}
             <Route path="/*" element={
               <Layout>
@@ -150,9 +157,6 @@ const App: React.FC = () => {
                   } />
                   <Route path="/candidate/payment" element={
                     <ProtectedRoute role="candidate"><Payment /></ProtectedRoute>
-                  } />
-                  <Route path="/interview/:jobId" element={
-                    <ProtectedRoute role="candidate"><InterviewWizard /></ProtectedRoute>
                   } />
 
                   {/* Shared/Public */}

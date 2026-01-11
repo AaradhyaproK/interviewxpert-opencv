@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { jsPDF } from 'jspdf';
 
 interface Experience {
@@ -997,12 +998,15 @@ const ResumeBuilder: React.FC = () => {
       </div>
 
       {/* Mobile Toggle Button */}
-      <button 
-        onClick={() => setShowPreviewMobile(!showPreviewMobile)}
-        className="lg:hidden fixed bottom-6 right-6 z-50 bg-primary text-white p-4 rounded-full shadow-xl hover:bg-primary-dark transition-all"
-      >
-        {showPreviewMobile ? <i className="fas fa-edit text-xl"></i> : <i className="fas fa-eye text-xl"></i>}
-      </button>
+      {createPortal(
+        <button 
+          onClick={() => setShowPreviewMobile(!showPreviewMobile)}
+          className="lg:hidden fixed bottom-6 right-6 z-[110] bg-primary text-white p-4 rounded-full shadow-xl hover:bg-primary-dark transition-all"
+        >
+          {showPreviewMobile ? <i className="fas fa-edit text-xl"></i> : <i className="fas fa-eye text-xl"></i>}
+        </button>,
+        document.body
+      )}
     </div>
   );
 };

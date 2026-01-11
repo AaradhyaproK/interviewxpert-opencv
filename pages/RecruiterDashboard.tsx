@@ -15,6 +15,7 @@ const RecruiterDashboard: React.FC = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [requests, setRequests] = useState<InterviewRequest[]>([]);
+  const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const messageBox = useMessageBox();
 
@@ -75,30 +76,29 @@ const RecruiterDashboard: React.FC = () => {
         setJobs(jobsData);
 
         // 2. Fetch Requests (for charts)
-        // We need all requests for jobs posted by this recruiter. 
-        // Queries with 'in' are limited to 10 items, so for scalability we might fetch all requests and filter in memory 
-        // OR better: if we have job IDs, we can filter. For this demo, let's assume reasonable data size and filter in memory if needed, 
-        // or loop if there are many jobs.
-        // Optimization: Create a list of jobIds.
-        const jobIds = jobsData.map(j => j.id);
-
-        let requestsData: InterviewRequest[] = [];
-        if (jobIds.length > 0) {
-          // Firestore 'in' limit is 10. Split chunks if needed, or if only a few jobs, simple query.
-          // For simplicity and "don't change DB" rule, we'll try to fetch requests where recruiterUID matches (if applicable) 
-          // OR fetch all 'interview_requests' where 'jobId' is in our list.
-          // Let's assume 'interview_requests' might NOT have recruiterUID directly? 
-          // Checking types.ts: InterviewRequest has recruiterUID? Yes.
-
-          const requestsQuery = query(
-            collection(db, 'interview_requests'),
-            where('recruiterUID', '==', user.uid)
-          );
-          const requestsSnap = await getDocs(requestsQuery);
-          requestsData = requestsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as InterviewRequest));
-        }
+        // Use correct collection name 'interviewRequests' and sort by date for "Top 2"
+        // Removed orderBy from query to avoid index requirement issues; sorting in memory instead.
+        const requestsQuery = query(
+          collection(db, 'interviewRequests'),
+          where('recruiterUID', '==', user.uid)
+        );
+        const requestsSnap = await getDocs(requestsQuery);
+        const requestsData = requestsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as InterviewRequest));
+        requestsData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
         setRequests(requestsData);
 
+        // 3. Fetch Interviews (for Pending Review count)
+        const jobIds = jobsData.map(j => j.id);
+        let allInterviews: any[] = [];
+        if (jobIds.length > 0) {
+          for (let i = 0; i < jobIds.length; i += 10) {
+            const chunk = jobIds.slice(i, i + 10);
+            const intQuery = query(collection(db, 'interviews'), where('jobId', 'in', chunk));
+            const intSnap = await getDocs(intQuery);
+            allInterviews = [...allInterviews, ...intSnap.docs.map(d => d.data())];
+          }
+        }
+        setInterviews(allInterviews);
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
       } finally {
@@ -182,7 +182,7 @@ const RecruiterDashboard: React.FC = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Applications</p>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{requests.length}</h3>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{interviews.length}</h3>
             </div>
             <div className="p-3 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
               <i className="fas fa-users"></i>
@@ -194,7 +194,7 @@ const RecruiterDashboard: React.FC = () => {
           <div className="flex justify-between items-start">
             <div>
               <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Pending Review</p>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{requests.filter(r => r.status === 'pending').length}</h3>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{interviews.filter(i => i.status === 'Pending').length}</h3>
             </div>
             <div className="p-3 bg-yellow-50 dark:bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 rounded-xl">
               <i className="fas fa-clock"></i>
@@ -205,11 +205,11 @@ const RecruiterDashboard: React.FC = () => {
         <div className="bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-colors shadow-sm dark:shadow-none kpi-card">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Interviews Accepted</p>
-              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{requests.filter(r => r.status === 'accepted').length}</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Action Taken</p>
+              <h3 className="text-3xl font-bold text-gray-900 dark:text-white mt-2">{requests.filter(r => r.status !== 'pending').length + interviews.filter(i => i.status && i.status !== 'Pending').length}</h3>
             </div>
-            <div className="p-3 bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 rounded-xl">
-              <i className="fas fa-check-circle"></i>
+            <div className="p-3 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
+              <i className="fas fa-check-double"></i>
             </div>
           </div>
         </div>
@@ -247,13 +247,13 @@ const RecruiterDashboard: React.FC = () => {
         </div>
 
         {/* Application Status - Pie Chart */}
-        <div className="bg-white dark:bg-[#111] p-6 rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none analytics-card">
+        <div className="bg-white dark:bg-[#111] p-4 md:p-6 rounded-2xl border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none analytics-card overflow-hidden">
           <div className="mb-6">
             <h3 className="text-lg font-bold text-gray-900 dark:text-white">Request Status</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Distribution of application statuses</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Distribution & Recent Activity</p>
           </div>
-          <div className="h-[300px] w-full relative">
-            {statusData.length > 0 ? (
+          <div className="flex flex-col">
+            <div className="h-[200px] w-full relative mb-4">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -275,19 +275,43 @@ const RecruiterDashboard: React.FC = () => {
                   />
                 </PieChart>
               </ResponsiveContainer>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                <p>No requests data available</p>
-              </div>
-            )}
-            {/* Custom Legend */}
-            <div className="absolute bottom-0 w-full flex justify-center gap-4 text-xs text-gray-500 dark:text-gray-400">
-              {statusData.map(item => (
-                <div key={item.name} className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></span>
-                  <span>{item.name}</span>
+              {statusData.length === 0 && (
+                <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs">
+                  No data available
+                </div>
+              )}
+            </div>
+
+            {/* Legend */}
+            <div className="flex justify-center gap-4 mb-4 flex-wrap">
+              {statusData.map((entry, index) => (
+                <div key={index} className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }}></div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{entry.name}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Top 2 Requests List */}
+            <div className="mt-auto border-t border-gray-100 dark:border-white/5 pt-4">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Recent Requests</h4>
+                <Link to="/recruiter/requests" className="text-[10px] text-primary hover:underline">View All</Link>
+              </div>
+              <div className="space-y-3">
+                {requests.slice(0, 2).map(req => (
+                  <div key={req.id} className="flex justify-between items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{req.candidateName || 'Candidate'}</p>
+                      <p className="text-xs text-gray-500 truncate">{req.jobTitle}</p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase shrink-0 ${req.status === 'accepted' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : req.status === 'rejected' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'}`}>
+                      {req.status}
+                    </span>
+                  </div>
+                ))}
+                {requests.length === 0 && <p className="text-xs text-gray-400 text-center py-2">No requests yet.</p>}
+              </div>
             </div>
           </div>
         </div>

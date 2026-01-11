@@ -144,6 +144,15 @@ const InterviewWizard: React.FC = () => {
   const handleStartWithProfile = async () => {
     if (!user || !job) return;
 
+    // Trigger fullscreen immediately on user interaction
+    try {
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (e) {
+      console.error("Fullscreen blocked", e);
+    }
+
     setLoadingMsg("Analyzing your profile data...");
     setStep('setup'); 
 
@@ -206,7 +215,7 @@ const InterviewWizard: React.FC = () => {
 
   // --- RENDER ---
   const Container = ({ children }: { children: React.ReactNode }) => (
-    <div className="min-h-screen bg-gray-50 dark:bg-transparent text-gray-800 dark:text-gray-100 flex flex-col items-center justify-center p-4 transition-colors duration-500">
+    <div className="fixed inset-0 z-[9999] overflow-y-auto bg-gray-50 dark:bg-slate-950 text-gray-800 dark:text-gray-100 flex flex-col items-center justify-center p-4 transition-colors duration-500">
       {children}
     </div>
   );
@@ -460,18 +469,6 @@ const ActiveInterviewSession: React.FC<{
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [onTabSwitch]);
 
-  // Fullscreen Logic to Hide Navbar
-  useEffect(() => {
-    const enterFullscreen = async () => {
-      try {
-        if (document.documentElement.requestFullscreen) {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch (e) { console.error("Fullscreen blocked", e); }
-    };
-    enterFullscreen();
-  }, []);
-
   // Camera
   useEffect(() => {
     const setupCamera = async () => {
@@ -578,25 +575,23 @@ const ActiveInterviewSession: React.FC<{
 
   // --- ZEN MODE CONTAINER (Hides Navbar via z-index & fixed positioning) ---
   return (
-    <div className="fixed inset-0 z-[9999] bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white flex flex-col items-center justify-center p-4 overflow-hidden transition-colors duration-300">
+    <div className="fixed inset-0 z-[9999] bg-gray-50 dark:bg-slate-950 text-gray-900 dark:text-white flex flex-col overflow-hidden transition-colors duration-300">
       
-      {/* Header Info */}
-      <div className="absolute top-4 left-6 flex items-center gap-4 z-10">
+      {/* Header Info - Mobile Friendly */}
+      <div className="flex justify-between items-center p-4 z-10 bg-white/5 dark:bg-black/20 backdrop-blur-sm shrink-0 border-b border-gray-200/10">
         <div className="flex flex-col">
-          <span className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-widest">Question</span>
-          <span className="text-xl font-bold">{state.currentQuestionIndex + 1} <span className="text-gray-400 dark:text-slate-500 text-lg">/ {state.questions.length}</span></span>
+          <span className="text-gray-500 dark:text-slate-400 text-[10px] uppercase tracking-widest">Question</span>
+          <span className="text-lg font-bold">{state.currentQuestionIndex + 1} <span className="text-gray-400 dark:text-slate-500 text-sm">/ {state.questions.length}</span></span>
         </div>
-      </div>
-
-      <div className="absolute top-4 right-6 z-10">
-         <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono font-bold ${timeLeft < 30 ? 'bg-red-100 text-red-600 border-red-200 dark:bg-red-900/50 dark:text-red-400 dark:border-red-800' : 'bg-white text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-white dark:border-gray-700'} border shadow-sm`}>
+        
+         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full font-mono font-bold text-sm ${timeLeft < 30 ? 'bg-red-100 text-red-600 border-red-200 dark:bg-red-900/50 dark:text-red-400 dark:border-red-800' : 'bg-white text-gray-700 border-gray-200 dark:bg-gray-800/50 dark:text-white dark:border-gray-700'} border shadow-sm`}>
            <div className={`w-2 h-2 rounded-full ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gray-400 dark:bg-gray-500'}`}></div>
            {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
          </div>
       </div>
 
-      {/* Main Video Area */}
-      <div className="relative w-full max-w-5xl aspect-video bg-black rounded-3xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800">
+      {/* Main Video Area - Flex Grow to fill space */}
+      <div className="relative flex-1 w-full bg-black overflow-hidden shadow-2xl flex items-center justify-center">
         {processingVideo && <TicTacToe />}
         
         <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1]" />
@@ -611,44 +606,44 @@ const ActiveInterviewSession: React.FC<{
         
         {/* CV Analysis Overlay */}
         {isRecording && (
-          <div className="absolute top-6 right-6 flex flex-col items-end gap-2 z-20">
-             <div className="bg-black/60 backdrop-blur-md text-green-400 px-3 py-1 rounded text-xs font-mono border border-green-500/30 flex items-center gap-2">
-               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-               AI: {faceApiReady ? 'FACE TRACKING ACTIVE' : 'INITIALIZING...'}
+          <div className="absolute top-4 right-4 flex flex-col items-end gap-2 z-20 pointer-events-none">
+             <div className="bg-black/60 backdrop-blur-md text-green-400 px-2 py-1 rounded text-[10px] font-mono border border-green-500/30 flex items-center gap-2">
+               <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+               {faceApiReady ? 'AI ACTIVE' : 'INIT...'}
              </div>
-             <div className="bg-black/60 backdrop-blur-md text-blue-400 px-3 py-1 rounded text-xs font-mono border border-blue-500/30">
-               EXPRESSION: ANALYZING
+             <div className="bg-black/60 backdrop-blur-md text-blue-400 px-2 py-1 rounded text-[10px] font-mono border border-blue-500/30">
+               ANALYZING
              </div>
           </div>
         )}
 
         {/* Recording Indicator */}
         {isRecording && (
-          <div className="absolute top-6 left-6 flex items-center gap-2 bg-red-600/90 text-white px-3 py-1 rounded text-xs font-bold uppercase tracking-wider shadow-lg animate-pulse">
+          <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600/90 text-white px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider shadow-lg animate-pulse pointer-events-none">
             <span>REC</span>
           </div>
         )}
 
         {/* Question Overlay (Bottom) */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-8 pt-20">
-           <div className="max-w-4xl mx-auto">
-             <h2 className="text-2xl md:text-3xl font-semibold leading-tight text-white drop-shadow-md">{currentQ}</h2>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-6 pt-20 pointer-events-none">
+           <div className="max-w-4xl mx-auto text-center md:text-left">
+             <h2 className="text-lg md:text-3xl font-semibold leading-tight text-white drop-shadow-md">{currentQ}</h2>
            </div>
         </div>
       </div>
 
       {/* Controls */}
-      <div className="mt-8 flex gap-4">
+      <div className="p-6 bg-white dark:bg-slate-950 border-t border-gray-200 dark:border-gray-800 shrink-0 flex justify-center">
          {isRecording ? (
-           <button onClick={stopRecording} className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-full font-bold shadow-lg shadow-red-900/20 transform transition hover:scale-105 active:scale-95 flex items-center gap-2">
-             <div className="w-3 h-3 bg-white rounded-sm"></div> Stop & Submit
+           <button onClick={stopRecording} className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg shadow-red-900/20 transform transition hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-lg">
+             <div className="w-4 h-4 bg-white rounded-sm"></div> Stop & Submit Answer
            </button>
          ) : processingVideo || isStopping ? (
-           <div className="text-gray-500 dark:text-gray-400 animate-pulse flex items-center gap-2">
-             <i className="fas fa-circle-notch fa-spin"></i> Processing Answer...
+           <div className="text-gray-500 dark:text-gray-400 animate-pulse flex items-center gap-2 py-2">
+             <i className="fas fa-circle-notch fa-spin text-xl"></i> <span className="text-lg font-medium">Processing Answer...</span>
            </div>
          ) : (
-           <div className="text-gray-500 dark:text-gray-400 text-sm">Waiting for auto-start...</div>
+           <div className="text-gray-500 dark:text-gray-400 text-sm py-2">Waiting for auto-start...</div>
          )}
       </div>
     </div>

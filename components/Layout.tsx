@@ -54,7 +54,7 @@ const NetworkStatus = () => {
   return (
     <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${statusColor} whitespace-nowrap`}>
       <i className="fas fa-wifi"></i>
-      <span className="hidden sm:inline">{speed !== null && speed < 2 ? 'Weak' : speed !== null && speed < 5 ? 'Fair' : 'Good'} {icon}</span>
+      <span>{speed !== null && speed < 2 ? 'Weak' : speed !== null && speed < 5 ? 'Fair' : 'Good'} {icon}</span>
       {speed && <span>{speed} <span className="hidden sm:inline">Mbps</span></span>}
     </div>
   );
@@ -79,8 +79,6 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
   // Force Dark Mode for this theme update if desired, but respecting user toggle for now.
   // Ideally for "Black Dignity" we default to dark or design the light mode to be very minimal too.
-
-  if (!user) return <>{children}</>;
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -107,7 +105,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 <div className="w-10 h-10 flex items-center justify-center transition-all duration-300">
                   <img src="/gold_logo.png" alt="Logo" className="w-10 h-10 object-contain dark:invert" />
                 </div>
-                <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white hidden xl:block group-hover:text-primary transition-colors">
+                <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white block group-hover:text-primary transition-colors">
                   Interview<span className="text-orange-500 font-light">Xpert</span>
                 </span>
               </Link>
@@ -116,7 +114,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             {/* Centered Navigation */}
             <div className="hidden xl:flex items-center justify-center flex-1 px-8">
               <div className="flex items-center bg-gray-100/50 dark:bg-white/5 rounded-full px-2 py-1.5 border border-gray-200 dark:border-white/5 backdrop-blur-sm">
-                {userProfile?.role === 'admin' ? (
+                {user && userProfile?.role === 'admin' ? (
                   <Link to="/admin" className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${isActive('/admin') ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/5'}`}>
                     Admin Dashboard
                   </Link>
@@ -135,7 +133,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       Requests
                     </Link>
                   </>
-                ) : (
+                ) : user ? (
                   <>
                     <Link to="/candidate/jobs" className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${isActive('/candidate/jobs') ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/5'}`}>
                       Jobs
@@ -156,6 +154,10 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                       Mock
                     </Link>
                   </>
+                ) : (
+                  <Link to="/" className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${isActive('/') ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/5'}`}>
+                    Home
+                  </Link>
                 )}
               </div>
             </div>
@@ -163,16 +165,29 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             {/* Right Side Actions */}
             <div className="flex items-center gap-3">
               {/* Wallet for Candidate */}
-              {userProfile?.role === 'candidate' && (
+              {user && userProfile?.role === 'candidate' && (
                 <Link to="/candidate/payment" className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 text-yellow-400 rounded-full border border-yellow-500/20 text-xs font-bold hover:bg-yellow-500/20 transition-all" title="Wallet Balance">
                   <i className="fas fa-coins"></i>
                   <span>{(userProfile as any)?.walletBalance || 0}</span>
                 </Link>
               )}
 
-              <NotificationCenter />
+              {user ? (
+                <>
+                  <div className="hidden xl:flex">
+                    <NetworkStatus />
+                  </div>
+
+                  <NotificationCenter />
+                </>
+              ) : (
+                <Link to="/auth" className="px-5 py-2 bg-blue-600 text-white rounded-full font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
+                  Sign In
+                </Link>
+              )}
 
               {/* Profile Dropdown */}
+              {user && (
               <div className="hidden md:flex relative group items-center gap-3 pl-3 ml-1 h-9 border-l border-white/10">
                 <div className="flex items-center gap-3 cursor-pointer">
                   <div className="text-right hidden lg:block">
@@ -241,6 +256,7 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                   </div>
                 </div>
               </div>
+              )}
 
               {/* Mobile Menu Button */}
               <div className="flex xl:hidden items-center">
@@ -257,37 +273,50 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="xl:hidden bg-[#0a0a0a] border-t border-white/5 shadow-2xl animate-in slide-in-from-top-5 duration-200 absolute w-full left-0 z-50">
+          <div className="xl:hidden bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/5 shadow-2xl animate-in slide-in-from-top-5 duration-200 absolute w-full left-0 z-50">
             <div className="px-4 pt-4 pb-6 space-y-2">
-              {userProfile?.role === 'admin' ? (
-                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/admin') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Admin Dashboard</Link>
+              {user && userProfile?.role === 'admin' ? (
+                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/admin') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Admin Dashboard</Link>
               ) : userProfile?.role === 'recruiter' ? (
                 <>
-                  <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/jobs') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Dashboard</Link>
-                  <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/post') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Post Job</Link>
-                  <Link to="/recruiter/candidates" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/candidates') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Manage Candidates</Link>
-                  <Link to="/recruiter/requests" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/requests') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Requests</Link>
+                  <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/jobs') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Dashboard</Link>
+                  <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/post') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Post Job</Link>
+                  <Link to="/recruiter/candidates" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/candidates') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Manage Candidates</Link>
+                  <Link to="/recruiter/requests" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/requests') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Requests</Link>
+                </>
+              ) : user ? (
+                <>
+                  <Link to="/candidate/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/jobs') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Available Jobs</Link>
+                  <Link to="/candidate/best-matches" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/best-matches') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Best Matches</Link>
+                  <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/interviews') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>My Interviews</Link>
+                  <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/resume-analysis') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Resume AI</Link>
+                  <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/resume-builder') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Builder</Link>
+                  <Link to="/candidate/mock-interview" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/mock-interview') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Mock Interview</Link>
                 </>
               ) : (
                 <>
-                  <Link to="/candidate/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/jobs') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>Available Jobs</Link>
-                  <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/interviews') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>My Interviews</Link>
-                  {/* Add other mobile links as needed */}
+                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white">Home</Link>
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl text-base font-medium text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-white/5">Sign In</Link>
                 </>
               )}
             </div>
-            <div className="pt-4 pb-6 border-t border-white/5 px-4">
-              <div className="flex items-center gap-3 mb-4">
-                <img className="h-10 w-10 rounded-full object-cover border border-white/10" src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} alt="" />
-                <div>
-                  <div className="text-base font-medium leading-none text-white">{userProfile?.fullname}</div>
-                  <div className="text-sm font-medium leading-none text-gray-500 mt-1">{userProfile?.email}</div>
+            {user && (
+            <div className="pt-4 pb-6 border-t border-gray-200 dark:border-white/5 px-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <img className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-white/10" src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} alt="" />
+                  <div>
+                    <div className="text-base font-medium leading-none text-gray-900 dark:text-white">{userProfile?.fullname}</div>
+                    <div className="text-sm font-medium leading-none text-gray-500 dark:text-gray-400 mt-1">{userProfile?.email}</div>
+                  </div>
                 </div>
+                <NetworkStatus />
               </div>
-              <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block w-full text-center px-4 py-3 rounded-xl text-base font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors">
+              <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block w-full text-center px-4 py-3 rounded-xl text-base font-medium bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
                 Sign out
               </button>
             </div>
+            )}
           </div>
         )}
       </nav>
@@ -302,12 +331,6 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-opacity">
               <img src="/gold_logo.png" alt="Logo" className="w-6 h-6 object-contain dark:invert" />
               <span className="text-sm font-semibold text-gray-900 dark:text-white tracking-tight">InterviewXpert</span>
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-8 text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-primary transition-colors">Support Center</a>
             </div>
 
             <div className="text-xs text-gray-400 dark:text-gray-600 font-medium">
