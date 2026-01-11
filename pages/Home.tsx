@@ -12,11 +12,10 @@ const MagnetButton: React.FC<{ children: React.ReactNode; variant?: 'primary' | 
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className={`rounded-full font-medium transition-colors ${
-        variant === 'primary' 
-          ? 'bg-blue-600 text-white hover:bg-blue-700' 
-          : 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'
-      } ${className}`}
+      className={`rounded-full font-medium transition-colors ${variant === 'primary'
+        ? 'bg-blue-600 text-white hover:bg-blue-700'
+        : 'bg-slate-100 text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700'
+        } ${className}`}
     >
       {children}
     </motion.button>
@@ -37,7 +36,7 @@ const NeuralBackground: React.FC = () => {
     let height = canvas.height = canvas.offsetHeight;
 
     const particles: { x: number; y: number; vx: number; vy: number; size: number }[] = [];
-    const particleCount = Math.min(Math.floor(width / 15), 80); 
+    const particleCount = Math.min(Math.floor(width / 15), 80);
     const connectionDistance = 150;
     const mouseDistance = 200;
 
@@ -74,10 +73,10 @@ const NeuralBackground: React.FC = () => {
           p.vx += forceDirectionX * force * 0.05;
           p.vy += forceDirectionY * force * 0.05;
         }
-        
+
         p.vx *= 0.99;
         p.vy *= 0.99;
-        
+
         if (Math.abs(p.vx) < 0.1) p.vx += (Math.random() - 0.5) * 0.01;
         if (Math.abs(p.vy) < 0.1) p.vy += (Math.random() - 0.5) * 0.01;
 
@@ -102,17 +101,17 @@ const NeuralBackground: React.FC = () => {
             ctx.stroke();
           }
         }
-        
+
         const dx = particles[i].x - mouse.x;
         const dy = particles[i].y - mouse.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < connectionDistance) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(59, 130, 246, ${0.3 * (1 - distance / connectionDistance)})`;
-            ctx.lineWidth = 1;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.stroke();
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(59, 130, 246, ${0.3 * (1 - distance / connectionDistance)})`;
+          ctx.lineWidth = 1;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(mouse.x, mouse.y);
+          ctx.stroke();
         }
       }
 
@@ -227,8 +226,8 @@ const Navbar: React.FC = () => {
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-full transition-all duration-300 ${isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               aria-label="Toggle theme"
             >
@@ -254,8 +253,8 @@ const Navbar: React.FC = () => {
             <button
               onClick={toggleTheme}
               className={`p-2 rounded-full transition-all duration-300 ${isDark
-                  ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'bg-slate-800 hover:bg-slate-700 text-yellow-400'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                 }`}
               aria-label="Toggle theme"
             >
@@ -321,7 +320,7 @@ const DynamicIslandHero = () => {
 
   return (
     <div className="flex justify-center mb-6 md:mb-10 h-12 items-center">
-      <motion.div 
+      <motion.div
         className="bg-slate-900 dark:bg-white rounded-full flex items-center justify-center text-white dark:text-slate-900 shadow-2xl relative overflow-hidden"
         animate={{ width: messages[index].width }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -336,8 +335,8 @@ const DynamicIslandHero = () => {
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2.5 px-4 absolute"
           >
-             {React.createElement(messages[index].icon, { size: 16, className: "text-blue-400 dark:text-blue-600" })}
-             <span className="text-sm font-semibold whitespace-nowrap">{messages[index].text}</span>
+            {React.createElement(messages[index].icon, { size: 16, className: "text-blue-400 dark:text-blue-600" })}
+            <span className="text-sm font-semibold whitespace-nowrap">{messages[index].text}</span>
           </motion.div>
         </AnimatePresence>
       </motion.div>
@@ -351,11 +350,11 @@ const Hero: React.FC = () => (
       <div className="text-center max-w-4xl mx-auto">
         <DynamicIslandHero />
         <h1 className="text-4xl sm:text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 md:mb-8 leading-tight">
-          Master Your Next <br className="hidden sm:block"/>
+          Master Your Next <br className="hidden sm:block" />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-purple-600 to-primary bg-300% animate-pulse">Interview with AI</span>
         </h1>
         <p className="mt-4 text-lg sm:text-xl md:text-2xl text-slate-600 dark:text-slate-300 mb-8 md:mb-12 max-w-3xl mx-auto leading-relaxed">
-          From building a perfect resume to mastering the interview. <br className="hidden md:block"/>
+          From building a perfect resume to mastering the interview. <br className="hidden md:block" />
           Our fully automated AI platform prepares you for your dream job.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0">
@@ -366,16 +365,16 @@ const Hero: React.FC = () => (
             <i className="fa-solid fa-chart-line"></i> View Demo
           </Link>
         </div>
-        
+
         <div className="mt-12 md:mt-16 pt-8 border-t border-slate-200/60 dark:border-slate-700/60">
-            <p className="text-sm text-slate-400 font-medium mb-6 uppercase tracking-widest">Trusted by candidates applying to</p>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 dark:brightness-200 dark:contrast-100">
-              <i className="fab fa-google text-3xl hover:text-[#4285F4] transition-colors cursor-pointer"></i>
-              <i className="fab fa-microsoft text-3xl hover:text-[#00a4ef] transition-colors cursor-pointer"></i>
-              <i className="fab fa-amazon text-3xl hover:text-[#FF9900] transition-colors cursor-pointer"></i>
-              <i className="fab fa-meta text-3xl hover:text-[#0668E1] transition-colors cursor-pointer"></i>
-              <i className="fab fa-apple text-3xl hover:text-[#000000] transition-colors cursor-pointer"></i>
-            </div>
+          <p className="text-sm text-slate-400 font-medium mb-6 uppercase tracking-widest">Trusted by candidates applying to</p>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 dark:brightness-200 dark:contrast-100">
+            <i className="fab fa-google text-3xl hover:text-[#4285F4] transition-colors cursor-pointer"></i>
+            <i className="fab fa-microsoft text-3xl hover:text-[#00a4ef] transition-colors cursor-pointer"></i>
+            <i className="fab fa-amazon text-3xl hover:text-[#FF9900] transition-colors cursor-pointer"></i>
+            <i className="fab fa-meta text-3xl hover:text-[#0668E1] transition-colors cursor-pointer"></i>
+            <i className="fab fa-apple text-3xl hover:text-[#000000] transition-colors cursor-pointer"></i>
+          </div>
         </div>
       </div>
     </div>
@@ -421,38 +420,38 @@ const Features: React.FC = () => (
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {/* Feature 1 */}
-          <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="w-16 h-16 bg-blue-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-blue-600 dark:text-blue-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-                <i className="fa-solid fa-file-pen"></i>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Resume Builder</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-blue-100">
-                Create professional, ATS-friendly resumes in minutes. Choose from modern templates and let AI suggest improvements.
-            </p>
+        {/* Feature 1 */}
+        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="w-16 h-16 bg-blue-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-blue-600 dark:text-blue-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
+            <i className="fa-solid fa-file-pen"></i>
           </div>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Resume Builder</h3>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-blue-100">
+            Create professional, ATS-friendly resumes in minutes. Choose from modern templates and let AI suggest improvements.
+          </p>
+        </div>
 
-          {/* Feature 2 */}
-          <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-purple-600 dark:hover:bg-purple-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="w-16 h-16 bg-purple-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-purple-600 dark:text-purple-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-                <i className="fa-solid fa-magnifying-glass-chart"></i>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">Smart Resume Analysis</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-purple-100">
-                Get instant feedback on your resume. Our AI scores your resume against job descriptions and highlights missing keywords.
-            </p>
+        {/* Feature 2 */}
+        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-purple-600 dark:hover:bg-purple-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="w-16 h-16 bg-purple-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-purple-600 dark:text-purple-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
+            <i className="fa-solid fa-magnifying-glass-chart"></i>
           </div>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">Smart Resume Analysis</h3>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-purple-100">
+            Get instant feedback on your resume. Our AI scores your resume against job descriptions and highlights missing keywords.
+          </p>
+        </div>
 
-          {/* Feature 3 */}
-          <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-orange-500 dark:hover:bg-orange-600 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="w-16 h-16 bg-orange-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-orange-500 dark:text-orange-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-                <i className="fa-solid fa-video"></i>
-            </div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Mock Interviews</h3>
-            <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-orange-100">
-                Practice with a fully automated AI interviewer that adapts to your responses and provides real-time performance metrics.
-            </p>
+        {/* Feature 3 */}
+        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-orange-500 dark:hover:bg-orange-600 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="w-16 h-16 bg-orange-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-orange-500 dark:text-orange-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
+            <i className="fa-solid fa-video"></i>
           </div>
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Mock Interviews</h3>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-orange-100">
+            Practice with a fully automated AI interviewer that adapts to your responses and provides real-time performance metrics.
+          </p>
+        </div>
       </div>
     </div>
   </section>
@@ -462,69 +461,69 @@ const HowItWorks: React.FC = () => (
   <section id="process" className="py-16 md:py-24 overflow-hidden">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
-          <div className="w-full md:w-1/2">
-            <h2 className="text-4xl font-bold mb-6 text-slate-900 dark:text-white">Your Path to Success</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-lg mb-8">
-                Stop guessing and start preparing with data-driven insights. Our platform guides you through every step of the recruitment process.
-            </p>
-            
-            <div className="space-y-8">
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl border border-blue-200 dark:border-blue-800">1</div>
-                  <div>
-                      <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Build & Optimize</h4>
-                      <p className="text-slate-600 dark:text-slate-400">Create a standout resume using our builder and check its ATS score.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl border border-purple-200 dark:border-purple-800">2</div>
-                  <div>
-                      <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Practice Interviews</h4>
-                      <p className="text-slate-600 dark:text-slate-400">Take role-specific AI interviews with real-time voice and video analysis.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center font-bold text-xl border border-green-200 dark:border-green-800">3</div>
-                  <div>
-                      <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Get Hired</h4>
-                      <p className="text-slate-600 dark:text-slate-400">Apply to top jobs with confidence and track your application status.</p>
-                  </div>
-                </div>
+        <div className="w-full md:w-1/2">
+          <h2 className="text-4xl font-bold mb-6 text-slate-900 dark:text-white">Your Path to Success</h2>
+          <p className="text-slate-500 dark:text-slate-400 text-lg mb-8">
+            Stop guessing and start preparing with data-driven insights. Our platform guides you through every step of the recruitment process.
+          </p>
+
+          <div className="space-y-8">
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl border border-blue-200 dark:border-blue-800">1</div>
+              <div>
+                <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Build & Optimize</h4>
+                <p className="text-slate-600 dark:text-slate-400">Create a standout resume using our builder and check its ATS score.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold text-xl border border-purple-200 dark:border-purple-800">2</div>
+              <div>
+                <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Practice Interviews</h4>
+                <p className="text-slate-600 dark:text-slate-400">Take role-specific AI interviews with real-time voice and video analysis.</p>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center font-bold text-xl border border-green-200 dark:border-green-800">3</div>
+              <div>
+                <h4 className="text-xl font-bold mb-2 text-slate-900 dark:text-white">Get Hired</h4>
+                <p className="text-slate-600 dark:text-slate-400">Apply to top jobs with confidence and track your application status.</p>
+              </div>
             </div>
           </div>
-          <div className="w-full md:w-1/2 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
-            <div className="relative bg-white dark:bg-black/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-2xl">
-                {/* Mock UI Element */}
-                <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
-                  <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                      <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                      <div className="w-3 h-3 rounded-full bg-green-400"></div>
-                  </div>
-                  <div className="text-slate-400 text-xs">AI Analysis Report</div>
+        </div>
+        <div className="w-full md:w-1/2 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl blur-2xl opacity-10 animate-pulse"></div>
+          <div className="relative bg-white dark:bg-black/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-2xl">
+            {/* Mock UI Element */}
+            <div className="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <div className="text-slate-400 text-xs">AI Analysis Report</div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-slate-600 dark:text-slate-300">Overall Score</span>
+                <span className="text-green-600 dark:text-green-400 font-bold text-xl">92/100</span>
+              </div>
+              <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
+                <div className="bg-green-500 h-2 rounded-full" style={{ width: '92%' }}></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Communication</div>
+                  <div className="text-blue-600 dark:text-blue-400 font-bold">Excellent</div>
                 </div>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                      <span className="text-slate-600 dark:text-slate-300">Overall Score</span>
-                      <span className="text-green-600 dark:text-green-400 font-bold text-xl">92/100</span>
-                  </div>
-                  <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-                      <div className="bg-green-500 h-2 rounded-full" style={{width: '92%'}}></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                      <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div className="text-xs text-slate-500 dark:text-slate-400">Communication</div>
-                        <div className="text-blue-600 dark:text-blue-400 font-bold">Excellent</div>
-                      </div>
-                      <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div className="text-xs text-slate-500 dark:text-slate-400">Technical</div>
-                        <div className="text-purple-600 dark:text-purple-400 font-bold">Strong</div>
-                      </div>
-                  </div>
+                <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">Technical</div>
+                  <div className="text-purple-600 dark:text-purple-400 font-bold">Strong</div>
                 </div>
+              </div>
             </div>
           </div>
+        </div>
       </div>
     </div>
   </section>
@@ -540,9 +539,9 @@ const LiveDemo: React.FC = () => {
       // Request permission immediately on user click to satisfy browser security policies
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       streamRef.current = stream;
-      
+
       setIsSimulating(true);
-      
+
       // Wait for state update to render video element
       setTimeout(() => {
         if (videoRef.current) {
@@ -552,7 +551,7 @@ const LiveDemo: React.FC = () => {
     } catch (err: any) {
       console.error("Camera error", err);
       let msg = "Could not access camera. Please allow permissions to try the simulation.";
-      
+
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         msg = "Camera permission denied. Please allow access in your browser settings (usually icon in address bar).";
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
@@ -587,54 +586,54 @@ const LiveDemo: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-8">See it in Action</h2>
         <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-black aspect-video flex items-center justify-center max-w-4xl mx-auto">
-            {!isSimulating ? (
-                <div className="text-center bg-white dark:bg-black/80 backdrop-blur-sm w-full h-full flex flex-col items-center justify-center">
-                    <i className="fas fa-laptop-code text-6xl text-slate-300 dark:text-slate-700 mb-4"></i>
-                    <p className="text-slate-400 dark:text-slate-500 font-medium">Interactive Dashboard Preview</p>
-                    <button onClick={startSimulation} className="mt-6 inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1">
-                        <i className="fas fa-camera"></i> Try AI Simulation
-                    </button>
+          {!isSimulating ? (
+            <div className="text-center bg-white dark:bg-black/80 backdrop-blur-sm w-full h-full flex flex-col items-center justify-center">
+              <i className="fas fa-laptop-code text-6xl text-slate-300 dark:text-slate-700 mb-4"></i>
+              <p className="text-slate-400 dark:text-slate-500 font-medium">Interactive Dashboard Preview</p>
+              <button onClick={startSimulation} className="mt-6 inline-flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-full font-bold hover:bg-blue-700 transition shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1">
+                <i className="fas fa-camera"></i> Try AI Simulation
+              </button>
+            </div>
+          ) : (
+            <div className="relative w-full h-full bg-black">
+              <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1] opacity-90"></video>
+
+              {/* Scan Line */}
+              <motion.div
+                initial={{ top: "0%" }}
+                animate={{ top: "100%" }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="absolute left-0 w-full h-1 bg-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.6)] z-10"
+              />
+
+              {/* Analysis Overlay */}
+              <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-black/60 backdrop-blur-md text-white p-3 sm:p-4 rounded-xl text-left text-[10px] sm:text-xs font-mono border border-white/10 z-20 w-40 sm:w-48">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
+                  <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                  <span className="font-bold text-red-400">LIVE ANALYSIS</span>
                 </div>
-            ) : (
-                <div className="relative w-full h-full bg-black">
-                    <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover transform scale-x-[-1] opacity-90"></video>
-                    
-                    {/* Scan Line */}
-                    <motion.div 
-                      initial={{ top: "0%" }}
-                      animate={{ top: "100%" }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                      className="absolute left-0 w-full h-1 bg-blue-500/50 shadow-[0_0_20px_rgba(59,130,246,0.6)] z-10"
-                    />
-
-                    {/* Analysis Overlay */}
-                    <div className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-black/60 backdrop-blur-md text-white p-3 sm:p-4 rounded-xl text-left text-[10px] sm:text-xs font-mono border border-white/10 z-20 w-40 sm:w-48">
-                        <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/10">
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                            <span className="font-bold text-red-400">LIVE ANALYSIS</span>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="flex justify-between"><span className="text-slate-400">Eye Contact</span><span className="text-green-400 font-bold">94%</span></div>
-                            <div className="w-full bg-white/10 rounded-full h-1"><div className="bg-green-500 h-1 rounded-full" style={{width: '94%'}}></div></div>
-                            <div className="flex justify-between mt-2"><span className="text-slate-400">Posture</span><span className="text-blue-400 font-bold">Stable</span></div>
-                            <div className="flex justify-between mt-2"><span className="text-slate-400">Confidence</span><span className="text-yellow-400 font-bold">High</span></div>
-                        </div>
-                    </div>
-
-                    {/* Face Tracking Box */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-64 sm:h-64 border border-blue-500/30 rounded-2xl z-10">
-                        <div className="absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 border-blue-500"></div>
-                        <div className="absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 border-blue-500"></div>
-                        <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 border-blue-500"></div>
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 border-blue-500"></div>
-                    </div>
-
-                    <button onClick={stopSimulation} className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-sm font-bold transition backdrop-blur-sm z-30 flex items-center gap-2">
-                        <i className="fas fa-stop-circle"></i> Stop Simulation
-                    </button>
+                <div className="space-y-2">
+                  <div className="flex justify-between"><span className="text-slate-400">Eye Contact</span><span className="text-green-400 font-bold">94%</span></div>
+                  <div className="w-full bg-white/10 rounded-full h-1"><div className="bg-green-500 h-1 rounded-full" style={{ width: '94%' }}></div></div>
+                  <div className="flex justify-between mt-2"><span className="text-slate-400">Posture</span><span className="text-blue-400 font-bold">Stable</span></div>
+                  <div className="flex justify-between mt-2"><span className="text-slate-400">Confidence</span><span className="text-yellow-400 font-bold">High</span></div>
                 </div>
-            )}
-      </div>
+              </div>
+
+              {/* Face Tracking Box */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-64 sm:h-64 border border-blue-500/30 rounded-2xl z-10">
+                <div className="absolute -top-1 -left-1 w-6 h-6 border-t-2 border-l-2 border-blue-500"></div>
+                <div className="absolute -top-1 -right-1 w-6 h-6 border-t-2 border-r-2 border-blue-500"></div>
+                <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-2 border-l-2 border-blue-500"></div>
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-2 border-r-2 border-blue-500"></div>
+              </div>
+
+              <button onClick={stopSimulation} className="absolute bottom-8 left-1/2 -translate-x-1/2 px-6 py-2 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-sm font-bold transition backdrop-blur-sm z-30 flex items-center gap-2">
+                <i className="fas fa-stop-circle"></i> Stop Simulation
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -699,7 +698,7 @@ const FAQ: React.FC<{ openFaq: number | null, toggleFaq: (i: number) => void }> 
           { q: "How is the score calculated?", a: "We use a weighted average of your technical accuracy, communication clarity, and resume match score." }
         ].map((item, idx) => (
           <div key={idx} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-black/80 backdrop-blur-sm">
-            <button 
+            <button
               onClick={() => toggleFaq(idx)}
               className="w-full flex justify-between items-center p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition"
             >
@@ -738,7 +737,7 @@ const Footer: React.FC = () => (
           <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="Logo" className="w-12 h-12 rounded-xl" />
           <span className="font-bold text-xl text-slate-900 dark:text-white">InterviewXpert</span>
         </div>
-        
+
         <div className="text-center md:text-right">
           <div className="text-slate-500 dark:text-slate-400 text-sm mb-2 font-medium">
             Developed & Designed by
@@ -747,15 +746,15 @@ const Footer: React.FC = () => (
             {/* Aaradhya Pathak with Hover Effect */}
             <div className="relative group inline-block cursor-pointer">
               <span className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors border-b border-dashed border-blue-400/50 pb-0.5">Aaradhya Pathak</span>
-              
+
               {/* Hover Card */}
               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 bg-white dark:bg-black/80 backdrop-blur-sm text-slate-900 dark:text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:-translate-y-2 border border-slate-100 dark:border-slate-800">
                 <div className="flex flex-col items-center text-center">
                   <div className="relative mb-3">
                     <div className="absolute inset-0 bg-primary rounded-full blur opacity-40"></div>
-                    <img 
-                      src="https://i.ibb.co/hxk52kkC/Whats-App-Image-2025-03-21-at-20-13-16.jpg" 
-                      alt="Aaradhya Pathak" 
+                    <img
+                      src="https://i.ibb.co/hxk52kkC/Whats-App-Image-2025-03-21-at-20-13-16.jpg"
+                      alt="Aaradhya Pathak"
                       className="relative w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
                     />
                   </div>
@@ -773,7 +772,34 @@ const Footer: React.FC = () => (
               </div>
             </div>
             <span>,</span>
-            <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Nimesh Kulkarni</a>
+            {/* Nimesh Kulkarni with Hover Effect */}
+            <div className="relative group inline-block cursor-pointer">
+              <span className="font-bold text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors border-b border-dashed border-blue-400/50 pb-0.5">Nimesh Kulkarni</span>
+
+              {/* Hover Card */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 sm:w-80 bg-white dark:bg-black/80 backdrop-blur-sm text-slate-900 dark:text-white p-5 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform group-hover:-translate-y-2 border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col items-center text-center">
+                  <div className="relative mb-3">
+                    <div className="absolute inset-0 bg-primary rounded-full blur opacity-40"></div>
+                    <img
+                      src="/nimesh-kulkarni.jpg"
+                      alt="Nimesh Kulkarni"
+                      className="relative w-24 h-24 rounded-full object-cover border-4 border-white dark:border-slate-800 shadow-lg"
+                    />
+                  </div>
+                  <h4 className="font-bold text-lg text-slate-900 dark:text-white">Nimesh Kulkarni</h4>
+                  <div className="text-xs font-bold text-primary bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full mb-3 mt-1">Cybersecurity & DevSecOps</div>
+                  <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 text-justify mb-4">
+                    An engineering student focused on cybersecurity, cloud security, and DevSecOps, with a strong preference for hands-on, project-driven learning. Passionate about building impactful software while continuously improving technical skills, confidence, and overall discipline.
+                  </p>
+                  <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs font-bold px-5 py-2 rounded-full hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    <i className="fa-solid fa-globe"></i> View Portfolio
+                  </a>
+                </div>
+                {/* Arrow */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-2 border-8 border-transparent border-t-white dark:border-t-slate-900"></div>
+              </div>
+            </div>
             <span>,</span>
             <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Bhavesh Patil</a>
             <span>,</span>
@@ -797,21 +823,21 @@ const Home: React.FC = () => {
 
   return (
     <ThemeProvider>
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 selection:bg-blue-500/30 selection:text-blue-900 dark:selection:text-blue-200 transition-colors duration-300">
-      <Navbar />
-      <main>
-        <NeuralBackground />
-        <Hero />
-        <WhoItsFor />
-        <Features />
-        <HowItWorks />
-        <LiveDemo />
-        <Pricing />
-        <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 selection:bg-blue-500/30 selection:text-blue-900 dark:selection:text-blue-200 transition-colors duration-300">
+        <Navbar />
+        <main>
+          <NeuralBackground />
+          <Hero />
+          <WhoItsFor />
+          <Features />
+          <HowItWorks />
+          <LiveDemo />
+          <Pricing />
+          <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
+          <FinalCTA />
+        </main>
+        <Footer />
+      </div>
     </ThemeProvider>
   );
 };
