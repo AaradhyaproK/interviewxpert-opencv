@@ -4,13 +4,13 @@ import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 import { Job } from '../types';
 import gsap from 'gsap';
+import { useNavigate } from 'react-router-dom';
 
 interface Request {
   id: string;
   jobId: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
+  candidateUID: string;
+  candidateName: string;
   status: 'pending' | 'accepted' | 'rejected';
   createdAt: any;
   jobTitle?: string;
@@ -18,8 +18,10 @@ interface Request {
 
 const InterviewRequests: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (!loading && requests.length > 0) {
@@ -56,32 +58,24 @@ const InterviewRequests: React.FC = () => {
     if (!user) return;
     const fetchRequests = async () => {
       try {
-        // 1. Get all jobs by this recruiter
-        const jobsQuery = query(collection(db, 'jobs'), where('recruiterUID', '==', user.uid));
-        const jobsSnapshot = await getDocs(jobsQuery);
-        const jobMap = new Map<string, string>();
-        jobsSnapshot.forEach(doc => {
-          jobMap.set(doc.id, doc.data().title);
-        });
-
-        if (jobsSnapshot.empty) {
-          setLoading(false);
-          return;
-        }
-
-        // 2. Get requests for these jobs
+        // Fetch requests directly using recruiterUID
         const requestsQuery = query(
-          collection(db, 'interview_requests'),
-          where('jobId', 'in', Array.from(jobMap.keys())),
-          orderBy('createdAt', 'desc')
+          collection(db, 'interviewRequests'),
+          where('recruiterUID', '==', user.uid)
         );
 
         const requestsSnap = await getDocs(requestsQuery);
         const fetchedRequests = requestsSnap.docs.map(doc => ({
           id: doc.id,
-          ...doc.data(),
-          jobTitle: jobMap.get(doc.data().jobId)
+          ...doc.data()
         })) as Request[];
+
+        // Sort client-side to avoid index issues
+        fetchedRequests.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return tB - tA;
+        });
 
         setRequests(fetchedRequests);
       } catch (err) {
@@ -95,13 +89,18 @@ const InterviewRequests: React.FC = () => {
 
   const handleAction = async (requestId: string, status: 'accepted' | 'rejected') => {
     try {
-      await updateDoc(doc(db, 'interview_requests', requestId), { status });
+      await updateDoc(doc(db, 'interviewRequests', requestId), { status });
       setRequests(requests.map(req => req.id === requestId ? { ...req, status } : req));
     } catch (err) {
       console.error(err);
       alert("Failed to update status");
     }
   };
+
+  const filteredRequests = requests.filter(req =>
+    (req.candidateName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+    (req.jobTitle?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+  );
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[50vh]">
@@ -116,18 +115,30 @@ const InterviewRequests: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">Interview Requests</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">Manage incoming interview applications from candidates.</p>
         </div>
-        <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-gray-600 dark:text-gray-400 shadow-sm dark:shadow-none status-pill">
-          <span className="text-gray-900 dark:text-white font-bold">{requests.filter(r => r.status === 'pending').length}</span> <span className="hidden sm:inline">Pending Requests</span>
+        <div className="flex items-center gap-4">
+          <div className="relative">
+            <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input 
+              type="text" 
+              placeholder="Search..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-200 dark:border-white/10 rounded-xl bg-white dark:bg-[#111] text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white w-full md:w-64"
+            />
+          </div>
+          <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2 text-sm text-gray-600 dark:text-gray-400 shadow-sm dark:shadow-none status-pill whitespace-nowrap">
+            <span className="text-gray-900 dark:text-white font-bold">{requests.filter(r => r.status === 'pending').length}</span> <span className="hidden sm:inline">Pending</span>
+          </div>
         </div>
       </div>
 
       <div className="bg-white dark:bg-[#111] rounded-2xl border border-gray-200 dark:border-white/5 overflow-hidden shadow-xl dark:shadow-none">
-        {requests.length === 0 ? (
+        {filteredRequests.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 bg-gray-50 dark:bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 dark:text-gray-500">
               <i className="fas fa-inbox text-2xl"></i>
             </div>
-            <p className="text-gray-500 dark:text-gray-400">No interview requests found.</p>
+            <p className="text-gray-500 dark:text-gray-400">{searchTerm ? 'No matching requests found.' : 'No interview requests found.'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -142,21 +153,20 @@ const InterviewRequests: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-                {requests.map(request => (
+                {filteredRequests.map(request => (
                   <tr key={request.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors group request-row">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
                         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-900 flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-white/10 text-xs font-medium text-gray-600 dark:text-white">
-                          {request.userName.charAt(0)}
+                          {(request.candidateName || 'U').charAt(0)}
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors">{request.userName}</div>
-                          <div className="text-xs text-gray-500">{request.userEmail}</div>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary transition-colors truncate max-w-[150px]">{request.candidateName || 'Unknown'}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-600 dark:text-gray-300">{request.jobTitle || 'Unknown Job'}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300 truncate max-w-[150px]">{request.jobTitle || 'Unknown Job'}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {request.createdAt?.toDate ? request.createdAt.toDate().toLocaleDateString() : 'N/A'}
@@ -170,28 +180,37 @@ const InterviewRequests: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      {request.status === 'pending' ? (
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => handleAction(request.id, 'accepted')}
-                            className="p-2 rounded-lg bg-green-50 hover:bg-green-100 dark:bg-green-500/10 dark:hover:bg-green-500/20 text-green-600 dark:text-green-400 hover:scale-105 transition-all"
-                            title="Accept"
-                          >
-                            <i className="fas fa-check"></i>
-                          </button>
-                          <button
-                            onClick={() => handleAction(request.id, 'rejected')}
-                            className="p-2 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 hover:scale-105 transition-all"
-                            title="Reject"
-                          >
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-gray-500 dark:text-gray-600 text-xs italic">
-                          {request.status === 'accepted' ? 'Approved' : 'Declined'}
-                        </span>
-                      )}
+                      <div className="flex justify-end gap-2 items-center">
+                        <button
+                          onClick={() => navigate(`/profile/${request.candidateUID}`)}
+                          className="p-2 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-500/10 dark:hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:scale-105 transition-all"
+                          title="View Profile"
+                        >
+                          <i className="fas fa-user"></i>
+                        </button>
+                        {request.status === 'pending' ? (
+                          <>
+                            <button
+                              onClick={() => handleAction(request.id, 'accepted')}
+                              className="p-2 rounded-lg bg-green-50 hover:bg-green-100 dark:bg-green-500/10 dark:hover:bg-green-500/20 text-green-600 dark:text-green-400 hover:scale-105 transition-all"
+                              title="Accept"
+                            >
+                              <i className="fas fa-check"></i>
+                            </button>
+                            <button
+                              onClick={() => handleAction(request.id, 'rejected')}
+                              className="p-2 rounded-lg bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 hover:scale-105 transition-all"
+                              title="Reject"
+                            >
+                              <i className="fas fa-times"></i>
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-gray-500 dark:text-gray-600 text-xs italic">
+                            {request.status === 'accepted' ? 'Approved' : 'Declined'}
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
