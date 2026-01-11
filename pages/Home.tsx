@@ -773,9 +773,9 @@ const Footer: React.FC = () => (
               </div>
             </div>
             <span>,</span>
-            <span className="hover:text-slate-900 dark:hover:text-white transition-colors">Nimesh Kulkarni</span>
+            <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Nimesh Kulkarni</a>
             <span>,</span>
-            <span className="hover:text-slate-900 dark:hover:text-white transition-colors">Bhavesh Patil</span>
+            <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 dark:hover:text-white transition-colors">Bhavesh Patil</a>
             <span>,</span>
             <span className="hover:text-slate-900 dark:hover:text-white transition-colors">Sanika Wadnekar</span>
           </div>
