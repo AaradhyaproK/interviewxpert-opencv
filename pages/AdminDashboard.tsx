@@ -6,7 +6,7 @@ import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth'
 import { db, auth } from '../services/firebase';
 import { RevenueAreaChart, UserPieChart, JobBarChart } from '../components/AdminCharts';
 import { GShapeAnimation } from '../components/AdminAnimations';
-import { Users, FileText, DollarSign, UserPlus, Briefcase, CheckCircle, XCircle, Trash2, Bell, Sun, Moon, Monitor, Video, Menu, X } from 'lucide-react';
+import { Users, FileText, DollarSign, UserPlus, Briefcase, CheckCircle, XCircle, Trash2, Bell, Sun, Moon, Monitor, Video, Menu, X, Search, ShieldCheck, ShieldX } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useMessageBox } from '../components/MessageBox';
 
@@ -592,18 +592,31 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'users' && (
             <div className="space-y-4 sm:space-y-6">
-              <div className="animated-item flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <h2 className="text-xl sm:text-2xl font-bold">User Management</h2>
-                <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-lg self-start sm:self-auto">
-                  {['all', 'candidate', 'recruiter'].map(f => (
-                    <button
-                      key={f}
-                      onClick={() => setUserFilter(f as any)}
-                      className={`px-2 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium capitalize transition-all ${userFilter === f ? 'bg-white dark:bg-white/10 shadow-sm text-primary' : 'text-gray-500'}`}
-                    >
-                      {f}
-                    </button>
-                  ))}
+              <div className="animated-item flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <h2 className="text-xl sm:text-2xl font-bold">User Management</h2>
+                  <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-lg self-start sm:self-auto">
+                    {['all', 'candidate', 'recruiter'].map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setUserFilter(f as any)}
+                        className={`px-2 sm:px-4 py-1.5 rounded-md text-xs sm:text-sm font-medium capitalize transition-all ${userFilter === f ? 'bg-white dark:bg-white/10 shadow-sm text-primary' : 'text-gray-500'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name or email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
                 </div>
               </div>
 
@@ -620,10 +633,23 @@ const AdminDashboard: React.FC = () => {
                         {u.accountStatus || 'active'}
                       </span>
                     </div>
+                    {/* Email Verification Status */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${u.adminVerified ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                        {u.adminVerified ? <ShieldCheck size={10} /> : <ShieldX size={10} />}
+                        {u.adminVerified ? 'Email Verified' : 'Not Verified'}
+                      </span>
+                    </div>
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100 dark:border-white/5">
                       <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-white/10 capitalize">{u.role}</span>
                       {u.role !== 'admin' && (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
+                          <button
+                            onClick={() => toggleEmailVerification(u)}
+                            className={`text-xs font-medium px-2 py-1 rounded-md transition-colors ${u.adminVerified ? 'text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10' : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10'}`}
+                          >
+                            {u.adminVerified ? 'Unverify' : 'Verify Email'}
+                          </button>
                           <button onClick={() => toggleUserStatus(u)} className="text-xs font-medium text-blue-600 hover:underline">{u.accountStatus === 'active' ? 'Disable' : 'Enable'}</button>
                           <button onClick={() => handleDeleteUser(u.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
                         </div>
@@ -635,12 +661,13 @@ const AdminDashboard: React.FC = () => {
 
               {/* Desktop Table View */}
               <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200 dark:border-white/5 bg-white dark:bg-zinc-900">
-                <table className="w-full text-left min-w-[600px]">
+                <table className="w-full text-left min-w-[700px]">
                   <thead className="bg-gray-50 dark:bg-white/5 text-gray-500 text-xs uppercase font-semibold">
                     <tr>
                       <th className="px-4 lg:px-6 py-3">User</th>
                       <th className="px-4 lg:px-6 py-3">Role</th>
                       <th className="px-4 lg:px-6 py-3">Status</th>
+                      <th className="px-4 lg:px-6 py-3">Email Verified</th>
                       <th className="px-4 lg:px-6 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -657,9 +684,21 @@ const AdminDashboard: React.FC = () => {
                             {u.accountStatus || 'active'}
                           </span>
                         </td>
+                        <td className="px-4 lg:px-6 py-4">
+                          <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${u.adminVerified ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                            {u.adminVerified ? <ShieldCheck size={12} /> : <ShieldX size={12} />}
+                            {u.adminVerified ? 'Verified' : 'Not Verified'}
+                          </span>
+                        </td>
                         <td className="px-4 lg:px-6 py-4 text-right space-x-2">
                           {u.role !== 'admin' && (
                             <>
+                              <button
+                                onClick={() => toggleEmailVerification(u)}
+                                className={`text-sm font-medium px-2 py-1 rounded-md transition-colors ${u.adminVerified ? 'text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/10' : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/10'}`}
+                              >
+                                {u.adminVerified ? 'Unverify' : 'Verify Email'}
+                              </button>
                               <button onClick={() => toggleUserStatus(u)} className="text-sm font-medium text-blue-600 hover:underline">{u.accountStatus === 'active' ? 'Disable' : 'Enable'}</button>
                               <button onClick={() => handleDeleteUser(u.id)} className="text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                             </>
@@ -675,7 +714,20 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'jobs' && (
             <div className="space-y-4 sm:space-y-6">
-              <h2 className="animated-item text-xl sm:text-2xl font-bold">Job Postings</h2>
+              <div className="animated-item flex flex-col gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold">Job Postings</h2>
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by job title or company..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                 {filteredData().map(job => (
                   <div key={job.id} className="animated-item p-4 sm:p-5 rounded-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/5 shadow-sm hover:border-primary/50 transition-all group relative">
@@ -696,7 +748,20 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'transactions' && (
             <div className="space-y-4 sm:space-y-6">
-              <h2 className="animated-item text-xl sm:text-2xl font-bold">Transaction History</h2>
+              <div className="animated-item flex flex-col gap-3">
+                <h2 className="text-xl sm:text-2xl font-bold">Transaction History</h2>
+                {/* Search Input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, email or payment ID..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-zinc-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </div>
+              </div>
 
               {/* Mobile Card View */}
               <div className="block sm:hidden space-y-3">
