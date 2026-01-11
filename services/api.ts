@@ -1,9 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 
-// Config Constants
-const ASSEMBLYAI_API_KEY = "4a07d7f7399f447b9ff969c458df945f";
-const CLOUDINARY_CLOUD_NAME = "dfp563ini";
-const CLOUDINARY_UPLOAD_PRESET = "Ai-interview";
+// Config Constants (loaded from environment variables)
+const ASSEMBLYAI_API_KEY = import.meta.env.VITE_ASSEMBLYAI_API_KEY;
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
 const VIDEO_CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`;
 const RESUME_CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
@@ -52,10 +52,10 @@ Instructions:
 };
 
 export const generateFeedback = async (
-  jobTitle: string, 
-  jobDescription: string, 
-  candidateExp: string, 
-  base64Resume: string, 
+  jobTitle: string,
+  jobDescription: string,
+  candidateExp: string,
+  base64Resume: string,
   mimeType: string,
   questions: string[],
   transcripts: string[]
@@ -101,7 +101,7 @@ Q&A Score: [Score]/100
 Overall Score: [Score]/100`;
 
   try {
-     const response = await ai.models.generateContent({
+    const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: {
         parts: [
@@ -117,8 +117,8 @@ Overall Score: [Score]/100`;
     });
     return response.text || "AI feedback generation failed.";
   } catch (error: any) {
-     console.error("Gemini Feedback Error:", error);
-     throw new Error(error.message);
+    console.error("Gemini Feedback Error:", error);
+    throw new Error(error.message);
   }
 };
 
