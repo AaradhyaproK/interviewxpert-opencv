@@ -1,43 +1,72 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'system';
 
 interface ThemeContextType {
   theme: Theme;
-  toggleTheme: () => void;
+  setTheme: (theme: Theme) => void;
   isDark: boolean;
+  toggleTheme: () => void; // Keeping for backward compatibility if needed, but we'll use setTheme mostly
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
+  const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined' && window.localStorage) {
-      const stored = localStorage.getItem('theme');
-      if (stored === 'dark' || stored === 'light') return stored;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      const stored = localStorage.getItem('theme') as Theme;
+      if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
     }
-    return 'light';
+    return 'system';
   });
 
-  const isDark = theme === 'dark';
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
     const root = window.document.documentElement;
-    if (isDark) {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyTheme = () => {
+      let targetTheme = theme;
+
+      if (theme === 'system') {
+        targetTheme = mediaQuery.matches ? 'dark' : 'light';
+      }
+
+      setResolvedTheme(targetTheme as 'light' | 'dark');
+
+      if (targetTheme === 'dark') {
+        root.classList.add('dark');
+      } else {
+        root.classList.remove('dark');
+      }
+    };
+
+    applyTheme();
+
+    const handleSystemChange = () => {
+      if (theme === 'system') {
+        applyTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemChange);
     localStorage.setItem('theme', theme);
-  }, [isDark, theme]);
+
+    return () => mediaQuery.removeEventListener('change', handleSystemChange);
+  }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    // Cyclic toggle: light -> dark -> system -> light
+    setThemeState(prev => {
+      if (prev === 'light') return 'dark';
+      if (prev === 'dark') return 'system';
+      return 'light';
+    });
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isDark }}>
+    <ThemeContext.Provider value={{ theme, setTheme: setThemeState, toggleTheme, isDark: resolvedTheme === 'dark' }}>
       {children}
     </ThemeContext.Provider>
   );

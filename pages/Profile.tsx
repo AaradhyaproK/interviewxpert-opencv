@@ -6,17 +6,17 @@ import { jsPDF } from 'jspdf';
 import * as pdfjsLib from 'pdfjs-dist';
 
 export const SKILL_OPTIONS = [
-  "HTML", "CSS", "React", "Node.js", "JavaScript", "TypeScript", "Java", 
-  "Python", "C++", "C#", "MongoDB", "SQL", "PostgreSQL", "Firebase", 
-  "AWS", "Docker", "Git", "TensorFlow", "DSA", "Data Analysis", 
+  "HTML", "CSS", "React", "Node.js", "JavaScript", "TypeScript", "Java",
+  "Python", "C++", "C#", "MongoDB", "SQL", "PostgreSQL", "Firebase",
+  "AWS", "Docker", "Git", "TensorFlow", "DSA", "Data Analysis",
   "Machine Learning", "Next.js", "Vue.js", "Angular", "Express.js",
   "Redux", "Tailwind CSS", "SASS", "GraphQL", "Linux"
 ];
 
 export const JOB_CATEGORIES = [
-  "Software Development", "Data Science & Analytics", "Design & Creative", 
-  "Marketing & Sales", "Finance & Accounting", "Human Resources", 
-  "Engineering", "Product Management", "Customer Support", 
+  "Software Development", "Data Science & Analytics", "Design & Creative",
+  "Marketing & Sales", "Finance & Accounting", "Human Resources",
+  "Engineering", "Product Management", "Customer Support",
   "Legal", "Healthcare", "Education", "Operations & Admin"
 ];
 
@@ -138,10 +138,10 @@ const Profile: React.FC = () => {
   };
 
   const toggleSkill = (skill: string) => {
-    const currentSkills = formData.skills 
-      ? formData.skills.split(',').map(s => s.trim()).filter(s => s) 
+    const currentSkills = formData.skills
+      ? formData.skills.split(',').map(s => s.trim()).filter(s => s)
       : [];
-    
+
     let newSkills;
     if (currentSkills.includes(skill)) {
       newSkills = currentSkills.filter(s => s !== skill);
@@ -152,10 +152,10 @@ const Profile: React.FC = () => {
   };
 
   const toggleCategory = (category: string) => {
-    const current = formData.preferredCategories 
-      ? formData.preferredCategories.split(',').map(s => s.trim()).filter(s => s) 
+    const current = formData.preferredCategories
+      ? formData.preferredCategories.split(',').map(s => s.trim()).filter(s => s)
       : [];
-    
+
     let newCats;
     if (current.includes(category)) {
       newCats = current.filter(c => c !== category);
@@ -225,7 +225,7 @@ const Profile: React.FC = () => {
   const parseResumeText = (text: string) => {
     const emailRegex = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i;
     const phoneRegex = /(\+\d{1,3}[-.]?)?\(?\d{3}\)?[-.]?\d{3}[-.]?\d{4}/;
-    
+
     const emailMatch = text.match(emailRegex);
     const phoneMatch = text.match(phoneRegex);
     const linkedinMatch = text.match(/linkedin\.com\/in\/[a-zA-Z0-9-]+/i);
@@ -240,55 +240,55 @@ const Profile: React.FC = () => {
       if (line.length > 3 && line.length < 40 && !line.includes('@') && !line.toLowerCase().includes('resume')) {
         // Check if it looks like a name (no numbers, mostly letters)
         if (!/\d/.test(line)) {
-            nameCandidate = line;
-            break;
+          nameCandidate = line;
+          break;
         }
       }
     }
 
     // Extract skills based on known list
-    const foundSkills = SKILL_OPTIONS.filter(skill => 
+    const foundSkills = SKILL_OPTIONS.filter(skill =>
       new RegExp(`\\b${skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(text)
     );
 
     // Helper to extract section content
     const extractSection = (keywords: string[]) => {
-        const lowerText = text.toLowerCase();
-        let startIndex = -1;
-        
-        // Find start of section
-        for (const k of keywords) {
-            const idx = lowerText.indexOf(k);
-            if (idx !== -1 && (startIndex === -1 || idx < startIndex)) {
-                startIndex = idx;
-            }
-        }
-        if (startIndex === -1) return '';
+      const lowerText = text.toLowerCase();
+      let startIndex = -1;
 
-        // Find end of section (start of next known section)
-        const allKeywords = ['education', 'experience', 'work', 'employment', 'skills', 'projects', 'summary', 'profile', 'contact', 'languages', 'certifications'];
-        let endIndex = text.length;
-        for (const k of allKeywords) {
-            const idx = lowerText.indexOf(k, startIndex + 20); // Skip the header itself
-            if (idx !== -1 && idx < endIndex) {
-                endIndex = idx;
-            }
+      // Find start of section
+      for (const k of keywords) {
+        const idx = lowerText.indexOf(k);
+        if (idx !== -1 && (startIndex === -1 || idx < startIndex)) {
+          startIndex = idx;
         }
+      }
+      if (startIndex === -1) return '';
 
-        return text.slice(startIndex, endIndex).replace(new RegExp(keywords.join('|'), 'gi'), '').trim();
+      // Find end of section (start of next known section)
+      const allKeywords = ['education', 'experience', 'work', 'employment', 'skills', 'projects', 'summary', 'profile', 'contact', 'languages', 'certifications'];
+      let endIndex = text.length;
+      for (const k of allKeywords) {
+        const idx = lowerText.indexOf(k, startIndex + 20); // Skip the header itself
+        if (idx !== -1 && idx < endIndex) {
+          endIndex = idx;
+        }
+      }
+
+      return text.slice(startIndex, endIndex).replace(new RegExp(keywords.join('|'), 'gi'), '').trim();
     };
 
-    return { 
-        email: emailMatch ? emailMatch[0] : '', 
-        phone: phoneMatch ? phoneMatch[0] : '', 
-        name: nameCandidate, 
-        skills: foundSkills,
-        linkedin: linkedinMatch ? `https://${linkedinMatch[0]}` : '',
-        github: githubMatch ? `https://${githubMatch[0]}` : '',
-        portfolio: portfolioMatch && !portfolioMatch[0].includes('linkedin') && !portfolioMatch[0].includes('github') ? (portfolioMatch[0].startsWith('http') ? portfolioMatch[0] : `https://${portfolioMatch[0]}`) : '',
-        bio: extractSection(['summary', 'profile', 'about me', 'objective']),
-        experience: extractSection(['experience', 'work history', 'employment']),
-        education: extractSection(['education', 'academic', 'university'])
+    return {
+      email: emailMatch ? emailMatch[0] : '',
+      phone: phoneMatch ? phoneMatch[0] : '',
+      name: nameCandidate,
+      skills: foundSkills,
+      linkedin: linkedinMatch ? `https://${linkedinMatch[0]}` : '',
+      github: githubMatch ? `https://${githubMatch[0]}` : '',
+      portfolio: portfolioMatch && !portfolioMatch[0].includes('linkedin') && !portfolioMatch[0].includes('github') ? (portfolioMatch[0].startsWith('http') ? portfolioMatch[0] : `https://${portfolioMatch[0]}`) : '',
+      bio: extractSection(['summary', 'profile', 'about me', 'objective']),
+      experience: extractSection(['experience', 'work history', 'employment']),
+      education: extractSection(['education', 'academic', 'university'])
     };
   };
 
@@ -412,17 +412,19 @@ const Profile: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-6">
-       <div className="mb-6">
-         <button onClick={() => navigate(-1)} className="text-primary hover:underline flex items-center gap-2">
-           <i className="fas fa-arrow-left"></i> Back
-         </button>
-       </div>
+      <div className="mb-6">
+        <button onClick={() => navigate(-1)} className="text-primary hover:underline flex items-center gap-2">
+          <i className="fas fa-arrow-left"></i> Back
+        </button>
+      </div>
 
       {!isEditing ? (
         // VIEW-ONLY PROFILE
         <div>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Candidate Profile</h2>
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+              {isOwnProfile ? 'My Profile' : 'Profile'}
+            </h2>
             <div className="flex flex-col md:flex-row gap-2">
               {isOwnProfile && (
                 <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary-dark">
@@ -434,580 +436,577 @@ const Profile: React.FC = () => {
             </div>
           </div>
 
-        <div id="profile-view-content" className="bg-white dark:bg-slate-900 p-4 md:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mb-8 pb-8 border-b border-gray-200 dark:border-slate-800 text-center md:text-left">
-            <img 
-              src={formData.photoURL || `https://ui-avatars.com/api/?name=${formData.displayName.replace(/\s/g, '+')}&background=random&color=fff`} 
-              alt="Profile" 
-              className="w-32 h-32 rounded-full object-cover border-4 border-primary/20 dark:border-slate-700 shadow-md flex-shrink-0" 
-            />
-            <div className="flex-1">
-              <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">{formData.displayName}</h1>
-              <p className="text-gray-500 dark:text-slate-400 mt-1 flex items-center gap-2"><i className="fas fa-map-marker-alt"></i> {formData.location || 'Location not specified'}</p>
-              <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm">
-                <div className="flex items-center gap-2 text-gray-700 dark:text-slate-300"><i className="fas fa-tools text-primary w-4"></i> <span className="font-bold">{formData.skills.split(',').filter(s => s).length}</span> Skills</div>
-                <div className="flex items-center gap-2 text-gray-700 dark:text-slate-300"><i className="fas fa-briefcase text-primary w-4"></i> <span className="font-bold">{formData.experienceYears}</span> Years Exp.</div>
+          <div id="profile-view-content" className="bg-white dark:bg-[#0a0a0a] p-4 md:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mb-8 pb-8 border-b border-gray-200 dark:border-white/10 text-center md:text-left">
+              <img
+                src={formData.photoURL || `https://ui-avatars.com/api/?name=${formData.displayName.replace(/\s/g, '+')}&background=random&color=fff`}
+                alt="Profile"
+                className="w-32 h-32 rounded-full object-cover border-4 border-white dark:border-[#0a0a0a] shadow-md flex-shrink-0"
+              />
+              <div className="flex-1">
+                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">{formData.displayName}</h1>
+                <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2"><i className="fas fa-map-marker-alt"></i> {formData.location || 'Location not specified'}</p>
+                <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm">
+                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><i className="fas fa-tools text-primary w-4"></i> <span className="font-bold">{formData.skills.split(',').filter(s => s).length}</span> Skills</div>
+                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><i className="fas fa-briefcase text-primary w-4"></i> <span className="font-bold">{formData.experienceYears}</span> Years Exp.</div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Main Body */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Left/Main Column */}
-            <div className="lg:col-span-2 space-y-8">
-              {formData.bio && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-slate-800 pb-2 mb-3">About Me</h3>
-                  <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{formData.bio}</p>
-                </div>
-              )}
-              
-              {/* Experience */}
-              {(formData.experienceList.length > 0 || formData.experience) && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-slate-800 pb-2 mb-3">Experience</h3>
-                  {formData.experienceList.length > 0 ? (
-                    <div className="space-y-4">
-                      {formData.experienceList.map(exp => (
-                        <div key={exp.id}>
-                          <div className="flex justify-between items-baseline">
-                            <h4 className="font-bold text-gray-800 dark:text-white">{exp.role}</h4>
-                            <span className="text-sm text-gray-500 dark:text-slate-400">{exp.duration}</span>
+            {/* Main Body */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              {/* Left/Main Column */}
+              <div className="lg:col-span-2 space-y-8">
+                {formData.bio && (
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2 mb-3">About Me</h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{formData.bio}</p>
+                  </div>
+                )}
+
+                {/* Experience */}
+                {(formData.experienceList.length > 0 || formData.experience) && (
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2 mb-3">Experience</h3>
+                    {formData.experienceList.length > 0 ? (
+                      <div className="space-y-4">
+                        {formData.experienceList.map(exp => (
+                          <div key={exp.id}>
+                            <div className="flex justify-between items-baseline">
+                              <h4 className="font-bold text-gray-800 dark:text-white">{exp.role}</h4>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">{exp.duration}</span>
+                            </div>
+                            <div className="text-primary font-medium text-sm mb-1">{exp.company}</div>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{exp.description}</p>
                           </div>
-                          <div className="text-primary font-medium text-sm mb-1">{exp.company}</div>
-                          <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{exp.description}</p>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{formData.experience}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Projects */}
+                {formData.projects.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2 mb-3">Projects</h3>
+                    <div className="space-y-4">
+                      {formData.projects.map(proj => (
+                        <div key={proj.id}>
+                          <div className="flex justify-between items-baseline">
+                            <h4 className="font-bold text-gray-800 dark:text-white">{proj.title}</h4>
+                            {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">View Project</a>}
+                          </div>
+                          <p className="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">{proj.description}</p>
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{formData.experience}</p>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
 
-              {/* Projects */}
-              {formData.projects.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-slate-800 pb-2 mb-3">Projects</h3>
-                  <div className="space-y-4">
-                    {formData.projects.map(proj => (
-                      <div key={proj.id}>
-                        <div className="flex justify-between items-baseline">
-                          <h4 className="font-bold text-gray-800 dark:text-white">{proj.title}</h4>
-                          {proj.link && <a href={proj.link} target="_blank" rel="noreferrer" className="text-sm text-primary hover:underline">View Project</a>}
-                        </div>
-                        <p className="text-gray-600 dark:text-slate-300 text-sm whitespace-pre-wrap">{proj.description}</p>
+                {/* Custom Sections */}
+                {formData.customSections.map(section => (
+                  <div key={section.id}>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2 mb-3">{section.title}</h3>
+                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">{section.content}</p>
+                  </div>
+                ))}
+
+                {/* Education */}
+                {(formData.educationList.length > 0 || formData.education) && (
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-white/10 pb-2 mb-3">Education</h3>
+                    {formData.educationList.length > 0 ? (
+                      <div className="space-y-4">
+                        {formData.educationList.map(edu => (
+                          <div key={edu.id}>
+                            <div className="flex justify-between items-baseline">
+                              <h4 className="font-bold text-gray-800 dark:text-white">{edu.school}</h4>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">{edu.year}</span>
+                            </div>
+                            <div className="text-gray-600 dark:text-gray-300 text-sm">{edu.degree}</div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    ) : (
+                      <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{formData.education}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Right Sidebar */}
+              <div className="space-y-8">
+                <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+                  <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Contact & Links</h3>
+                  <div className="space-y-3 text-sm">
+                    {formData.email && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-gray-300"><i className="fas fa-envelope text-gray-400 dark:text-gray-500 w-4 text-center"></i><a href={`mailto:${formData.email}`} className="text-primary hover:underline">{formData.email}</a></div>}
+                    {formData.phoneNumber && <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300"><i className="fas fa-phone text-gray-400 dark:text-gray-500 w-4 text-center"></i><span>{formData.phoneNumber}</span></div>}
+                    {formData.portfolio && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-gray-300"><i className="fas fa-globe text-gray-400 dark:text-gray-500 w-4 text-center"></i><a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Portfolio</a></div>}
+                    {formData.linkedin && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-gray-300"><i className="fab fa-linkedin text-gray-400 dark:text-gray-500 w-4 text-center"></i><a href={formData.linkedin} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">LinkedIn</a></div>}
+                    {formData.github && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-gray-300"><i className="fab fa-github text-gray-400 dark:text-gray-500 w-4 text-center"></i><a href={formData.github} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GitHub</a></div>}
                   </div>
                 </div>
-              )}
 
-              {/* Custom Sections */}
-              {formData.customSections.map(section => (
-                <div key={section.id}>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-slate-800 pb-2 mb-3">{section.title}</h3>
-                  <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{section.content}</p>
-                </div>
-              ))}
-
-              {/* Education */}
-              {(formData.educationList.length > 0 || formData.education) && (
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800 dark:text-white border-b border-gray-200 dark:border-slate-800 pb-2 mb-3">Education</h3>
-                  {formData.educationList.length > 0 ? (
-                    <div className="space-y-4">
-                      {formData.educationList.map(edu => (
-                        <div key={edu.id}>
-                          <div className="flex justify-between items-baseline">
-                            <h4 className="font-bold text-gray-800 dark:text-white">{edu.school}</h4>
-                            <span className="text-sm text-gray-500 dark:text-slate-400">{edu.year}</span>
-                          </div>
-                          <div className="text-gray-600 dark:text-slate-300 text-sm">{edu.degree}</div>
+                {/* Certifications */}
+                {formData.certifications.length > 0 && (
+                  <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Certifications</h3>
+                    <div className="space-y-3 text-sm">
+                      {formData.certifications.map(cert => (
+                        <div key={cert.id}>
+                          <div className="font-bold text-gray-800 dark:text-white">{cert.name}</div>
+                          <div className="text-gray-600 dark:text-gray-400 text-xs">{cert.issuer} • {cert.year}</div>
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <p className="text-gray-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">{formData.education}</p>
-                  )}
-                </div>
-              )}
-            </div>
+                  </div>
+                )}
 
-            {/* Right Sidebar */}
-            <div className="space-y-8">
-              <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Contact & Links</h3>
-                <div className="space-y-3 text-sm">
-                  {formData.email && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-slate-300"><i className="fas fa-envelope text-gray-400 dark:text-slate-500 w-4 text-center"></i><a href={`mailto:${formData.email}`} className="text-primary hover:underline">{formData.email}</a></div>}
-                  {formData.phoneNumber && <div className="flex items-center gap-3 text-gray-700 dark:text-slate-300"><i className="fas fa-phone text-gray-400 dark:text-slate-500 w-4 text-center"></i><span>{formData.phoneNumber}</span></div>}
-                  {formData.portfolio && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-slate-300"><i className="fas fa-globe text-gray-400 dark:text-slate-500 w-4 text-center"></i><a href={formData.portfolio} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Portfolio</a></div>}
-                  {formData.linkedin && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-slate-300"><i className="fab fa-linkedin text-gray-400 dark:text-slate-500 w-4 text-center"></i><a href={formData.linkedin} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">LinkedIn</a></div>}
-                  {formData.github && <div className="flex items-center gap-3 truncate text-gray-700 dark:text-slate-300"><i className="fab fa-github text-gray-400 dark:text-slate-500 w-4 text-center"></i><a href={formData.github} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">GitHub</a></div>}
-                </div>
+                {/* Volunteering */}
+                {formData.volunteering.length > 0 && (
+                  <div className="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Volunteering</h3>
+                    <div className="space-y-3 text-sm">
+                      {formData.volunteering.map(vol => (
+                        <div key={vol.id}>
+                          <div className="font-bold text-gray-800 dark:text-white">{vol.role}</div>
+                          <div className="text-xs text-gray-600 dark:text-gray-300">{vol.organization}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{vol.duration}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {formData.skills && (
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Skills</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.skills.split(',').map(s => s.trim()).filter(s => s).map(skill => (
+                        <span key={skill} className="px-3 py-1 bg-blue-50 dark:bg-blue-500/10 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium border border-blue-100 dark:border-blue-500/20">{skill}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {formData.hobbies && (
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Hobbies</h3>
+                    <p className="text-sm text-gray-600 dark:text-slate-300">
+                      {formData.hobbies}
+                    </p>
+                  </div>
+                )}
+                {formData.preferredCategories && (
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Preferred Categories</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {formData.preferredCategories.split(',').map(c => c.trim()).filter(c => c).map(cat => (
+                        <span key={cat} className="px-3 py-1 bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium border border-gray-200 dark:border-white/10">{cat}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-
-              {/* Certifications */}
-              {formData.certifications.length > 0 && (
-                <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Certifications</h3>
-                  <div className="space-y-3 text-sm">
-                    {formData.certifications.map(cert => (
-                      <div key={cert.id}>
-                        <div className="font-bold text-gray-800 dark:text-white">{cert.name}</div>
-                        <div className="text-gray-600 dark:text-slate-400 text-xs">{cert.issuer} • {cert.year}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Volunteering */}
-              {formData.volunteering.length > 0 && (
-                <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800">
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Volunteering</h3>
-                  <div className="space-y-3 text-sm">
-                    {formData.volunteering.map(vol => (
-                      <div key={vol.id}>
-                        <div className="font-bold text-gray-800 dark:text-white">{vol.role}</div>
-                        <div className="text-xs text-gray-600 dark:text-slate-300">{vol.organization}</div>
-                        <div className="text-xs text-gray-500 dark:text-slate-400">{vol.duration}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {formData.skills && (
-                <div>
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.skills.split(',').map(s => s.trim()).filter(s => s).map(skill => (
-                      <span key={skill} className="px-3 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium border border-blue-100 dark:border-blue-800">{skill}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {formData.hobbies && (
-                <div>
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Hobbies</h3>
-                  <p className="text-sm text-gray-600 dark:text-slate-300">
-                    {formData.hobbies}
-                  </p>
-                </div>
-              )}
-              {formData.preferredCategories && (
-                <div>
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase mb-3">Preferred Categories</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.preferredCategories.split(',').map(c => c.trim()).filter(c => c).map(cat => (
-                      <span key={cat} className="px-3 py-1 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-full text-xs font-medium border border-gray-200 dark:border-slate-700">{cat}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
-        </div>
         </div>
       ) : (
         // EDITABLE PROFILE for the logged-in user
         <>
-       <div className="flex justify-between items-center mb-6">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Edit My Profile</h2>
-         <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-slate-700">
-           Cancel
-         </button>
-       </div>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Edit My Profile</h2>
+            <button onClick={() => setIsEditing(false)} className="px-4 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-slate-700">
+              Cancel
+            </button>
+          </div>
 
-       {/* Journey Progress Bar */}
-       <div className="mb-10">
-         <div className="flex items-center justify-between relative">
-           <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 dark:bg-slate-800 -z-10 rounded-full"></div>
-           <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary -z-10 rounded-full transition-all duration-500" style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}></div>
-           
-           {steps.map((step, index) => (
-             <button 
-               key={step.id}
-               onClick={() => setActiveStep(index)}
-               className={`flex flex-col items-center gap-2 group focus:outline-none`}
-             >
-               <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10 ${
-                 index <= activeStep 
-                   ? 'border-primary bg-white dark:bg-slate-900 text-primary shadow-lg scale-110' 
-                   : 'border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-400'
-               }`}>
-                 <i className={`fas ${step.icon} text-sm`}></i>
-               </div>
-               <span className={`text-xs font-bold transition-colors duration-300 ${index <= activeStep ? 'text-primary' : 'text-gray-400'}`}>{step.title}</span>
-             </button>
-           ))}
-         </div>
-       </div>
+          {/* Journey Progress Bar */}
+          <div className="mb-10">
+            <div className="flex items-center justify-between relative">
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 dark:bg-slate-800 -z-10 rounded-full"></div>
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary -z-10 rounded-full transition-all duration-500" style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}></div>
 
-       <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
-         
-         <div className="min-h-[400px]">
-           {activeStep === 0 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
-                 <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
-                   <i className="fas fa-magic"></i> Quick Start
-                 </h4>
-                 <p className="text-sm text-blue-600 dark:text-blue-400 mb-4">Upload your resume to automatically fill in your details.</p>
-                 <label className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-                   <i className={`fas fa-cloud-upload-alt ${parsingResume ? 'fa-spin' : ''} text-blue-500`}></i>
-                   <span className="font-medium text-blue-700 dark:text-blue-300">{parsingResume ? 'Parsing Resume...' : 'Upload Resume (PDF/TXT)'}</span>
-                   <input type="file" accept=".pdf,.txt" className="hidden" onChange={handleResumeAutofill} disabled={parsingResume} />
-                 </label>
-               </div>
+              {steps.map((step, index) => (
+                <button
+                  key={step.id}
+                  onClick={() => setActiveStep(index)}
+                  className={`flex flex-col items-center gap-2 group focus:outline-none`}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10 ${index <= activeStep
+                    ? 'border-primary bg-white dark:bg-slate-900 text-primary shadow-lg scale-110'
+                    : 'border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-400'
+                    }`}>
+                    <i className={`fas ${step.icon} text-sm`}></i>
+                  </div>
+                  <span className={`text-xs font-bold transition-colors duration-300 ${index <= activeStep ? 'text-primary' : 'text-gray-400'}`}>{step.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-               <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-slate-800">
-                 <div className="relative group">
-                   <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-gray-200 dark:border-slate-700">
-                     {formData.photoURL ? (
-                       <img src={formData.photoURL} alt="Profile" className="w-full h-full object-cover" />
-                     ) : (
-                       <span className="text-3xl text-gray-400 dark:text-slate-500 font-bold">
-                         {formData.displayName ? formData.displayName.charAt(0).toUpperCase() : <i className="fas fa-user"></i>}
-                       </span>
-                     )}
-                   </div>
-                   <label className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer hover:bg-primary-dark shadow-md transition-colors">
-                     <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                       <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                     </svg>
-                   </label>
-                 </div>
-                 <div>
-                   <h3 className="text-lg font-bold text-gray-800 dark:text-white">Profile Photo</h3>
-                   <p className="text-sm text-gray-500 dark:text-slate-400">Upload a professional picture.</p>
-                 </div>
-               </div>
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
 
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
-                   <input type="text" name="displayName" value={formData.displayName} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="John Doe" />
-                 </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Phone Number</label>
-                   <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="+1 (555) 000-0000" />
-                 </div>
-                 <div className="md:col-span-2">
-                   <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Location</label>
-                   <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="City, Country" />
-                 </div>
-               </div>
-             </div>
-           )}
+            <div className="min-h-[400px]">
+              {activeStep === 0 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
+                    <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
+                      <i className="fas fa-magic"></i> Quick Start
+                    </h4>
+                    <p className="text-sm text-blue-600 dark:text-blue-400 mb-4">Upload your resume to automatically fill in your details.</p>
+                    <label className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-slate-800 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
+                      <i className={`fas fa-cloud-upload-alt ${parsingResume ? 'fa-spin' : ''} text-blue-500`}></i>
+                      <span className="font-medium text-blue-700 dark:text-blue-300">{parsingResume ? 'Parsing Resume...' : 'Upload Resume (PDF/TXT)'}</span>
+                      <input type="file" accept=".pdf,.txt" className="hidden" onChange={handleResumeAutofill} disabled={parsingResume} />
+                    </label>
+                  </div>
 
-           {activeStep === 1 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Professional Bio</label>
-                 <p className="text-xs text-gray-500 dark:text-slate-400 mb-2">Write a short summary of your background, achievements, and what you are looking for.</p>
-                 <textarea name="bio" value={formData.bio} onChange={handleChange} className="w-full p-4 border border-gray-300 dark:border-slate-700 rounded-xl h-64 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white leading-relaxed" placeholder="I am a passionate developer with 5 years of experience..." />
-               </div>
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Hobbies & Interests</label>
-                 <textarea name="hobbies" value={formData.hobbies} onChange={handleChange} className="w-full p-4 border border-gray-300 dark:border-slate-700 rounded-xl h-24 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="Photography, Hiking, Chess..." />
-               </div>
-             </div>
-           )}
-
-           {activeStep === 2 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Work Experience</label>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Job Title" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.role} onChange={e => setTempExp({...tempExp, role: e.target.value})} />
-                    <input type="text" placeholder="Company Name" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.company} onChange={e => setTempExp({...tempExp, company: e.target.value})} />
-                    <input type="text" placeholder="Duration (e.g. Jan 2020 - Present)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.duration} onChange={e => setTempExp({...tempExp, duration: e.target.value})} />
-                    <textarea placeholder="Description of responsibilities..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.description} onChange={e => setTempExp({...tempExp, description: e.target.value})}></textarea>
-                    <button type="button" onClick={() => addItem('experience')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Position</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.experienceList.map((exp) => (
-                      <div key={exp.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <div>
-                          <span className="font-bold dark:text-white">{exp.role}</span> at <span className="dark:text-slate-300">{exp.company}</span>
-                        </div>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, experienceList: prev.experienceList.filter(e => e.id !== exp.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                  <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-slate-800">
+                    <div className="relative group">
+                      <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-gray-200 dark:border-slate-700">
+                        {formData.photoURL ? (
+                          <img src={formData.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-3xl text-gray-400 dark:text-slate-500 font-bold">
+                            {formData.displayName ? formData.displayName.charAt(0).toUpperCase() : <i className="fas fa-user"></i>}
+                          </span>
+                        )}
                       </div>
-                    ))}
-                 </div>
-                 {/* Fallback for old data */}
-                 {formData.experience && formData.experienceList.length === 0 && (
-                    <div className="mt-4">
+                      <label className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer hover:bg-primary-dark shadow-md transition-colors">
+                        <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </label>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-800 dark:text-white">Profile Photo</h3>
+                      <p className="text-sm text-gray-500 dark:text-slate-400">Upload a professional picture.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Full Name</label>
+                      <input type="text" name="displayName" value={formData.displayName} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="John Doe" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Phone Number</label>
+                      <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="+1 (555) 000-0000" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Location</label>
+                      <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="City, Country" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeStep === 1 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Professional Bio</label>
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mb-2">Write a short summary of your background, achievements, and what you are looking for.</p>
+                    <textarea name="bio" value={formData.bio} onChange={handleChange} className="w-full p-4 border border-gray-300 dark:border-slate-700 rounded-xl h-64 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white leading-relaxed" placeholder="I am a passionate developer with 5 years of experience..." />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Hobbies & Interests</label>
+                    <textarea name="hobbies" value={formData.hobbies} onChange={handleChange} className="w-full p-4 border border-gray-300 dark:border-slate-700 rounded-xl h-24 focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="Photography, Hiking, Chess..." />
+                  </div>
+                </div>
+              )}
+
+              {activeStep === 2 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Work Experience</label>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Job Title" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.role} onChange={e => setTempExp({ ...tempExp, role: e.target.value })} />
+                      <input type="text" placeholder="Company Name" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.company} onChange={e => setTempExp({ ...tempExp, company: e.target.value })} />
+                      <input type="text" placeholder="Duration (e.g. Jan 2020 - Present)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.duration} onChange={e => setTempExp({ ...tempExp, duration: e.target.value })} />
+                      <textarea placeholder="Description of responsibilities..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempExp.description} onChange={e => setTempExp({ ...tempExp, description: e.target.value })}></textarea>
+                      <button type="button" onClick={() => addItem('experience')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Position</button>
+                    </div>
+                    <div className="space-y-2">
+                      {formData.experienceList.map((exp) => (
+                        <div key={exp.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <div>
+                            <span className="font-bold dark:text-white">{exp.role}</span> at <span className="dark:text-slate-300">{exp.company}</span>
+                          </div>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, experienceList: prev.experienceList.filter(e => e.id !== exp.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Fallback for old data */}
+                    {formData.experience && formData.experienceList.length === 0 && (
+                      <div className="mt-4">
                         <p className="text-xs text-gray-500 mb-1">Legacy Data (Clear this to use the list above):</p>
                         <textarea name="experience" value={formData.experience} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg h-24 bg-white dark:bg-slate-950 dark:text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Volunteering</label>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Role" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.role} onChange={e => setTempVol({ ...tempVol, role: e.target.value })} />
+                      <input type="text" placeholder="Organization" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.organization} onChange={e => setTempVol({ ...tempVol, organization: e.target.value })} />
+                      <input type="text" placeholder="Duration" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.duration} onChange={e => setTempVol({ ...tempVol, duration: e.target.value })} />
+                      <button type="button" onClick={() => addItem('volunteering')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Volunteering</button>
                     </div>
-                 )}
-               </div>
+                    <div className="space-y-2">
+                      {formData.volunteering.map((vol) => (
+                        <div key={vol.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <span className="font-medium dark:text-slate-300">{vol.role} at {vol.organization}</span>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, volunteering: prev.volunteering.filter(v => v.id !== vol.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Volunteering</label>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Role" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.role} onChange={e => setTempVol({...tempVol, role: e.target.value})} />
-                    <input type="text" placeholder="Organization" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.organization} onChange={e => setTempVol({...tempVol, organization: e.target.value})} />
-                    <input type="text" placeholder="Duration" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempVol.duration} onChange={e => setTempVol({...tempVol, duration: e.target.value})} />
-                    <button type="button" onClick={() => addItem('volunteering')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Volunteering</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.volunteering.map((vol) => (
-                      <div key={vol.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <span className="font-medium dark:text-slate-300">{vol.role} at {vol.organization}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, volunteering: prev.volunteering.filter(v => v.id !== vol.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
-                      </div>
-                    ))}
-                 </div>
-               </div>
-             </div>
-           )}
-
-           {activeStep === 3 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Education</label>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Degree / Certificate" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.degree} onChange={e => setTempEdu({...tempEdu, degree: e.target.value})} />
-                    <input type="text" placeholder="School / University" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.school} onChange={e => setTempEdu({...tempEdu, school: e.target.value})} />
-                    <input type="text" placeholder="Year (e.g. 2022)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.year} onChange={e => setTempEdu({...tempEdu, year: e.target.value})} />
-                    <button type="button" onClick={() => addItem('education')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Education</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.educationList.map((edu) => (
-                      <div key={edu.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <span className="font-medium dark:text-slate-300">{edu.degree} at {edu.school}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, educationList: prev.educationList.filter(e => e.id !== edu.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
-                      </div>
-                    ))}
-                 </div>
-                 {/* Fallback for old data */}
-                 {formData.education && formData.educationList.length === 0 && (
-                    <div className="mt-4">
+              {activeStep === 3 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Education</label>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Degree / Certificate" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.degree} onChange={e => setTempEdu({ ...tempEdu, degree: e.target.value })} />
+                      <input type="text" placeholder="School / University" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.school} onChange={e => setTempEdu({ ...tempEdu, school: e.target.value })} />
+                      <input type="text" placeholder="Year (e.g. 2022)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempEdu.year} onChange={e => setTempEdu({ ...tempEdu, year: e.target.value })} />
+                      <button type="button" onClick={() => addItem('education')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Education</button>
+                    </div>
+                    <div className="space-y-2">
+                      {formData.educationList.map((edu) => (
+                        <div key={edu.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <span className="font-medium dark:text-slate-300">{edu.degree} at {edu.school}</span>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, educationList: prev.educationList.filter(e => e.id !== edu.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Fallback for old data */}
+                    {formData.education && formData.educationList.length === 0 && (
+                      <div className="mt-4">
                         <p className="text-xs text-gray-500 mb-1">Legacy Data (Clear this to use the list above):</p>
                         <textarea name="education" value={formData.education} onChange={handleChange} className="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg h-24 bg-white dark:bg-slate-950 dark:text-white" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Certifications</label>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Certification Name" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.name} onChange={e => setTempCert({ ...tempCert, name: e.target.value })} />
+                      <input type="text" placeholder="Issuer" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.issuer} onChange={e => setTempCert({ ...tempCert, issuer: e.target.value })} />
+                      <input type="text" placeholder="Year" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.year} onChange={e => setTempCert({ ...tempCert, year: e.target.value })} />
+                      <button type="button" onClick={() => addItem('certification')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Certification</button>
                     </div>
-                 )}
-               </div>
+                    <div className="space-y-2">
+                      {formData.certifications.map((cert) => (
+                        <div key={cert.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <span className="font-medium dark:text-slate-300">{cert.name}</span>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, certifications: prev.certifications.filter(c => c.id !== cert.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Certifications</label>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Certification Name" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.name} onChange={e => setTempCert({...tempCert, name: e.target.value})} />
-                    <input type="text" placeholder="Issuer" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.issuer} onChange={e => setTempCert({...tempCert, issuer: e.target.value})} />
-                    <input type="text" placeholder="Year" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCert.year} onChange={e => setTempCert({...tempCert, year: e.target.value})} />
-                    <button type="button" onClick={() => addItem('certification')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Certification</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.certifications.map((cert) => (
-                      <div key={cert.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <span className="font-medium dark:text-slate-300">{cert.name}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, certifications: prev.certifications.filter(c => c.id !== cert.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+              {activeStep === 4 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Projects</label>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Project Title" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.title} onChange={e => setTempProject({ ...tempProject, title: e.target.value })} />
+                      <input type="text" placeholder="Link (GitHub/Demo)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.link} onChange={e => setTempProject({ ...tempProject, link: e.target.value })} />
+                      <textarea placeholder="Project Description..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.description} onChange={e => setTempProject({ ...tempProject, description: e.target.value })}></textarea>
+                      <button type="button" onClick={() => addItem('project')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Project</button>
+                    </div>
+                    <div className="space-y-2">
+                      {formData.projects.map((proj) => (
+                        <div key={proj.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <span className="font-medium dark:text-slate-300">{proj.title}</span>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, projects: prev.projects.filter(p => p.id !== proj.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeStep === 5 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Skills</label>
+                    <div className="flex flex-wrap gap-2 mb-3 min-h-[40px] p-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-800/50">
+                      {formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s).map(skill => (
+                        <span key={skill} className="px-3 py-1 bg-primary text-white rounded-full text-sm flex items-center gap-2">
+                          {skill}
+                          <button type="button" onClick={() => toggleSkill(skill)} className="hover:text-gray-200 font-bold">&times;</button>
+                        </span>
+                      )) : <span className="text-gray-400 dark:text-slate-500 text-sm p-1">No skills selected</span>}
+                    </div>
+
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white"
+                        placeholder="Search or add custom skill..."
+                        value={skillSearch}
+                        onChange={e => setSkillSearch(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (skillSearch.trim()) {
+                              toggleSkill(skillSearch.trim());
+                              setSkillSearch('');
+                            }
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (skillSearch.trim()) {
+                            toggleSkill(skillSearch.trim());
+                            setSkillSearch('');
+                          }
+                        }}
+                        className="px-6 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 font-medium"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    <div className="border border-gray-200 dark:border-slate-700 rounded-xl p-4 max-h-60 overflow-y-auto bg-gray-50 dark:bg-slate-900/50">
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mb-3 uppercase font-bold tracking-wider">Suggested Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {SKILL_OPTIONS.filter(s => s.toLowerCase().includes(skillSearch.toLowerCase())).map(skill => {
+                          const isSelected = formData.skills.split(',').map(s => s.trim()).includes(skill);
+                          return (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={() => toggleSkill(skill)}
+                              className={`px-3 py-1 rounded-full text-sm border transition-all ${isSelected
+                                ? 'bg-primary/10 border-primary text-primary font-medium ring-1 ring-primary'
+                                : 'bg-white dark:bg-slate-950 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300'
+                                }`}
+                            >
+                              {skill} {isSelected && '✓'}
+                            </button>
+                          );
+                        })}
                       </div>
-                    ))}
-                 </div>
-               </div>
-             </div>
-           )}
+                    </div>
+                  </div>
 
-           {activeStep === 4 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Projects</label>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Project Title" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.title} onChange={e => setTempProject({...tempProject, title: e.target.value})} />
-                    <input type="text" placeholder="Link (GitHub/Demo)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.link} onChange={e => setTempProject({...tempProject, link: e.target.value})} />
-                    <textarea placeholder="Project Description..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempProject.description} onChange={e => setTempProject({...tempProject, description: e.target.value})}></textarea>
-                    <button type="button" onClick={() => addItem('project')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Project</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.projects.map((proj) => (
-                      <div key={proj.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <span className="font-medium dark:text-slate-300">{proj.title}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, projects: prev.projects.filter(p => p.id !== proj.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
-                      </div>
-                    ))}
-                 </div>
-               </div>
-             </div>
-           )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Preferred Job Categories</label>
+                    <div className="flex flex-wrap gap-2">
+                      {JOB_CATEGORIES.map(cat => {
+                        const isSelected = formData.preferredCategories.split(',').map(s => s.trim()).includes(cat);
+                        return (
+                          <button
+                            key={cat}
+                            type="button"
+                            onClick={() => toggleCategory(cat)}
+                            className={`px-4 py-2 rounded-xl text-sm border transition-all ${isSelected
+                              ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300 font-medium'
+                              : 'bg-white dark:bg-slate-950 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                              }`}
+                          >
+                            {cat}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-           {activeStep === 5 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Skills</label>
-                 <div className="flex flex-wrap gap-2 mb-3 min-h-[40px] p-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-800/50">
-                   {formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s).map(skill => (
-                     <span key={skill} className="px-3 py-1 bg-primary text-white rounded-full text-sm flex items-center gap-2">
-                       {skill}
-                       <button type="button" onClick={() => toggleSkill(skill)} className="hover:text-gray-200 font-bold">&times;</button>
-                     </span>
-                   )) : <span className="text-gray-400 dark:text-slate-500 text-sm p-1">No skills selected</span>}
-                 </div>
-                 
-                 <div className="flex gap-2 mb-4">
-                   <input 
-                     type="text"
-                     className="flex-1 px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white"
-                     placeholder="Search or add custom skill..."
-                     value={skillSearch}
-                     onChange={e => setSkillSearch(e.target.value)}
-                     onKeyDown={e => {
-                       if (e.key === 'Enter') {
-                         e.preventDefault();
-                         if (skillSearch.trim()) {
-                           toggleSkill(skillSearch.trim());
-                           setSkillSearch('');
-                         }
-                       }
-                     }}
-                   />
-                   <button 
-                     type="button"
-                     onClick={() => {
-                       if (skillSearch.trim()) {
-                         toggleSkill(skillSearch.trim());
-                         setSkillSearch('');
-                       }
-                     }}
-                     className="px-6 py-2 bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 rounded-xl hover:bg-gray-200 dark:hover:bg-slate-700 font-medium"
-                   >
-                     Add
-                   </button>
-                 </div>
-                 
-                 <div className="border border-gray-200 dark:border-slate-700 rounded-xl p-4 max-h-60 overflow-y-auto bg-gray-50 dark:bg-slate-900/50">
-                   <p className="text-xs text-gray-500 dark:text-slate-400 mb-3 uppercase font-bold tracking-wider">Suggested Skills</p>
-                   <div className="flex flex-wrap gap-2">
-                     {SKILL_OPTIONS.filter(s => s.toLowerCase().includes(skillSearch.toLowerCase())).map(skill => {
-                       const isSelected = formData.skills.split(',').map(s => s.trim()).includes(skill);
-                       return (
-                         <button
-                           key={skill}
-                           type="button"
-                           onClick={() => toggleSkill(skill)}
-                           className={`px-3 py-1 rounded-full text-sm border transition-all ${
-                             isSelected 
-                               ? 'bg-primary/10 border-primary text-primary font-medium ring-1 ring-primary' 
-                               : 'bg-white dark:bg-slate-950 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:border-gray-300'
-                           }`}
-                         >
-                           {skill} {isSelected && '✓'}
-                         </button>
-                       );
-                     })}
-                   </div>
-                 </div>
-               </div>
+              {activeStep === 6 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Custom Sections</label>
+                    <p className="text-xs text-gray-500 dark:text-slate-400 mb-3">Add any other information you want to share (e.g., Publications, Awards, Languages).</p>
+                    <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
+                      <input type="text" placeholder="Section Title (e.g. Languages)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCustom.title} onChange={e => setTempCustom({ ...tempCustom, title: e.target.value })} />
+                      <textarea placeholder="Content..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCustom.content} onChange={e => setTempCustom({ ...tempCustom, content: e.target.value })}></textarea>
+                      <button type="button" onClick={() => addItem('custom')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Section</button>
+                    </div>
+                    <div className="space-y-2">
+                      {formData.customSections.map((sec) => (
+                        <div key={sec.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
+                          <span className="font-medium dark:text-slate-300">{sec.title}</span>
+                          <button type="button" onClick={() => setFormData(prev => ({ ...prev, customSections: prev.customSections.filter(s => s.id !== sec.id) }))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Preferred Job Categories</label>
-                 <div className="flex flex-wrap gap-2">
-                   {JOB_CATEGORIES.map(cat => {
-                     const isSelected = formData.preferredCategories.split(',').map(s => s.trim()).includes(cat);
-                     return (
-                       <button
-                         key={cat}
-                         type="button"
-                         onClick={() => toggleCategory(cat)}
-                         className={`px-4 py-2 rounded-xl text-sm border transition-all ${
-                           isSelected 
-                             ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300 font-medium' 
-                             : 'bg-white dark:bg-slate-950 border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800'
-                         }`}
-                       >
-                         {cat}
-                       </button>
-                     );
-                   })}
-                 </div>
-               </div>
-             </div>
-           )}
+              {activeStep === 7 && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">LinkedIn Profile URL</label>
+                    <div className="relative">
+                      <i className="fab fa-linkedin absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                      <input type="url" name="linkedin" value={formData.linkedin} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://linkedin.com/in/..." />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">GitHub Profile URL</label>
+                    <div className="relative">
+                      <i className="fab fa-github absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                      <input type="url" name="github" value={formData.github} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://github.com/..." />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Portfolio / Website</label>
+                    <div className="relative">
+                      <i className="fas fa-globe absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                      <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://myportfolio.com" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-           {activeStep === 6 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Custom Sections</label>
-                 <p className="text-xs text-gray-500 dark:text-slate-400 mb-3">Add any other information you want to share (e.g., Publications, Awards, Languages).</p>
-                 <div className="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800 space-y-3 mb-4">
-                    <input type="text" placeholder="Section Title (e.g. Languages)" className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCustom.title} onChange={e => setTempCustom({...tempCustom, title: e.target.value})} />
-                    <textarea placeholder="Content..." rows={3} className="w-full p-3 border dark:border-slate-700 rounded-lg bg-white dark:bg-slate-950 dark:text-white" value={tempCustom.content} onChange={e => setTempCustom({...tempCustom, content: e.target.value})}></textarea>
-                    <button type="button" onClick={() => addItem('custom')} className="w-full py-2 bg-white dark:bg-slate-950 border border-primary text-primary rounded-lg font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors shadow-sm">+ Add Section</button>
-                 </div>
-                 <div className="space-y-2">
-                    {formData.customSections.map((sec) => (
-                      <div key={sec.id} className="flex justify-between items-center p-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm">
-                        <span className="font-medium dark:text-slate-300">{sec.title}</span>
-                        <button type="button" onClick={() => setFormData(prev => ({...prev, customSections: prev.customSections.filter(s => s.id !== sec.id)}))} className="text-red-500 hover:text-red-700"><i className="fas fa-trash"></i></button>
-                      </div>
-                    ))}
-                 </div>
-               </div>
-             </div>
-           )}
+            <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-slate-800 mt-6">
+              <button
+                type="button"
+                onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+                disabled={activeStep === 0}
+                className="px-6 py-2.5 text-gray-600 dark:text-slate-300 font-medium hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Back
+              </button>
 
-           {activeStep === 7 && (
-             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">LinkedIn Profile URL</label>
-                 <div className="relative">
-                   <i className="fab fa-linkedin absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                   <input type="url" name="linkedin" value={formData.linkedin} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://linkedin.com/in/..." />
-                 </div>
-               </div>
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">GitHub Profile URL</label>
-                 <div className="relative">
-                   <i className="fab fa-github absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                   <input type="url" name="github" value={formData.github} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://github.com/..." />
-                 </div>
-               </div>
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Portfolio / Website</label>
-                 <div className="relative">
-                   <i className="fas fa-globe absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                   <input type="url" name="portfolio" value={formData.portfolio} onChange={handleChange} className="w-full pl-10 p-3 border border-gray-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-slate-950 dark:text-white" placeholder="https://myportfolio.com" />
-                 </div>
-               </div>
-             </div>
-           )}
-         </div>
-
-         <div className="flex justify-between pt-6 border-t border-gray-100 dark:border-slate-800 mt-6">
-           <button 
-             type="button" 
-             onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
-             disabled={activeStep === 0}
-             className="px-6 py-2.5 text-gray-600 dark:text-slate-300 font-medium hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-           >
-             Back
-           </button>
-           
-           {activeStep < steps.length - 1 ? (
-             <button 
-               type="button" 
-               onClick={() => setActiveStep(Math.min(steps.length - 1, activeStep + 1))}
-               className="px-8 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5"
-             >
-               Next Step
-             </button>
-           ) : (
-             <button 
-               type="submit" 
-               disabled={saving} 
-               className="px-8 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-70"
-             >
-               {saving ? 'Saving...' : 'Complete Profile'}
-             </button>
-           )}
-         </div>
-       </form>
+              {activeStep < steps.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(Math.min(steps.length - 1, activeStep + 1))}
+                  className="px-8 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5"
+                >
+                  Next Step
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="px-8 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-70"
+                >
+                  {saving ? 'Saving...' : 'Complete Profile'}
+                </button>
+              )}
+            </div>
+          </form>
         </>
       )}
     </div>

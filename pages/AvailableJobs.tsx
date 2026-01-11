@@ -43,9 +43,9 @@ const AvailableJobs: React.FC = () => {
 
   const filteredJobs = jobs
     .filter(job => {
-      const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                            job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            (job.skills && job.skills.toLowerCase().includes(searchTerm.toLowerCase()));
+      const matchesSearch = job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (job.skills && job.skills.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesCategory = selectedCategory === 'All' || job.category === selectedCategory;
       const matchesType = selectedType === 'All' || job.type === selectedType;
       const isNotMock = !(job as any).isMock;
@@ -81,16 +81,16 @@ const AvailableJobs: React.FC = () => {
 
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">All Available Positions</h2>
-        
+
         <div className="flex flex-col md:flex-row gap-4">
-          <input 
-            type="text" 
-            placeholder="Search by title, company, or skills..." 
+          <input
+            type="text"
+            placeholder="Search by title, company, or skills..."
             className="flex-1 p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary outline-none"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <select 
+          <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none"
@@ -98,7 +98,7 @@ const AvailableJobs: React.FC = () => {
             <option value="All">All Categories</option>
             {JOB_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
           </select>
-          <select 
+          <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
             className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none"
@@ -109,7 +109,7 @@ const AvailableJobs: React.FC = () => {
             <option value="Contract">Contract</option>
             <option value="Internship">Internship</option>
           </select>
-          <select 
+          <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className="p-3 border border-gray-200 rounded-lg bg-white focus:ring-2 focus:ring-primary outline-none"
@@ -125,7 +125,7 @@ const AvailableJobs: React.FC = () => {
           <div key={job.id} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
             <h3 className="font-bold text-lg text-gray-800 mb-1">{job.title}</h3>
             <p className="text-sm text-gray-600 mb-3">{job.companyName}</p>
-            
+
             <div className="flex flex-wrap gap-2 mb-4">
               <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"><i className="fas fa-map-marker-alt mr-1"></i>{job.location}</span>
               <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded"><i className="fas fa-briefcase mr-1"></i>{job.type}</span>
@@ -134,7 +134,7 @@ const AvailableJobs: React.FC = () => {
 
             <p className="text-sm text-gray-500 mb-4 line-clamp-3">{job.description}</p>
 
-            <button 
+            <button
               onClick={() => setSelectedJob(job)}
               className="block w-full text-center px-4 py-2 bg-gray-50 text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm"
             >
@@ -149,15 +149,15 @@ const AvailableJobs: React.FC = () => {
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setSelectedJob(null)}>
           <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in duration-200" onClick={e => e.stopPropagation()}>
             <div className="p-6 border-b border-gray-100 flex justify-between items-start sticky top-0 bg-white z-10">
-               <div>
-                 <h2 className="text-2xl font-bold text-gray-800">{selectedJob.title}</h2>
-                 <p className="text-lg text-gray-600">{selectedJob.companyName}</p>
-               </div>
-               <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-               </button>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">{selectedJob.title}</h2>
+                <p className="text-lg text-gray-600">{selectedJob.companyName}</p>
+              </div>
+              <button onClick={() => setSelectedJob(null)} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            
+
             <div className="p-6 space-y-6">
               <div className="flex flex-wrap gap-3">
                 <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-2">
@@ -172,9 +172,9 @@ const AvailableJobs: React.FC = () => {
                   </span>
                 )}
                 {selectedJob.createdAt && (
-                   <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-2">
-                     <i className="far fa-clock text-gray-400"></i> Posted {selectedJob.createdAt?.toDate ? selectedJob.createdAt.toDate().toLocaleDateString() : 'Recently'}
-                   </span>
+                  <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium flex items-center gap-2">
+                    <i className="far fa-clock text-gray-400"></i> Posted {selectedJob.createdAt?.toDate ? selectedJob.createdAt.toDate().toLocaleDateString() : 'Recently'}
+                  </span>
                 )}
               </div>
 
@@ -200,13 +200,13 @@ const AvailableJobs: React.FC = () => {
             </div>
 
             <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-end gap-3 rounded-b-xl">
-              <button 
+              <button
                 onClick={() => setSelectedJob(null)}
                 className="px-5 py-2.5 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition-colors"
               >
                 Close
               </button>
-              <Link 
+              <Link
                 to={`/jobs/${selectedJob.id}`}
                 className="px-5 py-2.5 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all"
               >

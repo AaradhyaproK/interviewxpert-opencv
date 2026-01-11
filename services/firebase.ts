@@ -4,13 +4,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAvb4xyFo_R8KW2WH3V9YcBBv4eeDoPEx8",
-  authDomain: "fir-ai-interview.firebaseapp.com",
-  projectId: "fir-ai-interview",
-  storageBucket: "fir-ai-interview.appspot.com",
-  messagingSenderId: "1062000559385",
-  appId: "1:1062000559385:web:acc0e5815f3c9433eeb188",
-  measurementId: "G-GYPNPES5RL"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
