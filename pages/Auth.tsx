@@ -349,9 +349,9 @@ const AuthPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm text-gray-500 dark:text-slate-400">
             Developed & Designed by{' '}
-            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Aaradhya Pathak</span>,{' '}
-            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Nimesh Kulkarni</span>,{' '}
-            <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Bhavesh Patil</span>,{' '}
+            <a href="https://portfolioaaradhya.netlify.app/" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Aaradhya Pathak</a>,{' '}
+            <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Nimesh Kulkarni</a>,{' '}
+            <a href="https://www.linkedin.com/in/bhavesh-patil-ggsf?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener noreferrer" className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors">Bhavesh Patil</a>,{' '}
             <span className="font-medium text-gray-900 dark:text-white hover:text-primary transition-colors cursor-default">Sanika Wadnekar</span>
           </p>
         </div>
