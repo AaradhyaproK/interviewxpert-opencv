@@ -444,10 +444,10 @@ const Profile: React.FC = () => {
               <img
                 src={formData.photoURL || `https://ui-avatars.com/api/?name=${formData.displayName.replace(/\s/g, '+')}&background=random&color=fff`}
                 alt="Profile"
-                className="w-32 h-32 rounded-full object-cover border-4 border-white dark:border-[#0a0a0a] shadow-md flex-shrink-0"
+                className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white dark:border-[#0a0a0a] shadow-md flex-shrink-0"
               />
               <div className="flex-1">
-                <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">{formData.displayName}</h1>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">{formData.displayName}</h1>
                 <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2"><i className="fas fa-map-marker-alt"></i> {formData.location || 'Location not specified'}</p>
                 <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm">
                   <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><i className="fas fa-tools text-primary w-4"></i> <span className="font-bold">{formData.skills.split(',').filter(s => s).length}</span> Skills</div>
@@ -626,8 +626,8 @@ const Profile: React.FC = () => {
           </div>
 
           {/* Journey Progress Bar */}
-          <div className="mb-10">
-            <div className="flex items-center justify-between relative">
+          <div className="mb-8 md:mb-10">
+            <div className="flex items-center justify-between relative min-w-[280px]">
               <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-gray-200 dark:bg-slate-800 -z-10 rounded-full"></div>
               <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary -z-10 rounded-full transition-all duration-500" style={{ width: `${(activeStep / (steps.length - 1)) * 100}%` }}></div>
 
@@ -637,24 +637,24 @@ const Profile: React.FC = () => {
                   onClick={() => setActiveStep(index)}
                   className={`flex flex-col items-center gap-2 group focus:outline-none`}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10 ${index <= activeStep
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center border-4 transition-all duration-300 z-10 ${index <= activeStep
                     ? 'border-primary bg-white dark:bg-slate-900 text-primary shadow-lg scale-110'
                     : 'border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 text-gray-400'
                     }`}>
-                    <i className={`fas ${step.icon} text-sm`}></i>
+                    <i className={`fas ${step.icon} text-xs md:text-sm`}></i>
                   </div>
-                  <span className={`text-xs font-bold transition-colors duration-300 ${index <= activeStep ? 'text-primary' : 'text-gray-400'}`}>{step.title}</span>
+                  <span className={`hidden md:block text-xs font-bold transition-colors duration-300 ${index <= activeStep ? 'text-primary' : 'text-gray-400'}`}>{step.title}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 dark:border-slate-800 space-y-4">
 
             <div className="min-h-[400px]">
               {activeStep === 0 && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                  <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 md:p-6 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
                     <h4 className="font-bold text-blue-800 dark:text-blue-300 mb-2 flex items-center gap-2">
                       <i className="fas fa-magic"></i> Quick Start
                     </h4>
@@ -666,7 +666,7 @@ const Profile: React.FC = () => {
                     </label>
                   </div>
 
-                  <div className="flex items-center gap-6 pb-6 border-b border-gray-100 dark:border-slate-800">
+                  <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-gray-100 dark:border-slate-800 text-center md:text-left">
                     <div className="relative group">
                       <div className="w-24 h-24 rounded-full bg-gray-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-gray-200 dark:border-slate-700">
                         {formData.photoURL ? (
@@ -985,7 +985,7 @@ const Profile: React.FC = () => {
                 type="button"
                 onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
                 disabled={activeStep === 0}
-                className="px-6 py-2.5 text-gray-600 dark:text-slate-300 font-medium hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 md:px-6 py-2.5 text-gray-600 dark:text-slate-300 font-medium hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Back
               </button>
@@ -994,7 +994,7 @@ const Profile: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveStep(Math.min(steps.length - 1, activeStep + 1))}
-                  className="px-8 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5"
+                  className="px-6 md:px-8 py-2.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-dark shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5"
                 >
                   Next Step
                 </button>
@@ -1002,7 +1002,7 @@ const Profile: React.FC = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-8 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-70"
+                  className="px-6 md:px-8 py-2.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 shadow-lg shadow-green-600/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-70"
                 >
                   {saving ? 'Saving...' : 'Complete Profile'}
                 </button>
