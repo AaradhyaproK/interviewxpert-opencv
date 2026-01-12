@@ -262,63 +262,14 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <div className="flex xl:hidden items-center">
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none transition-colors"
+                  className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 focus:outline-none transition-colors"
                 >
-                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                  <Menu size={24} />
                 </button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="xl:hidden bg-white dark:bg-[#0a0a0a] border-t border-gray-200 dark:border-white/5 shadow-2xl animate-in slide-in-from-top-5 duration-200 absolute w-full left-0 z-50">
-            <div className="px-4 pt-4 pb-6 space-y-2">
-              {user && userProfile?.role === 'admin' ? (
-                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/admin') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Admin Dashboard</Link>
-              ) : userProfile?.role === 'recruiter' ? (
-                <>
-                  <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/jobs') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Dashboard</Link>
-                  <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/post') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Post Job</Link>
-                  <Link to="/recruiter/candidates" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/candidates') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Manage Candidates</Link>
-                  <Link to="/recruiter/requests" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/recruiter/requests') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Requests</Link>
-                </>
-              ) : user ? (
-                <>
-                  <Link to="/candidate/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/jobs') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Available Jobs</Link>
-                  <Link to="/candidate/best-matches" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/best-matches') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Best Matches</Link>
-                  <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/interviews') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>My Interviews</Link>
-                  <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/resume-analysis') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Resume AI</Link>
-                  <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/resume-builder') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Builder</Link>
-                  <Link to="/candidate/mock-interview" onClick={() => setIsMobileMenuOpen(false)} className={`block px-4 py-3 rounded-xl text-base font-medium ${isActive('/candidate/mock-interview') ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>Mock Interview</Link>
-                </>
-              ) : (
-                <>
-                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl text-base font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white">Home</Link>
-                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-3 rounded-xl text-base font-medium text-blue-600 dark:text-blue-400 hover:bg-gray-50 dark:hover:bg-white/5">Sign In</Link>
-                </>
-              )}
-            </div>
-            {user && (
-            <div className="pt-4 pb-6 border-t border-gray-200 dark:border-white/5 px-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <img className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-white/10" src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} alt="" />
-                  <div>
-                    <div className="text-base font-medium leading-none text-gray-900 dark:text-white">{userProfile?.fullname}</div>
-                    <div className="text-sm font-medium leading-none text-gray-500 dark:text-gray-400 mt-1">{userProfile?.email}</div>
-                  </div>
-                </div>
-                <NetworkStatus />
-              </div>
-              <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="block w-full text-center px-4 py-3 rounded-xl text-base font-medium bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">
-                Sign out
-              </button>
-            </div>
-            )}
-          </div>
-        )}
       </nav>
 
       <main className="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -339,6 +290,123 @@ const LayoutContent: React.FC<{ children: React.ReactNode }> = ({ children }) =>
           </div>
         </div>
       </footer>
+
+      {/* Mobile Menu Overlay & Sidebar */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[200] xl:hidden">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+
+          {/* Sidebar */}
+          <div className="fixed inset-y-0 right-0 w-[280px] bg-white dark:bg-[#0a0a0a] border-l border-gray-200 dark:border-white/5 shadow-2xl transform transition-transform duration-300 ease-in-out animate-in slide-in-from-right flex flex-col">
+
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5">
+              <span className="font-bold text-lg text-gray-900 dark:text-white">Menu</span>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto py-4 px-4 space-y-6">
+              {/* Links */}
+              <div className="space-y-1">
+                {user && userProfile?.role === 'admin' ? (
+                  <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/admin') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}>
+                    <i className="fas fa-shield-alt w-5 text-center"></i> Admin Dashboard
+                  </Link>
+                ) : userProfile?.role === 'recruiter' ? (
+                  <>
+                    <Link to="/recruiter/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/recruiter/jobs') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-columns w-5 text-center"></i> Dashboard</Link>
+                    <Link to="/recruiter/post" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/recruiter/post') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-plus-circle w-5 text-center"></i> Post Job</Link>
+                    <Link to="/recruiter/candidates" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/recruiter/candidates') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-users w-5 text-center"></i> Candidates</Link>
+                    <Link to="/recruiter/requests" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/recruiter/requests') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-inbox w-5 text-center"></i> Requests</Link>
+                  </>
+                ) : user ? (
+                  <>
+                    <Link to="/candidate/jobs" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/jobs') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-briefcase w-5 text-center"></i> Jobs</Link>
+                    <Link to="/candidate/best-matches" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/best-matches') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-star w-5 text-center"></i> Best Matches</Link>
+                    <Link to="/candidate/interviews" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/interviews') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-video w-5 text-center"></i> My Interviews</Link>
+                    <Link to="/candidate/resume-analysis" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/resume-analysis') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-file-alt w-5 text-center"></i> Resume AI</Link>
+                    <Link to="/candidate/resume-builder" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/resume-builder') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-pen-fancy w-5 text-center"></i> Builder</Link>
+                    <Link to="/candidate/mock-interview" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/candidate/mock-interview') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-robot w-5 text-center"></i> Mock Interview</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${isActive('/') ? 'bg-primary/10 text-primary' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}><i className="fas fa-home w-5 text-center"></i> Home</Link>
+                  </>
+                )}
+              </div>
+
+              {/* Divider */}
+              {user && <div className="h-px bg-gray-200 dark:bg-white/5 my-2" />}
+
+              {/* User Section */}
+              {user && (
+                <div className="space-y-4">
+                  {/* Profile Link */}
+                  <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                    <img className="h-10 w-10 rounded-full object-cover border border-gray-200 dark:border-white/10 group-hover:border-primary/50 transition-colors" src={userProfile?.profilePhotoURL || `https://ui-avatars.com/api/?name=${userProfile?.fullname?.replace(/\s/g, '+')}&background=random&color=fff`} alt="" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-primary transition-colors">{userProfile?.fullname}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{userProfile?.email}</div>
+                    </div>
+                  </Link>
+
+                  {/* Network Status */}
+                  <div className="px-2">
+                    <NetworkStatus />
+                  </div>
+
+                  {/* Wallet */}
+                  {userProfile?.role === 'candidate' && (
+                    <Link to="/candidate/payment" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-500/10 border border-yellow-200 dark:border-yellow-500/20 rounded-xl">
+                      <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-500 font-medium text-sm">
+                        <i className="fas fa-coins"></i> Wallet
+                      </div>
+                      <span className="font-bold text-yellow-800 dark:text-yellow-400">{(userProfile as any)?.walletBalance || 0} pts</span>
+                    </Link>
+                  )}
+
+                  {/* Theme */}
+                  <div className="bg-gray-50 dark:bg-white/5 p-1 rounded-xl flex">
+                    <button onClick={() => setTheme('light')} className={`flex-1 p-2 rounded-lg transition-all flex items-center justify-center gap-2 text-xs font-medium ${theme === 'light' ? 'bg-white text-black shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>
+                      <Sun size={14} /> Light
+                    </button>
+                    <button onClick={() => setTheme('dark')} className={`flex-1 p-2 rounded-lg transition-all flex items-center justify-center gap-2 text-xs font-medium ${theme === 'dark' ? 'bg-gray-700 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}>
+                      <Moon size={14} /> Dark
+                    </button>
+                    <button onClick={() => setTheme('system')} className={`flex-1 p-2 rounded-lg transition-all flex items-center justify-center gap-2 text-xs font-medium ${theme === 'system' ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' : 'text-gray-500 hover:text-gray-300'}`}>
+                      <Monitor size={14} /> Auto
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            {user ? (
+              <div className="p-4 border-t border-gray-200 dark:border-white/5">
+                <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 font-medium text-sm transition-colors">
+                  <i className="fas fa-sign-out-alt"></i> Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-3">
+                <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block w-full py-3 text-center rounded-xl bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white font-medium text-sm hover:bg-gray-200 dark:hover:bg-white/20 transition-colors">Log In</Link>
+                <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block w-full py-3 text-center rounded-xl bg-primary text-white font-medium text-sm shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors">Get Started</Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
