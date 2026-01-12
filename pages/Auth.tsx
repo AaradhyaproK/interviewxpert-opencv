@@ -4,6 +4,7 @@ import { doc, setDoc, serverTimestamp, addDoc, collection, getDoc } from 'fireba
 import { auth, db } from '../services/firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
+import { BackgroundPaths } from '../components/FloatingPaths';
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -164,11 +165,9 @@ const AuthPage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col relative bg-black text-white font-sans selection:bg-violet-500/30">
 
-      {/* Background Ambience - "Make some blur effects for that" */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-900/40 rounded-full blur-[120px] mix-blend-screen opacity-50 animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-900/30 rounded-full blur-[120px] mix-blend-screen opacity-50"></div>
-        <div className="absolute top-[20%] right-[30%] w-[300px] h-[300px] bg-fuchsia-900/20 rounded-full blur-[100px] mix-blend-screen opacity-30"></div>
+      {/* Background Ambience */}
+      <div className="fixed inset-0 z-0 pointer-events-none dark">
+        <BackgroundPaths />
       </div>
 
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6 relative z-10">
