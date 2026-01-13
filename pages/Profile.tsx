@@ -427,31 +427,57 @@ const Profile: React.FC = () => {
             <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
               {isOwnProfile ? 'My Profile' : 'Profile'}
             </h2>
-            <div className="flex flex-col md:flex-row gap-2">
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
               {isOwnProfile && (
-                <button onClick={() => setIsEditing(true)} className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary-dark">
+                <button onClick={() => setIsEditing(true)} className="flex-1 sm:flex-none justify-center px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-primary-dark">
                   <i className="fas fa-edit"></i> Edit Profile
                 </button>
               )}
-              <button onClick={downloadProfileAsPDF} className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-green-700"><i className="fas fa-file-pdf"></i> PDF</button>
-              <button onClick={downloadProfileAsJPG} className="px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-orange-700"><i className="fas fa-image"></i> JPG</button>
+              <button onClick={downloadProfileAsPDF} className="flex-1 sm:flex-none justify-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-green-700"><i className="fas fa-file-pdf"></i> PDF</button>
+              <button onClick={downloadProfileAsJPG} className="flex-1 sm:flex-none justify-center px-4 py-2 bg-orange-600 text-white rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-orange-700"><i className="fas fa-image"></i> JPG</button>
             </div>
           </div>
 
           <div id="profile-view-content" className="bg-white dark:bg-[#0a0a0a] p-4 md:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5">
             {/* Header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 mb-8 pb-8 border-b border-gray-200 dark:border-white/10 text-center md:text-left">
-              <img
-                src={formData.photoURL || `https://ui-avatars.com/api/?name=${formData.displayName.replace(/\s/g, '+')}&background=random&color=fff`}
-                alt="Profile"
-                className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-white dark:border-[#0a0a0a] shadow-md flex-shrink-0"
-              />
-              <div className="flex-1">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">{formData.displayName}</h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2"><i className="fas fa-map-marker-alt"></i> {formData.location || 'Location not specified'}</p>
-                <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 text-sm">
-                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><i className="fas fa-tools text-primary w-4"></i> <span className="font-bold">{formData.skills.split(',').filter(s => s).length}</span> Skills</div>
-                  <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300"><i className="fas fa-briefcase text-primary w-4"></i> <span className="font-bold">{formData.experienceYears}</span> Years Exp.</div>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-75 blur group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <img
+                  src={formData.photoURL || `https://ui-avatars.com/api/?name=${formData.displayName.replace(/\s/g, '+')}&background=random&color=fff`}
+                  alt="Profile"
+                  className="relative w-28 h-28 md:w-36 md:h-36 rounded-full object-cover border-4 border-white dark:border-[#0a0a0a] shadow-xl flex-shrink-0"
+                />
+              </div>
+              
+              <div className="flex-1 w-full">
+                <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-2">{formData.displayName}</h1>
+                
+                <div className="flex items-center justify-center md:justify-start gap-2 text-gray-500 dark:text-gray-400 mb-6">
+                  <i className="fas fa-map-marker-alt text-primary"></i> 
+                  <span className="font-medium">{formData.location || 'Location not specified'}</span>
+                </div>
+
+                <div className="flex flex-wrap justify-center md:justify-start gap-3 md:gap-4">
+                  <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 flex items-center gap-3 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <i className="fas fa-tools"></i>
+                    </div>
+                    <div className="text-left">
+                        <p className="font-bold text-gray-900 dark:text-white leading-none">{formData.skills.split(',').filter(s => s).length}</p>
+                        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">Skills</p>
+                    </div>
+                  </div>
+                  
+                  <div className="px-4 py-2 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 flex items-center gap-3 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                        <i className="fas fa-briefcase"></i>
+                    </div>
+                    <div className="text-left">
+                        <p className="font-bold text-gray-900 dark:text-white leading-none">{formData.experienceYears}</p>
+                        <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-0.5">Years Exp.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

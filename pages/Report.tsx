@@ -385,32 +385,29 @@ const InterviewReport: React.FC = () => {
               </div>
             )}
 
-            {/* View Resume - Smaller with Icon */}
+            {/* Action Buttons */}
             <button 
-              onClick={() => report.candidateResumeURL ? setSelectedResume(report.candidateResumeURL) : alert("Resume not available")} 
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wide border transition-all ${isDark ? 'border-white/10 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/30' : 'border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300'} ${!report.candidateResumeURL ? 'opacity-50' : ''}`}
+              onClick={() => report.candidateResumeURL ? setSelectedResume(report.candidateResumeURL) : alert("No resume uploaded. Profile information was used for this interview.")} 
+              className={`h-10 px-4 rounded-xl font-medium text-sm flex items-center gap-2 transition-all border ${isDark ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/20' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300'} ${!report.candidateResumeURL ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              <i className="far fa-file-alt"></i>
+              <i className="far fa-file-alt text-lg"></i>
               <span>Resume</span>
             </button>
 
-            {/* Download PDF - Button with Text */}
             <button 
               onClick={handleDownloadPDF} 
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${isDark ? 'border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/30' : 'border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 hover:border-gray-300'}`} 
-              title="Download PDF"
+              className={`h-10 px-4 rounded-xl font-medium text-sm flex items-center gap-2 transition-all border ${isDark ? 'bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white hover:border-white/20' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:border-gray-300'}`}
             >
               <i className="far fa-file-pdf text-lg"></i>
-              <span className="font-bold text-sm">Download</span>
+              <span>Download</span>
             </button>
 
-            {/* View Profile - Bigger/More Viewable */}
             <button 
               onClick={() => setShowProfile(true)} 
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all transform hover:-translate-y-0.5 active:translate-y-0 ${isDark ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}
+              className={`h-10 px-5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg hover:-translate-y-0.5 active:translate-y-0 ${isDark ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20' : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/30'}`}
             >
               <i className="far fa-user-circle text-lg"></i>
-              <span>View Profile</span>
+              <span>Profile</span>
             </button>
           </div>
         </div>
