@@ -368,12 +368,74 @@ const Hero: React.FC = () => (
 
         <div className="mt-12 md:mt-16 pt-8 border-t border-slate-200/60 dark:border-slate-700/60">
           <p className="text-sm text-slate-400 font-medium mb-6 uppercase tracking-widest">Trusted by candidates applying to</p>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 dark:brightness-200 dark:contrast-100">
-            <i className="fab fa-google text-3xl hover:text-[#4285F4] transition-colors cursor-pointer"></i>
-            <i className="fab fa-microsoft text-3xl hover:text-[#00a4ef] transition-colors cursor-pointer"></i>
-            <i className="fab fa-amazon text-3xl hover:text-[#FF9900] transition-colors cursor-pointer"></i>
-            <i className="fab fa-meta text-3xl hover:text-[#0668E1] transition-colors cursor-pointer"></i>
-            <i className="fab fa-apple text-3xl hover:text-[#000000] transition-colors cursor-pointer"></i>
+
+          {/* Infinite Marquee Animation Styles */}
+          <style>{`
+            @keyframes marquee {
+              0% {
+                transform: translateX(0);
+              }
+              100% {
+                transform: translateX(-50%);
+              }
+            }
+            .marquee-container {
+              overflow: hidden;
+              width: 100%;
+              mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+              -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            }
+            .marquee-track {
+              display: flex;
+              width: max-content;
+              animation: marquee 25s linear infinite;
+            }
+            .marquee-container:hover .marquee-track {
+              animation-play-state: paused;
+            }
+          `}</style>
+
+          <div className="marquee-container">
+            <div className="marquee-track opacity-60 grayscale hover:grayscale-0 transition-all duration-500 dark:brightness-200 dark:contrast-100">
+              {/* First set of logos */}
+              <div className="flex items-center gap-10 md:gap-16 px-8">
+                <i className="fab fa-google text-3xl hover:text-[#4285F4] transition-colors cursor-pointer" title="Google"></i>
+                <i className="fab fa-microsoft text-3xl hover:text-[#00a4ef] transition-colors cursor-pointer" title="Microsoft"></i>
+                <i className="fab fa-amazon text-3xl hover:text-[#FF9900] transition-colors cursor-pointer" title="Amazon"></i>
+                <i className="fab fa-meta text-3xl hover:text-[#0668E1] transition-colors cursor-pointer" title="Meta"></i>
+                <i className="fab fa-apple text-3xl hover:text-[#000000] dark:hover:text-white transition-colors cursor-pointer" title="Apple"></i>
+                <i className="fab fa-spotify text-3xl hover:text-[#1DB954] transition-colors cursor-pointer" title="Spotify"></i>
+                <i className="fab fa-linkedin text-3xl hover:text-[#0A66C2] transition-colors cursor-pointer" title="LinkedIn"></i>
+                <i className="fab fa-uber text-3xl hover:text-[#000000] dark:hover:text-white transition-colors cursor-pointer" title="Uber"></i>
+                <i className="fab fa-adobe text-3xl hover:text-[#FF0000] transition-colors cursor-pointer" title="Adobe"></i>
+                <span className="text-2xl font-bold hover:text-[#E82127] transition-colors cursor-pointer" title="Netflix">N</span>
+                <span className="text-2xl font-bold hover:text-[#CC0000] transition-colors cursor-pointer" title="Tesla">T</span>
+                <span className="text-2xl font-bold hover:text-[#EA4335] transition-colors cursor-pointer" title="Oracle">O</span>
+                <span className="text-2xl font-bold hover:text-[#00A1E0] transition-colors cursor-pointer" title="Salesforce">S</span>
+                <span className="text-2xl font-bold hover:text-[#0530AD] transition-colors cursor-pointer" title="IBM">IBM</span>
+                <span className="text-2xl font-bold hover:text-[#0071C5] transition-colors cursor-pointer" title="Intel">Intel</span>
+                <span className="text-2xl font-bold hover:text-[#76B900] transition-colors cursor-pointer" title="Nvidia">Nvidia</span>
+              </div>
+              {/* Duplicate set for seamless infinite loop */}
+              <div className="flex items-center gap-10 md:gap-16 px-8">
+                <i className="fab fa-google text-3xl hover:text-[#4285F4] transition-colors cursor-pointer" title="Google"></i>
+                <i className="fab fa-microsoft text-3xl hover:text-[#00a4ef] transition-colors cursor-pointer" title="Microsoft"></i>
+                <i className="fab fa-amazon text-3xl hover:text-[#FF9900] transition-colors cursor-pointer" title="Amazon"></i>
+                <i className="fab fa-meta text-3xl hover:text-[#0668E1] transition-colors cursor-pointer" title="Meta"></i>
+                <i className="fab fa-apple text-3xl hover:text-[#000000] dark:hover:text-white transition-colors cursor-pointer" title="Apple"></i>
+                <i className="fab fa-spotify text-3xl hover:text-[#1DB954] transition-colors cursor-pointer" title="Spotify"></i>
+                <i className="fab fa-linkedin text-3xl hover:text-[#0A66C2] transition-colors cursor-pointer" title="LinkedIn"></i>
+                <i className="fab fa-uber text-3xl hover:text-[#000000] dark:hover:text-white transition-colors cursor-pointer" title="Uber"></i>
+                <i className="fab fa-adobe text-3xl hover:text-[#FF0000] transition-colors cursor-pointer" title="Adobe"></i>
+                <span className="text-2xl font-bold hover:text-[#E82127] transition-colors cursor-pointer" title="Netflix">N</span>
+                <span className="text-2xl font-bold hover:text-[#CC0000] transition-colors cursor-pointer" title="Tesla">T</span>
+                <span className="text-2xl font-bold hover:text-[#EA4335] transition-colors cursor-pointer" title="Oracle">O</span>
+                <span className="text-2xl font-bold hover:text-[#00A1E0] transition-colors cursor-pointer" title="Salesforce">S</span>
+                <span className="text-2xl font-bold hover:text-[#0530AD] transition-colors cursor-pointer" title="IBM">IBM</span>
+                <span className="text-2xl font-bold hover:text-[#0071C5] transition-colors cursor-pointer" title="Intel">Intel</span>
+                <span className="text-2xl font-bold hover:text-[#76B900] transition-colors cursor-pointer" title="Nvidia">Nvidia</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -639,6 +701,156 @@ const LiveDemo: React.FC = () => {
   );
 };
 
+// --- Testimonials Section with Auto-Scrolling Animation ---
+const testimonials = [
+  {
+    id: 1,
+    name: "Priya Sharma",
+    role: "Software Engineer at Google",
+    quote: "InterviewXpert completely transformed my interview preparation. The AI mock interviews felt incredibly realistic, and the instant feedback helped me identify my weak spots. Landed my dream job at Google!",
+    rating: 5
+  },
+  {
+    id: 2,
+    name: "Rahul Mehta",
+    role: "Product Manager at Microsoft",
+    quote: "The resume builder is a game-changer. My ATS score went from 45% to 92% after using the AI suggestions. The platform is intuitive and the practice sessions are top-notch.",
+    rating: 5
+  },
+  {
+    id: 3,
+    name: "Ananya Patel",
+    role: "Data Scientist at Amazon",
+    quote: "I was nervous about technical interviews, but the AI interviewer helped me practice complex scenarios. The detailed feedback on my communication and technical accuracy was invaluable.",
+    rating: 5
+  },
+  {
+    id: 4,
+    name: "Vikram Singh",
+    role: "Frontend Developer at Meta",
+    quote: "What sets InterviewXpert apart is the real-time analysis. Seeing my eye contact and posture metrics helped me present myself more confidently. Highly recommended!",
+    rating: 4
+  },
+  {
+    id: 5,
+    name: "Sneha Reddy",
+    role: "UX Designer at Apple",
+    quote: "The behavioral interview practice was exactly what I needed. The AI asked challenging follow-up questions just like a real interviewer. Felt fully prepared on the big day.",
+    rating: 5
+  },
+  {
+    id: 6,
+    name: "Arjun Nair",
+    role: "DevOps Engineer at Netflix",
+    quote: "From resume optimization to final interview prep, InterviewXpert covered everything. The pricing is fair and the results speak for themselves. Got multiple offers!",
+    rating: 5
+  }
+];
+
+// Generate initials from name
+const getInitials = (name: string) => {
+  return name
+    .split(' ')
+    .map(word => word[0])
+    .join('')
+    .toUpperCase();
+};
+
+// Generate a consistent color based on name
+const getAvatarColor = (name: string) => {
+  const colors = [
+    'bg-gradient-to-br from-blue-500 to-blue-600',
+    'bg-gradient-to-br from-purple-500 to-purple-600',
+    'bg-gradient-to-br from-pink-500 to-pink-600',
+    'bg-gradient-to-br from-green-500 to-green-600',
+    'bg-gradient-to-br from-orange-500 to-orange-600',
+    'bg-gradient-to-br from-teal-500 to-teal-600',
+  ];
+  const index = name.length % colors.length;
+  return colors[index];
+};
+
+const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
+  <div className="flex gap-1">
+    {[1, 2, 3, 4, 5].map((star) => (
+      <i
+        key={star}
+        className={`fas fa-star text-sm ${star <= rating ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
+      />
+    ))}
+  </div>
+);
+
+const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ testimonial }) => (
+  <div className="flex-shrink-0 w-[320px] sm:w-[360px] md:w-[400px] p-6 bg-white dark:bg-black/80 backdrop-blur-sm rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg">
+    <div className="flex items-start gap-4 mb-4">
+      {/* Initial Avatar */}
+      <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${getAvatarColor(testimonial.name)}`}>
+        {getInitials(testimonial.name)}
+      </div>
+      <div className="flex-1">
+        <h4 className="font-bold text-slate-900 dark:text-white">{testimonial.name}</h4>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{testimonial.role}</p>
+        <StarRating rating={testimonial.rating} />
+      </div>
+    </div>
+    <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed italic">
+      "{testimonial.quote}"
+    </p>
+  </div>
+);
+
+const Testimonials: React.FC = () => {
+  return (
+    <section id="testimonials" className="py-16 md:py-24 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 className="text-primary font-bold tracking-wide uppercase text-sm mb-2">Success Stories</h2>
+          <p className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
+            What Our Users Say
+          </p>
+          <p className="mt-4 text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
+            Join thousands of candidates who landed their dream jobs with InterviewXpert
+          </p>
+        </div>
+      </div>
+
+      {/* Scrolling Container */}
+      <div className="relative overflow-hidden">
+        {/* Animation Styles */}
+        <style>{`
+          @keyframes scrollTestimonials {
+            0% {
+              transform: translateX(0);
+            }
+            100% {
+              transform: translateX(-50%);
+            }
+          }
+        `}</style>
+
+        {/* Animated Track */}
+        <div
+          className="flex gap-6 py-4 px-4"
+          style={{
+            animation: 'scrollTestimonials 40s linear infinite',
+            width: 'max-content'
+          }}
+        >
+          {/* Render testimonials twice for seamless infinite loop */}
+          {[...testimonials, ...testimonials].map((testimonial, index) => (
+            <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+          ))}
+        </div>
+
+        {/* Gradient Overlays for Visual Effect */}
+        <div className="absolute top-0 left-0 w-20 md:w-32 h-full bg-gradient-to-r from-slate-50 dark:from-slate-950 to-transparent pointer-events-none z-10" />
+        <div className="absolute top-0 right-0 w-20 md:w-32 h-full bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent pointer-events-none z-10" />
+      </div>
+    </section>
+  );
+};
+
 const Pricing: React.FC = () => (
   <section id="pricing" className="py-16 md:py-24">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -859,6 +1071,7 @@ const Home: React.FC = () => {
           <Features />
           <HowItWorks />
           <LiveDemo />
+          <Testimonials />
           <Pricing />
           <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
           <FinalCTA />
