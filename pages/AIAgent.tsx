@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../context/AuthContext';
+import { useAnimatedText } from '../hooks/useAnimatedText';
 import {
     Bot,
     Send,
@@ -28,6 +29,21 @@ interface ChatSession {
     createdAt: number;
     messages: Message[];
 }
+
+// Animated message component for AI responses
+const AnimatedMessage: React.FC<{ text: string; isLatest: boolean }> = React.memo(({ text, isLatest }) => {
+    // Only animate the latest AI message, use word-by-word animation
+    const animatedText = useAnimatedText(text, " ");
+    const displayText = isLatest ? animatedText : text;
+
+    return (
+        <>
+            {displayText.split('\n').map((line, i) => (
+                <p key={i} className="mb-2 last:mb-0 min-h-[1em]">{line}</p>
+            ))}
+        </>
+    );
+});
 
 const AIAgent: React.FC = () => {
     const { user, userProfile } = useAuth();
@@ -215,7 +231,7 @@ const AIAgent: React.FC = () => {
 
     // --- Render Helpers ---
 
-    const renderMessage = (msg: Message) => (
+    const renderMessage = (msg: Message, isLatestAI: boolean = false) => (
         <div key={msg.id} className={`flex gap-4 mb-6 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'model' && (
                 <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 mt-1">
@@ -227,9 +243,13 @@ const AIAgent: React.FC = () => {
                 ? 'bg-[#2f2f2f] text-white rounded-tr-sm'
                 : 'text-gray-900 dark:text-gray-100 dark:bg-transparent pl-0'
                 }`}>
-                {msg.text.split('\n').map((line, i) => (
-                    <p key={i} className="mb-2 last:mb-0 min-h-[1em]">{line}</p>
-                ))}
+                {msg.role === 'model' ? (
+                    <AnimatedMessage text={msg.text} isLatest={isLatestAI} />
+                ) : (
+                    msg.text.split('\n').map((line, i) => (
+                        <p key={i} className="mb-2 last:mb-0 min-h-[1em]">{line}</p>
+                    ))
+                )}
             </div>
 
             {msg.role === 'user' && (
@@ -350,7 +370,15 @@ const AIAgent: React.FC = () => {
                         </div>
                     ) : (
                         <div className="max-w-3xl mx-auto px-4 py-6 md:py-10">
-                            {currentSession.messages.map(msg => renderMessage(msg))}
+                            {currentSession.messages.map((msg, index) => {
+                                // Find the index of the last AI message
+                                const lastAIMessageIndex = currentSession.messages
+                                    .map((m, i) => ({ role: m.role, index: i }))
+                                    .filter(m => m.role === 'model')
+                                    .pop()?.index;
+                                const isLatestAI = msg.role === 'model' && index === lastAIMessageIndex;
+                                return renderMessage(msg, isLatestAI);
+                            })}
                             {loading && (
                                 <div className="flex gap-4 mb-6">
                                     <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center flex-shrink-0 mt-1">
