@@ -8,7 +8,7 @@ import { AnimatedBeam } from '../components/landing/AnimatedBeam';
 import OrbitingCircles from '../components/landing/OrbitingCircles';
 import { AnimatedList, AnimatedListItem } from '../components/landing/AnimatedList';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
-import { ProgressiveBlur } from '../components/landing/ProgressiveBlur';
+
 import { Marquee } from '../components/landing/Marquee';
 
 // --- Components ---
@@ -1253,33 +1253,15 @@ const Home: React.FC = () => {
         <Navbar />
         <main>
           <NeuralBackground />
-          <ProgressiveBlur blurOnEntry={false} blurOnExit={true} maxBlur={8} blurRange={0.25}>
-            <Hero />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={1} maxBlur={12} blurRange={0.2}>
-            <WhoItsFor />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={2} maxBlur={12} blurRange={0.2}>
-            <Features />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={3} maxBlur={12} blurRange={0.2}>
-            <HowItWorks />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={4} maxBlur={12} blurRange={0.2}>
-            <LiveDemo />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={5} maxBlur={12} blurRange={0.2}>
-            <Testimonials />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={6} maxBlur={12} blurRange={0.2}>
-            <Pricing />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={7} maxBlur={12} blurRange={0.2}>
-            <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
-          </ProgressiveBlur>
-          <ProgressiveBlur delay={8} blurOnEntry={true} blurOnExit={false} maxBlur={8} blurRange={0.25}>
-            <FinalCTA />
-          </ProgressiveBlur>
+          <Hero />
+          <WhoItsFor />
+          <Features />
+          <HowItWorks />
+          <LiveDemo />
+          <Testimonials />
+          <Pricing />
+          <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
+          <FinalCTA />
         </main>
         <Footer />
       </div>
