@@ -35,7 +35,7 @@ const AIAgent: React.FC = () => {
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isSidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
     const [isHoveringSession, setHoveringSession] = useState<string | null>(null);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -225,13 +225,30 @@ const AIAgent: React.FC = () => {
         <div className="flex h-[calc(100vh-4rem)] bg-white dark:bg-[#09090b] text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
 
             {/* --- SIDEBAR --- */}
-            <div className={`${isSidebarOpen ? 'w-[260px]' : 'w-0'} bg-gray-50 dark:bg-[#000000] flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden border-r border-gray-200 dark:border-white/5 flex flex-col`}>
+            {/* --- SIDEBAR BACKDROP (Mobile) --- */}
+            {isSidebarOpen && (
+                <div
+                    className="md:hidden absolute inset-0 bg-black/50 z-40 backdrop-blur-sm"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            {/* --- SIDEBAR --- */}
+            <div className={`
+                fixed md:relative z-50 h-full
+                bg-gray-50 dark:bg-[#000000] 
+                transition-all duration-300 ease-in-out 
+                border-r border-gray-200 dark:border-white/5 
+                flex flex-col shadow-xl md:shadow-none
+                w-[280px]
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:w-0 md:overflow-hidden'}
+            `}>
                 <div className="p-3">
                     <button
                         onClick={createNewSession}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-[#1a1a1a] transition-colors text-sm font-medium"
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-[#1a1a1a] transition-colors text-sm font-medium"
                     >
-                        <Plus size={16} /> New chat
+                        <Plus size={18} /> New chat
                     </button>
                 </div>
 
@@ -280,7 +297,7 @@ const AIAgent: React.FC = () => {
                             onClick={() => setSidebarOpen(!isSidebarOpen)}
                             className="p-2 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded-lg transition-colors"
                         >
-                            {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
+                            {isSidebarOpen ? <PanelLeftClose size={24} /> : <PanelLeftOpen size={24} />}
                         </button>
                         <span className="md:hidden font-semibold text-gray-900 dark:text-white">Career Copilot</span>
                     </div>
@@ -346,9 +363,9 @@ const AIAgent: React.FC = () => {
                         <button
                             onClick={handleSendMessage}
                             disabled={!input.trim() || loading}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-gray-900 dark:bg-white text-white dark:text-black rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2.5 bg-gray-900 dark:bg-white text-white dark:text-black rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
                         >
-                            <Send size={16} />
+                            <Send size={18} />
                         </button>
                     </div>
                     <p className="text-center text-[11px] text-gray-400 mt-2">
