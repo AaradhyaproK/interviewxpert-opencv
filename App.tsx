@@ -24,6 +24,7 @@ import MockHistory from './pages/MockHistory';
 import Payment from './pages/Payment';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProfile from './pages/AdminProfile';
+import AIAgent from './pages/AIAgent';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' | 'admin' }> = ({ children, role }) => {
   const { user, userProfile, loading } = useAuth();
@@ -142,6 +143,9 @@ const App: React.FC = () => {
                   } />
                   <Route path="/candidate/interviews" element={
                     <ProtectedRoute role="candidate"><MyInterviews /></ProtectedRoute>
+                  } />
+                  <Route path="/candidate/ai-agent" element={
+                    <ProtectedRoute role="candidate"><AIAgent /></ProtectedRoute>
                   } />
                   <Route path="/candidate/resume-analysis" element={
                     <ProtectedRoute role="candidate"><ResumeAnalysis /></ProtectedRoute>

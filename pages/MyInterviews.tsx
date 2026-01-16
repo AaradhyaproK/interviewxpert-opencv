@@ -3,6 +3,7 @@ import { collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
 import { Link } from 'react-router-dom';
 import { Interview } from '../types';
+import InterviewReportModal from '../components/InterviewReportModal';
 
 const MyInterviews: React.FC = () => {
   const [realInterviews, setRealInterviews] = useState<Interview[]>([]);
@@ -11,6 +12,8 @@ const MyInterviews: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('newest');
   const [activeTab, setActiveTab] = useState<'real' | 'mock'>('real');
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // Use onAuthStateChanged to wait for the user session to initialize
@@ -97,8 +100,8 @@ const MyInterviews: React.FC = () => {
         <button
           onClick={() => setActiveTab('real')}
           className={`pb-3 px-1 text-sm font-bold transition-all relative ${activeTab === 'real'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-slate-300'
+            ? 'text-primary border-b-2 border-primary'
+            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-slate-300'
             }`}
         >
           Job Interviews <span className="ml-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-800 rounded-full text-xs">{realInterviews.length}</span>
@@ -106,8 +109,8 @@ const MyInterviews: React.FC = () => {
         <button
           onClick={() => setActiveTab('mock')}
           className={`pb-3 px-1 text-sm font-bold transition-all relative ${activeTab === 'mock'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-slate-300'
+            ? 'text-primary border-b-2 border-primary'
+            : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-slate-300'
             }`}
         >
           Mock Interviews <span className="ml-1 px-2 py-0.5 bg-gray-100 dark:bg-slate-800 rounded-full text-xs">{mockInterviews.length}</span>
@@ -176,8 +179,8 @@ const MyInterviews: React.FC = () => {
                       )}
 
                       <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${interview.status === 'Hired' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' :
-                          interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
-                            'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                        interview.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800' :
+                          'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
                         }`}>
                         {interview.status || 'Pending'}
                       </span>
@@ -194,8 +197,8 @@ const MyInterviews: React.FC = () => {
 
                   <div className="flex flex-col items-end">
                     <div className={`text-2xl font-black ${score >= 70 ? 'text-green-600 dark:text-green-400' :
-                        score >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
-                          'text-red-500'
+                      score >= 40 ? 'text-yellow-600 dark:text-yellow-400' :
+                        'text-red-500'
                       }`}>
                       {score}
                     </div>
@@ -222,15 +225,24 @@ const MyInterviews: React.FC = () => {
                 </div>
 
                 <div className="pt-4 border-t border-gray-100 dark:border-white/5 mt-auto relative z-10">
-                  <Link to={`/report/${interview.id}`} className="flex items-center justify-center w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white hover:border-primary dark:hover:bg-primary dark:hover:border-primary rounded-xl transition-all font-semibold text-sm group-hover:shadow-md">
+                  <button
+                    onClick={() => { setSelectedInterview(interview); setIsModalOpen(true); }}
+                    className="flex items-center justify-center w-full px-4 py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/5 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white hover:border-primary dark:hover:bg-primary dark:hover:border-primary rounded-xl transition-all font-semibold text-sm group-hover:shadow-md"
+                  >
                     View Full Report <i className="fas fa-arrow-right ml-2"></i>
-                  </Link>
+                  </button>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+
+      <InterviewReportModal
+        interview={selectedInterview}
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setSelectedInterview(null); }}
+      />
     </div>
   );
 };
