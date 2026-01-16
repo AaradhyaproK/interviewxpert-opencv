@@ -57,35 +57,12 @@ const AIAgent: React.FC = () => {
 
     const genAI = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-    // --- Persistence & Initialization ---
+    // --- Initialization ---
 
     useEffect(() => {
-        // Load sessions from local storage on mount
-        const saved = localStorage.getItem('ai_chat_sessions');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                setSessions(parsed);
-                if (parsed.length > 0) {
-                    setCurrentSessionId(parsed[0].id);
-                } else {
-                    createNewSession();
-                }
-            } catch (e) {
-                console.error("Failed to parse chat sessions", e);
-                createNewSession();
-            }
-        } else {
-            createNewSession();
-        }
+        // Create a new session on mount
+        createNewSession();
     }, []);
-
-    useEffect(() => {
-        // Save sessions whenever they change
-        if (sessions.length > 0) {
-            localStorage.setItem('ai_chat_sessions', JSON.stringify(sessions));
-        }
-    }, [sessions]);
 
     useEffect(() => {
         scrollToBottom();
@@ -120,7 +97,7 @@ const AIAgent: React.FC = () => {
                 createNewSession();
             }
         }
-        if (newSessions.length === 0) localStorage.removeItem('ai_chat_sessions');
+
     };
 
     const handleSendMessage = async () => {
