@@ -15,13 +15,13 @@ export function useAnimatedText(text: string, delimiter: string = "") {
 
     useEffect(() => {
         const parts = text.split(delimiter);
-        const duration = delimiter === "" ? 0.5 : // Character animation (very fast)
-            delimiter === " " ? 0.3 : // Word animation (ChatGPT-like)
-                0.2; // Chunk animation (instant)
+        const duration = delimiter === "" ? 3 : // Character animation
+            delimiter === " " ? 1.5 : // Word animation (natural generating feel)
+                0.8; // Chunk animation
 
         const controls = animate(startingCursor, parts.length, {
             duration,
-            ease: "linear",
+            ease: "easeOut",
             onUpdate(latest) {
                 setCursor(Math.floor(latest));
             },
