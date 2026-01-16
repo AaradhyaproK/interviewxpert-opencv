@@ -25,6 +25,7 @@ import Payment from './pages/Payment';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProfile from './pages/AdminProfile';
 import AIAgent from './pages/AIAgent';
+import Blogs from './pages/Blogs';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' | 'candidate' | 'admin' }> = ({ children, role }) => {
   const { user, userProfile, loading } = useAuth();
@@ -40,7 +41,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'recruiter' |
   if (!user) return <Navigate to="/" replace />;
 
   // FIX: Smart Redirect to prevent loops. If role mismatch, go to correct dashboard.
-  const userRole = userProfile?.role || 'candidate';
+  const userRole: string = userProfile?.role || 'candidate';
   if (role && userRole !== role) {
     if (userRole === 'recruiter') return <Navigate to="/recruiter/jobs" replace />;
     if (userRole === 'admin') return <Navigate to="/admin" replace />;
@@ -69,7 +70,7 @@ const HomeRoute: React.FC = () => {
         </div>
       );
     }
-    const userRole = userProfile.role || 'candidate';
+    const userRole: string = userProfile.role || 'candidate';
     if (userRole === 'recruiter') return <Navigate to="/recruiter/jobs" replace />;
     if (userRole === 'admin') return <Navigate to="/admin" replace />;
     return <Navigate to="/candidate/jobs" replace />;
@@ -87,6 +88,7 @@ const App: React.FC = () => {
             {/* Public Routes (No Layout) */}
             <Route path="/" element={<HomeRoute />} />
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/blogs" element={<Blogs />} />
 
             {/* Admin Routes (No Standard Layout) */}
             <Route path="/admin" element={

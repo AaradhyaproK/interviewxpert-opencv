@@ -4,7 +4,7 @@ import { doc, setDoc, serverTimestamp, addDoc, collection, getDoc } from 'fireba
 import { auth, db } from '../services/firebase';
 import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
-import { BackgroundPaths } from '../components/FloatingPaths';
+import { BackgroundPaths } from '../components/landing/FloatingPaths';
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);

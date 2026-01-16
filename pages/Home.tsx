@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { Menu, X, Sun, Moon, FileText, Mic, CheckCircle } from 'lucide-react';
+import { Menu, X, Sun, Moon, FileText, Mic, CheckCircle, GraduationCap, Briefcase, Shuffle, Brain, FileSearch, MessageSquare, User, Bot, Code, Rocket, Video, Target } from 'lucide-react';
+import { BentoGrid, BentoCard } from '../components/landing/BentoGrid';
+
+import { AnimatedBeam } from '../components/landing/AnimatedBeam';
+import OrbitingCircles from '../components/landing/OrbitingCircles';
+import { AnimatedList, AnimatedListItem } from '../components/landing/AnimatedList';
 import { ThemeProvider, useTheme } from '../context/ThemeContext';
+import { ProgressiveBlur } from '../components/landing/ProgressiveBlur';
+import { Marquee } from '../components/landing/Marquee';
 
 // --- Components ---
 
@@ -180,6 +187,7 @@ const Navbar: React.FC = () => {
     { name: "How it Works", href: "#process" },
     { name: "Pricing", href: "#pricing" },
     { name: "FAQ", href: "#faq" },
+    { name: "Blogs", href: "/blogs", isRoute: true },
   ];
 
   return (
@@ -208,15 +216,25 @@ const Navbar: React.FC = () => {
           </a>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+          <div className="hidden md:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`text-sm font-medium transition-colors ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
-              >
-                {link.name}
-              </a>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className={`text-sm font-medium transition-colors ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors ${isDark ? 'text-slate-300 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  {link.name}
+                </a>
+              )
             ))}
           </div>
 
@@ -280,14 +298,25 @@ const Navbar: React.FC = () => {
         >
           <div className="flex flex-col gap-6">
             {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-2xl font-display font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
-              >
-                {link.name}
-              </a>
+              link.isRoute ? (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`text-2xl font-display font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
+                >
+                  {link.name}
+                </Link>
+              ) : (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`text-2xl font-display font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}
+                >
+                  {link.name}
+                </a>
+              )
             ))}
             <div className={`h-px my-4 ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`} />
             <Link to="/auth" className={`text-xl font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Log in</Link>
@@ -443,81 +472,247 @@ const Hero: React.FC = () => (
   </div>
 );
 
-const WhoItsFor: React.FC = () => (
-  <section className="py-16 md:py-24">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-16">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Who is InterviewXpert for?</h2>
-        <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">Tailored solutions for every stage of your career journey.</p>
+const WhoItsFor: React.FC = () => {
+  const features = [
+    {
+      Icon: GraduationCap,
+      name: "Students & Grads",
+      description: "Land your first internship or full-time role with resume optimization and basic interview prep.",
+      href: "/auth",
+      cta: "Get Started",
+      background: <div className="absolute -right-20 -top-20 opacity-60 pointer-events-none text-blue-100 dark:text-blue-900/20"><GraduationCap size={200} /></div>,
+      className: "md:col-span-1 border-blue-100 dark:border-blue-900/50 hover:border-blue-200 dark:hover:border-blue-800",
+      iconClassName: "text-blue-600 dark:text-blue-400",
+    },
+    {
+      Icon: Briefcase,
+      name: "Professionals",
+      description: "Level up your career. Practice advanced behavioral questions and system design scenarios.",
+      href: "/auth",
+      cta: "Start Practicing",
+      background: <div className="absolute -right-20 -top-20 opacity-60 pointer-events-none text-purple-100 dark:text-purple-900/20"><Briefcase size={200} /></div>,
+      className: "md:col-span-1 border-purple-100 dark:border-purple-900/50 hover:border-purple-200 dark:hover:border-purple-800",
+      iconClassName: "text-purple-600 dark:text-purple-400",
+    },
+    {
+      Icon: Shuffle,
+      name: "Career Switchers",
+      description: "Transition smoothly into tech or management with role-specific guidance and skill gap analysis.",
+      href: "/auth",
+      cta: "Transform Career",
+      background: <div className="absolute -right-20 -top-20 opacity-60 pointer-events-none text-orange-100 dark:text-orange-900/20"><Shuffle size={200} /></div>,
+      className: "md:col-span-1 border-orange-100 dark:border-orange-900/50 hover:border-orange-200 dark:hover:border-orange-800",
+      iconClassName: "text-orange-500 dark:text-orange-400",
+    },
+  ];
+
+  return (
+    <section className="py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Who is InterviewXpert for?</h2>
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">Tailored solutions for every stage of your career journey.</p>
+        </div>
+        <BentoGrid>
+          {features.map((feature) => (
+            <BentoCard key={feature.name} {...feature} />
+          ))}
+        </BentoGrid>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        <div className="p-8 rounded-2xl bg-slate-50 dark:bg-black/80 backdrop-blur-sm border border-slate-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900 transition-all hover:shadow-lg">
-          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 text-xl mb-6"><i className="fas fa-user-graduate"></i></div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Students & Grads</h3>
-          <p className="text-slate-600 dark:text-slate-400">Land your first internship or full-time role with resume optimization and basic interview prep.</p>
+    </section>
+  );
+
+};
+
+const SmartAnalysisCard = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
+  const resumeRef = useRef<HTMLDivElement>(null);
+  const experienceRef = useRef<HTMLDivElement>(null);
+  const educationRef = useRef<HTMLDivElement>(null);
+  const skillsRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl p-4 sm:p-6 bg-white dark:bg-black/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 shadow-xl md:col-span-1">
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="relative z-10 pointer-events-none">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center text-purple-600 dark:text-purple-400 mb-3 sm:mb-4">
+          <Brain size={20} className="sm:hidden" />
+          <Brain size={24} className="hidden sm:block" />
         </div>
-        <div className="p-8 rounded-2xl bg-slate-50 dark:bg-black/80 backdrop-blur-sm border border-slate-100 dark:border-slate-800 hover:border-purple-200 dark:hover:border-purple-900 transition-all hover:shadow-lg">
-          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 text-xl mb-6"><i className="fas fa-briefcase"></i></div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Professionals</h3>
-          <p className="text-slate-600 dark:text-slate-400">Level up your career. Practice advanced behavioral questions and system design scenarios.</p>
+        <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">Smart Analysis</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Global standards benchmarking for your profile.</p>
+      </div>
+
+      {/* Animation Container - Hub and Spoke Layout */}
+      <div className="relative flex w-full flex-1 items-center justify-center min-h-[200px] sm:min-h-[240px] mt-2" ref={containerRef}>
+        {/* Left Column - Input Icons */}
+        <div className="absolute left-2 sm:left-4 flex flex-col gap-4 sm:gap-6">
+          <div ref={resumeRef} className="z-10 bg-white dark:bg-slate-900 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-shadow">
+            <FileText className="text-blue-500 dark:text-blue-400 h-4 w-4 sm:h-5 sm:w-5" />
+          </div>
+          <div ref={experienceRef} className="z-10 bg-white dark:bg-slate-900 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-shadow">
+            <Briefcase className="text-green-500 dark:text-green-400 h-4 w-4 sm:h-5 sm:w-5" />
+          </div>
         </div>
-        <div className="p-8 rounded-2xl bg-slate-50 dark:bg-black/80 backdrop-blur-sm border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900 transition-all hover:shadow-lg">
-          <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-600 text-xl mb-6"><i className="fas fa-random"></i></div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Career Switchers</h3>
-          <p className="text-slate-600 dark:text-slate-400">Transition smoothly into tech or management with role-specific guidance and skill gap analysis.</p>
+
+        {/* Center - AI Brain Hub */}
+        <div ref={centerRef} className="z-20 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/50 dark:to-purple-800/50 p-3 sm:p-4 rounded-2xl border border-purple-200 dark:border-purple-700 shadow-xl">
+          <Brain className="text-purple-600 dark:text-purple-400 h-6 w-6 sm:h-8 sm:w-8" />
         </div>
+
+        {/* Right Column - Output/Additional Icons */}
+        <div className="absolute right-2 sm:right-4 flex flex-col gap-4 sm:gap-6">
+          <div ref={educationRef} className="z-10 bg-white dark:bg-slate-900 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-shadow">
+            <GraduationCap className="text-orange-500 dark:text-orange-400 h-4 w-4 sm:h-5 sm:w-5" />
+          </div>
+          <div ref={skillsRef} className="z-10 bg-white dark:bg-slate-900 p-2 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-shadow">
+            <Code className="text-cyan-500 dark:text-cyan-400 h-4 w-4 sm:h-5 sm:w-5" />
+          </div>
+        </div>
+
+        {/* Animated Beams - Left to Center */}
+        <AnimatedBeam
+          containerRef={containerRef}
+          fromRef={resumeRef}
+          toRef={centerRef}
+          curvature={-40}
+          gradientStartColor="#3b82f6"
+          gradientStopColor="#8b5cf6"
+        />
+        <AnimatedBeam
+          containerRef={containerRef}
+          fromRef={experienceRef}
+          toRef={centerRef}
+          curvature={40}
+          gradientStartColor="#22c55e"
+          gradientStopColor="#8b5cf6"
+        />
+
+        {/* Animated Beams - Center to Right */}
+        <AnimatedBeam
+          containerRef={containerRef}
+          fromRef={centerRef}
+          toRef={educationRef}
+          curvature={-40}
+          gradientStartColor="#8b5cf6"
+          gradientStopColor="#f97316"
+        />
+        <AnimatedBeam
+          containerRef={containerRef}
+          fromRef={centerRef}
+          toRef={skillsRef}
+          curvature={40}
+          gradientStartColor="#8b5cf6"
+          gradientStopColor="#06b6d4"
+        />
       </div>
     </div>
-  </section>
-);
+  );
+};
 
-const Features: React.FC = () => (
-  <section id="features" className="py-16 md:py-24 relative">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="text-center mb-20">
-        <h2 className="text-primary font-bold tracking-wide uppercase text-sm mb-2">All-in-One Platform</h2>
-        <p className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
-          Complete Career Acceleration
-        </p>
+const Features: React.FC = () => {
+  return (
+    <section id="features" className="py-16 md:py-24 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-20">
+          <h2 className="text-primary font-bold tracking-wide uppercase text-sm mb-2">All-in-One Platform</h2>
+          <p className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
+            Complete Career Acceleration
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 auto-rows-[28rem]">
+          {/* Feature 1: AI Resume Builder (Animated List) */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 bg-white dark:bg-black/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 shadow-xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4">
+                <FileText size={24} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">AI Resume Builder</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm">Real-time keyword optimization against job descriptions.</p>
+            </div>
+
+            <div className="relative mt-8 h-full max-h-[220px] overflow-hidden mask-linear-fade">
+              <AnimatedList delay={1500} className="w-full">
+                <div className="w-full bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                  <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center text-green-600"><CheckCircle size={16} /></div>
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-500">Resume Score</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">Increased to 92</p>
+                  </div>
+                </div>
+                <div className="w-full bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center text-blue-600"><FileSearch size={16} /></div>
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-500">Keywords Found</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">React, TypeScript, AWS</p>
+                  </div>
+                </div>
+                <div className="w-full bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-3">
+                  <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center text-purple-600"><Brain size={16} /></div>
+                  <div className="flex-1">
+                    <p className="text-xs text-slate-500">AI Suggestion</p>
+                    <p className="font-bold text-slate-900 dark:text-white text-sm">Add 'System Design' skills</p>
+                  </div>
+                </div>
+              </AnimatedList>
+              <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-white dark:from-black/80 to-transparent pointer-events-none" />
+            </div>
+          </div>
+
+          {/* Feature 2: Smart Analysis (Animated Beam) */}
+          <SmartAnalysisCard />
+
+          {/* Feature 3: Mock Interviews (Orbiting Circles) */}
+          <div className="group relative flex flex-col justify-between overflow-hidden rounded-3xl p-4 sm:p-6 bg-white dark:bg-black/80 backdrop-blur-sm border border-slate-200 dark:border-slate-800 shadow-xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10 pointer-events-none">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center text-orange-600 dark:text-orange-400 mb-3 sm:mb-4">
+                <Mic size={20} className="sm:hidden" />
+                <Mic size={24} className="hidden sm:block" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">AI Mock Interviews</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm">Practice with diverse AI personas revolving around you.</p>
+            </div>
+
+            {/* Mobile-optimized orbiting circles container */}
+            <div className="relative flex-1 w-full flex items-center justify-center mt-3 sm:mt-4 min-h-[200px] sm:min-h-[280px]">
+              <div className="relative flex h-[200px] sm:h-[280px] w-full items-center justify-center overflow-hidden">
+                {/* Center User Icon */}
+                <div className="z-10 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 p-3 sm:p-5 rounded-full border border-slate-300 dark:border-slate-600 shadow-xl">
+                  <User className="w-7 h-7 sm:w-10 sm:h-10 text-slate-700 dark:text-slate-300" />
+                </div>
+
+                {/* Inner Orbit - Video (Interview) - Mobile: radius 45, Desktop: radius 60 */}
+                <OrbitingCircles className="h-[32px] w-[32px] sm:h-[40px] sm:w-[40px] border-none bg-transparent" duration={15} delay={0} radius={60} mobileRadius={45} path={true}>
+                  <div className="p-1.5 sm:p-2 bg-gradient-to-br from-blue-400 to-blue-600 dark:from-blue-500 dark:to-blue-700 rounded-full shadow-lg shadow-blue-500/30">
+                    <Video className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
+                  </div>
+                </OrbitingCircles>
+
+                {/* Middle Orbit - MessageSquare (Q&A) - Mobile: radius 70, Desktop: radius 100 */}
+                <OrbitingCircles className="h-[36px] w-[36px] sm:h-[44px] sm:w-[44px] border-none bg-transparent" duration={20} delay={0} radius={100} mobileRadius={70} path={true} reverse>
+                  <div className="p-1.5 sm:p-2.5 bg-gradient-to-br from-green-400 to-green-600 dark:from-green-500 dark:to-green-700 rounded-full shadow-lg shadow-green-500/30">
+                    <MessageSquare className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                </OrbitingCircles>
+
+                {/* Outer Orbit - Target (Goals/Success) - Mobile: radius 95, Desktop: radius 140 */}
+                <OrbitingCircles className="h-[40px] w-[40px] sm:h-[48px] sm:w-[48px] border-none bg-transparent" duration={25} delay={0} radius={140} mobileRadius={95} path={true}>
+                  <div className="p-2 sm:p-3 bg-gradient-to-br from-orange-400 to-orange-600 dark:from-orange-500 dark:to-orange-700 rounded-full shadow-lg shadow-orange-500/30">
+                    <Target className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                </OrbitingCircles>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-        {/* Feature 1 */}
-        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-blue-600 dark:hover:bg-blue-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-          <div className="w-16 h-16 bg-blue-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-blue-600 dark:text-blue-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-            <i className="fa-solid fa-file-pen"></i>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Resume Builder</h3>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-blue-100">
-            Create professional, ATS-friendly resumes in minutes. Choose from modern templates and let AI suggest improvements.
-          </p>
-        </div>
-
-        {/* Feature 2 */}
-        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-purple-600 dark:hover:bg-purple-700 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-          <div className="w-16 h-16 bg-purple-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-purple-600 dark:text-purple-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-            <i className="fa-solid fa-magnifying-glass-chart"></i>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">Smart Resume Analysis</h3>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-purple-100">
-            Get instant feedback on your resume. Our AI scores your resume against job descriptions and highlights missing keywords.
-          </p>
-        </div>
-
-        {/* Feature 3 */}
-        <div className="group relative bg-white dark:bg-black/80 backdrop-blur-sm rounded-3xl p-8 hover:bg-orange-500 dark:hover:bg-orange-600 transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-800 shadow-sm">
-          <div className="w-16 h-16 bg-orange-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-3xl text-orange-500 dark:text-orange-400 mb-6 shadow-sm group-hover:scale-110 transition-transform group-hover:bg-white dark:group-hover:bg-slate-900">
-            <i className="fa-solid fa-video"></i>
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4 group-hover:text-white">AI Mock Interviews</h3>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed group-hover:text-orange-100">
-            Practice with a fully automated AI interviewer that adapts to your responses and provides real-time performance metrics.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const HowItWorks: React.FC = () => (
   <section id="process" className="py-16 md:py-24 overflow-hidden">
@@ -801,6 +996,10 @@ const TestimonialCard: React.FC<{ testimonial: typeof testimonials[0] }> = ({ te
 );
 
 const Testimonials: React.FC = () => {
+  // Split testimonials into two rows for visual variety
+  const firstRow = testimonials.slice(0, 3);
+  const secondRow = testimonials.slice(3);
+
   return (
     <section id="testimonials" className="py-16 md:py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -815,37 +1014,25 @@ const Testimonials: React.FC = () => {
         </div>
       </div>
 
-      {/* Scrolling Container */}
-      <div className="relative overflow-hidden">
-        {/* Animation Styles */}
-        <style>{`
-          @keyframes scrollTestimonials {
-            0% {
-              transform: translateX(0);
-            }
-            100% {
-              transform: translateX(-50%);
-            }
-          }
-        `}</style>
-
-        {/* Animated Track */}
-        <div
-          className="flex gap-6 py-4 px-4"
-          style={{
-            animation: 'scrollTestimonials 40s linear infinite',
-            width: 'max-content'
-          }}
-        >
-          {/* Render testimonials twice for seamless infinite loop */}
-          {[...testimonials, ...testimonials].map((testimonial, index) => (
-            <TestimonialCard key={`${testimonial.id}-${index}`} testimonial={testimonial} />
+      {/* Marquee Container */}
+      <div className="relative">
+        {/* First Row - Left to Right */}
+        <Marquee pauseOnHover className="[--duration:35s] [--gap:1.5rem]">
+          {firstRow.map((testimonial) => (
+            <TestimonialCard key={testimonial.id} testimonial={testimonial} />
           ))}
-        </div>
+        </Marquee>
+
+        {/* Second Row - Right to Left */}
+        <Marquee reverse pauseOnHover className="[--duration:35s] [--gap:1.5rem] mt-6">
+          {secondRow.map((testimonial) => (
+            <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+          ))}
+        </Marquee>
 
         {/* Gradient Overlays for Visual Effect */}
-        <div className="absolute top-0 left-0 w-20 md:w-32 h-full bg-gradient-to-r from-slate-50 dark:from-slate-950 to-transparent pointer-events-none z-10" />
-        <div className="absolute top-0 right-0 w-20 md:w-32 h-full bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent pointer-events-none z-10" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-slate-50 dark:from-slate-950 to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-slate-50 dark:from-slate-950 to-transparent z-10" />
       </div>
     </section>
   );
@@ -1066,15 +1253,33 @@ const Home: React.FC = () => {
         <Navbar />
         <main>
           <NeuralBackground />
-          <Hero />
-          <WhoItsFor />
-          <Features />
-          <HowItWorks />
-          <LiveDemo />
-          <Testimonials />
-          <Pricing />
-          <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
-          <FinalCTA />
+          <ProgressiveBlur blurOnEntry={false} blurOnExit={true} maxBlur={8} blurRange={0.25}>
+            <Hero />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={1} maxBlur={12} blurRange={0.2}>
+            <WhoItsFor />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={2} maxBlur={12} blurRange={0.2}>
+            <Features />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={3} maxBlur={12} blurRange={0.2}>
+            <HowItWorks />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={4} maxBlur={12} blurRange={0.2}>
+            <LiveDemo />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={5} maxBlur={12} blurRange={0.2}>
+            <Testimonials />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={6} maxBlur={12} blurRange={0.2}>
+            <Pricing />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={7} maxBlur={12} blurRange={0.2}>
+            <FAQ openFaq={openFaq} toggleFaq={toggleFaq} />
+          </ProgressiveBlur>
+          <ProgressiveBlur delay={8} blurOnEntry={true} blurOnExit={false} maxBlur={8} blurRange={0.25}>
+            <FinalCTA />
+          </ProgressiveBlur>
         </main>
         <Footer />
       </div>
