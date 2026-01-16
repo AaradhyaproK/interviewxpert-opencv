@@ -2,7 +2,11 @@
 
 # InterviewXpert
 
-<img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" width="180"/>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png">
+  <source media="(prefers-color-scheme: light)" srcset="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png">
+  <img src="https://i.ibb.co/3y9DKsB6/Yellow-and-Black-Illustrative-Education-Logo-1.png" alt="InterviewXpert Logo" width="180" style="background-color: white; padding: 10px; border-radius: 12px;"/>
+</picture>
 
 ### **Master Your Next Interview with AI-Powered Preparation**
 
@@ -433,19 +437,19 @@ VITE_GOOGLE_GENAI_API_KEY=your_genai_key
 ```mermaid
 flowchart TD
     A[User Visits Route] --> B{Authenticated?}
-    B -->|No| C[Redirect to /auth]
+    B -->|No| C["Redirect to /auth"]
     B -->|Yes| D{Check Role}
     
-    D -->|Candidate| E[/candidate/* routes]
-    D -->|Recruiter| F[/recruiter/* routes]
-    D -->|Admin| G[/admin/* routes]
+    D -->|Candidate| E["Candidate Routes"]
+    D -->|Recruiter| F["Recruiter Routes"]
+    D -->|Admin| G["Admin Routes"]
     
     E --> H{Route Matches Role?}
     F --> H
     G --> H
     
     H -->|Yes| I[Allow Access]
-    H -->|No| J[Redirect to Role Dashboard]
+    H -->|No| J[Redirect to Dashboard]
 ```
 
 ### Available Routes
@@ -587,26 +591,6 @@ erDiagram
 
 ---
 
-## Screenshots
-
-<div align="center">
-
-| Landing Page | Authentication |
-|:------------:|:--------------:|
-| ![Landing](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Landing+Page) | ![Auth](https://via.placeholder.com/400x250/16213e/ffffff?text=Auth+Page) |
-
-| Candidate Dashboard | AI Interview |
-|:-------------------:|:------------:|
-| ![Dashboard](https://via.placeholder.com/400x250/0f3460/ffffff?text=Candidate+Dashboard) | ![Interview](https://via.placeholder.com/400x250/533483/ffffff?text=AI+Interview) |
-
-| Recruiter Panel | Interview Report |
-|:---------------:|:----------------:|
-| ![Recruiter](https://via.placeholder.com/400x250/e94560/ffffff?text=Recruiter+Panel) | ![Report](https://via.placeholder.com/400x250/1a1a2e/ffffff?text=Interview+Report) |
-
-</div>
-
----
-
 ## Testing
 
 ### Running the Application
@@ -658,14 +642,12 @@ npm run build
 
 ## Contributors
 
-<div align="center">
+Developed and designed by:
 
-| <img src="https://via.placeholder.com/100" width="100px" style="border-radius:50%"/> | <img src="public/nimesh-kulkarni.jpg" width="100px" style="border-radius:50%"/> | <img src="public/bhavesh-patil.jpg" width="100px" style="border-radius:50%"/> | <img src="https://via.placeholder.com/100" width="100px" style="border-radius:50%"/> |
-|:---:|:---:|:---:|:---:|
-| **Aaradhya Pathak** | **Nimesh Kulkarni** | **Bhavesh Patil** | **Sanika Wadnekar** |
-| Full Stack Developer | Developer | Developer | Developer |
-
-</div>
+- **Aaradhya Pathak** - Full Stack Developer
+- **Nimesh Kulkarni** - Developer
+- **Bhavesh Patil** - Developer
+- **Sanika Wadnekar** - Developer
 
 ---
 
