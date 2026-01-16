@@ -1000,9 +1000,9 @@ const Footer: React.FC = () => (
                     />
                   </div>
                   <h4 className="font-bold text-lg text-slate-900 dark:text-white">Nimesh Kulkarni</h4>
-                  <div className="text-xs font-bold text-primary bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full mb-3 mt-1">Cybersecurity & DevSecOps</div>
+                  <div className="text-xs font-bold text-primary bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full mb-3 mt-1">DevOps & Cloud</div>
                   <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-400 text-justify mb-4">
-                    An engineering student focused on cybersecurity, cloud security, and DevSecOps, with a strong preference for hands-on, project-driven learning. Passionate about building impactful software while continuously improving technical skills, confidence, and overall discipline.
+                    An engineering student focused on DevOps, cloud infrastructure, and automation, with a strong preference for hands-on, project-driven learning. Passionate about building scalable systems, CI/CD pipelines, and continuously improving technical skills through real-world deployments.
                   </p>
                   <a href="https://nimesh-portfolio-iota.vercel.app/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-xs font-bold px-5 py-2 rounded-full hover:from-blue-700 hover:to-blue-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
                     <i className="fa-solid fa-globe"></i> View Portfolio
