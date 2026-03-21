@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, addDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
-import { useAuth } from '../context/AuthContext';
 import { uploadToCloudinary, generateInterviewQuestions, requestTranscription, fetchTranscriptText, generateFeedback } from '../services/api';
-import { Job, InterviewState } from '../types';
+import { Interview, InterviewState } from '../types';
 import Recharts from 'recharts'; // Dummy import
 
 // --- Types ---
-type WizardStep = 'check-exists' | 'instructions' | 'check-profile' | 'setup' | 'interview' | 'processing' | 'finish';
+type WizardStep = 'collect-info' | 'instructions' | 'setup' | 'interview' | 'processing' | 'finish';
+type CandidateInfo = { name: string; email: string; phone: string };
 
 // --- Helper: Load Face API ---
 const loadFaceAPI = (onLoaded: () => void) => {
@@ -100,14 +100,15 @@ const TicTacToe: React.FC = () => {
 };
 
 // --- Main Wizard Component ---
-const InterviewWizard: React.FC = () => {
-  const { jobId } = useParams();
-  const { user, userProfile } = useAuth();
+const CandidateInterviewFlow: React.FC = () => {
+  const { interviewId } = useParams();
   const navigate = useNavigate();
 
-  // Global Interview State
-  const [step, setStep] = useState<WizardStep>('check-exists');
-  const [job, setJob] = useState<Job | null>(null);
+  // State
+  const [step, setStep] = useState<WizardStep>('collect-info');
+  const [interview, setInterview] = useState<Interview | null>(null);
+  const [candidateInfo, setCandidateInfo] = useState<CandidateInfo>({ name: '', email: '', phone: '' });
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [interviewState, setInterviewState] = useState<InterviewState>({
     jobId: '', jobTitle: '', jobDescription: '', candidateResumeURL: null, candidateResumeMimeType: null,
     questions: [], answers: [], videoURLs: [], transcriptIds: [], transcriptTexts: [], currentQuestionIndex: 0
@@ -119,88 +120,68 @@ const InterviewWizard: React.FC = () => {
   const [speedStatus, setSpeedStatus] = useState<string | null>(null);
   const [cvStats, setCvStats] = useState<any>(null);
 
-  // 1. Init
+  // 1. Fetch Interview Details
   useEffect(() => {
     const init = async () => {
-      if (!user || !jobId) return;
+      if (!interviewId) {
+        setErrorMsg("Interview ID not found in URL.");
+        return;
+      }
       try {
-        const q = query(collection(db, 'interviews'), where('candidateUID', '==', user.uid), where('jobId', '==', jobId));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-          alert("Interview already completed.");
-          navigate('/candidate/interviews');
-          return;
-        }
-        const jobDoc = await getDoc(doc(db, 'jobs', jobId));
-        if (!jobDoc.exists()) throw new Error("Job not found");
-        setJob({ id: jobDoc.id, ...jobDoc.data() } as Job);
-        setStep('instructions');
-      } catch (err) { setErrorMsg("Initialization failed."); }
+        const interviewDoc = await getDoc(doc(db, 'interviews', interviewId));
+        if (!interviewDoc.exists()) throw new Error("This interview does not exist or has been closed.");
+        const interviewData = { id: interviewDoc.id, ...interviewDoc.data() } as Interview;
+        setInterview(interviewData);
+        setInterviewState(prev => ({ ...prev, jobTitle: interviewData.title, jobDescription: interviewData.description }));
+      } catch (err: any) { setErrorMsg(err.message); }
     };
     init();
-  }, [user, jobId, navigate]);
+  }, [interviewId]);
 
-  // 2. Profile Logic (Replaces Resume Upload)
-  const handleStartWithProfile = async () => {
-    if (!user || !job) return;
-
-    // Trigger fullscreen immediately on user interaction
-    try {
-      if (document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      }
-    } catch (e) {
-      console.error("Fullscreen blocked", e);
+  // 2. Handle Candidate Info Submission
+  const handleInfoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resumeFile || !candidateInfo.name || !candidateInfo.email) {
+      setErrorMsg("Please fill in all required fields and upload your resume.");
+      return;
     }
+    
+    try {
+        if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+    } catch(e) { console.error("Fullscreen blocked", e); }
 
-    setLoadingMsg("Analyzing your profile data...");
     setStep('setup');
+    setLoadingMsg("Processing your information...");
 
     try {
-      // Fetch detailed profile data from 'profiles' collection
-      const profileDocRef = doc(db, 'profiles', user.uid);
-      const profileDocSnap = await getDoc(profileDocRef);
-      const profileData = profileDocSnap.exists() ? profileDocSnap.data() : {};
+      let resumeText = '';
+      if(resumeFile.type === 'text/plain'){
+          resumeText = await resumeFile.text();
+      } else if (resumeFile.type === 'application/pdf') {
+          resumeText = `(Simulated PDF text) Name: ${candidateInfo.name}, Email: ${candidateInfo.email}`;
+      }
 
-      // Combine with AuthContext userProfile
-      const combinedProfile = {
-        fullname: userProfile?.fullname || user.displayName || 'Candidate',
-        skills: profileData.skills || '',
-        experienceText: profileData.experience || '', // Detailed experience text
-        experienceYears: userProfile?.experience || 0, // Numeric years
-        bio: profileData.bio || '',
-        education: profileData.education || ''
-      };
-
-      // Construct a text representation of the profile to act as the "resume"
-      const profileText = `
-        Name: ${combinedProfile.fullname}
-        Skills: ${combinedProfile.skills}
-        Experience (Years): ${combinedProfile.experienceYears}
-        Experience Details: ${combinedProfile.experienceText}
-        Bio: ${combinedProfile.bio}
-        Education: ${combinedProfile.education}
-      `;
-
-      // Convert text to base64 for the AI generator
-      const base64String = btoa(unescape(encodeURIComponent(profileText)));
-      // Use Data URI to avoid uploading text file as image/raw which might fail validation
-      const resumeUrl = `data:text/plain;base64,${base64String}`;
-
-      setLoadingMsg("AI is generating tailored questions based on your profile... (approx 30s)");
+      const base64String = btoa(unescape(encodeURIComponent(resumeText)));
+      const resumeUrl = `data:${resumeFile.type};base64,${base64String}`;
+      
+      setLoadingMsg("AI is generating tailored questions... (approx 30s)");
       const questions = await generateInterviewQuestions(
-        job.title, job.description, `${combinedProfile.experienceYears} years`, base64String, 'text/plain'
+        interview!.title, interview!.description, "0 years", base64String, resumeFile.type
       );
 
       setInterviewState(prev => ({
-        ...prev, jobId: job.id, jobTitle: job.title, jobDescription: job.description, candidateResumeURL: resumeUrl, candidateResumeMimeType: 'text/plain',
-        questions: questions, answers: Array(questions.length).fill(null), videoURLs: Array(questions.length).fill(null), transcriptIds: Array(questions.length).fill(null), transcriptTexts: Array(questions.length).fill(null),
+        ...prev, questions, candidateResumeURL: resumeUrl, candidateResumeMimeType: resumeFile.type,
+        answers: Array(questions.length).fill(null), videoURLs: Array(questions.length).fill(null), 
+        transcriptIds: Array(questions.length).fill(null), transcriptTexts: Array(questions.length).fill(null),
       }));
-      setStep('interview');
+      setStep('instructions');
 
-    } catch (err: any) { setErrorMsg(err.message); setStep('check-profile'); }
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to process resume.");
+      setStep('collect-info');
+    }
   };
-
+  
   const checkSpeed = () => {
     setSpeedStatus("Checking...");
     const start = Date.now();
@@ -220,12 +201,37 @@ const InterviewWizard: React.FC = () => {
     </div>
   );
 
-  if (step === 'check-exists' || !job) {
+  if (!interview) {
     return (
       <Container>
-        <div className="relative w-20 h-20">
-          <div className="absolute inset-0 border-t-4 border-blue-500 rounded-full animate-spin"></div>
-          <div className="absolute inset-3 border-t-4 border-purple-500 rounded-full animate-spin reverse"></div>
+        {errorMsg ? 
+          <div className="text-red-500 bg-red-100 dark:bg-red-900/20 p-4 rounded-lg">{errorMsg}</div> : 
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-3 border-t-4 border-purple-500 rounded-full animate-spin reverse"></div>
+          </div>
+        }
+      </Container>
+    );
+  }
+
+  if (step === 'collect-info') {
+    return (
+      <Container>
+        <div className="max-w-lg w-full bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+          <h2 className="text-2xl font-bold text-center mb-2">Candidate Information</h2>
+          <p className="text-center text-gray-500 dark:text-gray-400 mb-6">Please provide your details to begin.</p>
+          {errorMsg && <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm">{errorMsg}</div>}
+          <form onSubmit={handleInfoSubmit} className="space-y-4">
+            <input type="text" placeholder="Full Name" required value={candidateInfo.name} onChange={e => setCandidateInfo({...candidateInfo, name: e.target.value})} className="w-full p-3 border rounded dark:bg-gray-700 dark:border-gray-600" />
+            <input type="email" placeholder="Email Address" required value={candidateInfo.email} onChange={e => setCandidateInfo({...candidateInfo, email: e.target.value})} className="w-full p-3 border rounded dark:bg-gray-700 dark:border-gray-600" />
+            <input type="tel" placeholder="Contact Number" value={candidateInfo.phone} onChange={e => setCandidateInfo({...candidateInfo, phone: e.target.value})} className="w-full p-3 border rounded dark:bg-gray-700 dark:border-gray-600" />
+            <div>
+              <label className="text-sm text-gray-600 dark:text-gray-400">Resume (PDF or TXT)</label>
+              <input type="file" required accept=".pdf,.txt" onChange={e => setResumeFile(e.target.files ? e.target.files[0] : null)} className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600" />
+            </div>
+            <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700">Proceed to Interview</button>
+          </form>
         </div>
       </Container>
     );
@@ -238,7 +244,7 @@ const InterviewWizard: React.FC = () => {
           <h2 className="text-3xl font-extrabold text-center mb-2 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Ready for your AI Interview?
           </h2>
-          <p className="text-center text-gray-500 dark:text-gray-400 mb-8">Role: {job.title}</p>
+          <p className="text-center text-gray-500 dark:text-gray-400 mb-8">Role: {interview.title}</p>
 
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <div className="bg-white dark:bg-gray-800 p-4 rounded-xl flex items-start gap-4 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -263,40 +269,8 @@ const InterviewWizard: React.FC = () => {
             <button onClick={checkSpeed} className="text-sm font-medium flex items-center gap-2 text-gray-500 hover:text-blue-600 transition-colors">
               <i className="fas fa-wifi"></i> Check Speed {speedStatus && <span className={`px-2 py-0.5 rounded text-xs ${speedStatus.includes('Excellent') || speedStatus.includes('Good') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{speedStatus}</span>}
             </button>
-            <button onClick={() => setStep('check-profile')} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:scale-[1.02] transition-all">
+            <button onClick={() => setStep('interview')} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:scale-[1.02] transition-all">
               I'm Ready, Let's Go
-            </button>
-          </div>
-        </div>
-      </Container>
-    );
-  }
-
-  if (step === 'check-profile') {
-    return (
-      <Container>
-        <div className="max-w-md w-full p-4 md:p-0">
-          <h2 className="text-2xl font-bold mb-2">Profile Check</h2>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">We will use your profile data to generate interview questions.</p>
-
-          {errorMsg && <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm border border-red-200 dark:border-red-800">{errorMsg}</div>}
-
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl mb-6 shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-300">
-                <i className="fas fa-user-circle text-xl"></i>
-              </div>
-              <div>
-                <h4 className="font-bold text-gray-800 dark:text-white">{userProfile?.fullname}</h4>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Profile Data Ready</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <button onClick={() => setStep('instructions')} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 font-medium">Back</button>
-            <button onClick={handleStartWithProfile} className="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 shadow-md">
-              Start Interview
             </button>
           </div>
         </div>
@@ -335,7 +309,7 @@ const InterviewWizard: React.FC = () => {
   }
 
   if (step === 'finish') {
-    return <InterviewSubmission state={interviewState} tabSwitches={tabSwitches} user={user!} userProfile={userProfile!} cvStats={cvStats} />;
+    return <InterviewSubmission state={interviewState} tabSwitches={tabSwitches} interviewId={interviewId!} candidateInfo={candidateInfo} cvStats={cvStats} />;
   }
 
   return null;
@@ -862,10 +836,10 @@ const ActiveInterviewSession: React.FC<{
 const InterviewSubmission: React.FC<{
   state: InterviewState;
   tabSwitches: number;
-  user: any;
-  userProfile: any;
+  interviewId: string;
+  candidateInfo: CandidateInfo;
   cvStats: any;
-}> = ({ state, tabSwitches, user, userProfile, cvStats }) => {
+}> = ({ state, tabSwitches, interviewId, candidateInfo, cvStats }) => {
   const [status, setStatus] = useState("Finalizing transcripts...");
   const navigate = useNavigate();
   const [factIndex, setFactIndex] = useState(0);
@@ -904,24 +878,30 @@ const InterviewSubmission: React.FC<{
         reader.onloadend = async () => {
           const base64Resume = (reader.result as string).split(',')[1];
           const feedbackRaw = await generateFeedback(
-            state.jobTitle, state.jobDescription, `${userProfile.experience} years`, base64Resume, state.candidateResumeMimeType!, state.questions, transcriptTexts
+            state.jobTitle, state.jobDescription, `0 years`, base64Resume, state.candidateResumeMimeType!, state.questions, transcriptTexts
           );
           const parseScore = (regex: RegExp) => (feedbackRaw.match(regex) ? feedbackRaw.match(regex)![1] + "/100" : "N/A");
 
           setStatus("Saving Report...");
-          const docRef = await addDoc(collection(db, 'interviews'), {
-            ...state, transcriptTexts, feedback: feedbackRaw,
-            score: parseScore(/Overall Score:\s*(\d{1,3})/i),
-            resumeScore: parseScore(/Resume Score:\s*(\d{1,3})/i),
-            qnaScore: parseScore(/Q&A Score:\s*(\d{1,3})/i),
-            candidateUID: user.uid, candidateName: userProfile.fullname, candidateEmail: user.email, status: 'Pending', submittedAt: serverTimestamp(), meta: { tabSwitchCount: tabSwitches, cvStats }
-          });
-          navigate(`/report/${docRef.id}`);
+          const attemptData = {
+              ...state,
+              transcriptTexts, 
+              feedback: feedbackRaw,
+              score: parseScore(/Overall Score:\s*(\d{1,3})/i),
+              resumeScore: parseScore(/Resume Score:\s*(\d{1,3})/i),
+              qnaScore: parseScore(/Q&A Score:\s*(\d{1,3})/i),
+              candidateInfo,
+              status: 'Completed', 
+              submittedAt: serverTimestamp(), 
+              meta: { tabSwitchCount: tabSwitches, cvStats }
+          }
+          const docRef = await addDoc(collection(db, 'interviews', interviewId, 'attempts'), attemptData);
+          navigate(`/report/${interviewId}/${docRef.id}`);
         };
       } catch (err) { setStatus("Error saving. Please contact support."); }
     };
     finalize();
-  }, [state, navigate, user, userProfile, tabSwitches, cvStats]);
+  }, [state, navigate, interviewId, candidateInfo, tabSwitches, cvStats]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-transparent flex flex-col items-center justify-center p-4">
@@ -941,4 +921,4 @@ const InterviewSubmission: React.FC<{
   );
 };
 
-export default InterviewWizard;
+export default CandidateInterviewFlow;
